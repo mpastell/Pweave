@@ -66,7 +66,6 @@ class Pweb(object):
         self.isformatted = False
         self.usematplotlib = True
         self.usesho = False
-        self.usepygments = False
         self.defaultoptions = dict(echo = True,
                             results = 'verbatim',
                             fig = False,
@@ -81,6 +80,7 @@ class Pweb(object):
 
 
     def setformat(self, doctype = 'tex'):
+        self.doctype = doctype
         if doctype == 'tex':
             self.formatdict = dict(codestart = '\\begin{verbatim}', 
                 codeend = '\end{verbatim}\n',
@@ -91,18 +91,6 @@ class Pweb(object):
                 extension = 'tex',
                 width = '\\textwidth',
                 doctype = 'tex')
-            self.usepygments = False
-        if doctype == 'minted':
-                self.formatdict = dict(codestart = '\\begin{minted}{python}', 
-                codeend = '\end{minted}\n',
-                outputstart = '\\begin{minted}{python}', 
-                outputend = '\end{minted}\n', 
-                indent = '',
-                figfmt = '.pdf',
-                extension = 'tex',
-                width = '\\textwidth',
-                doctype = 'minted')
-
         if doctype == 'rst':
             self.formatdict = dict(codestart = '::\n', 
                 codeend = '\n\n',
@@ -160,6 +148,16 @@ class Pweb(object):
     def _fillkey(self, key, value):
         if not self.formatdict.has_key(key):
             self.formatdict[key] = value
+
+    def useminted(self):
+         if self.doctype == 'tex':
+            self.formatdict.update(dict(codestart = '\\begin{minted}{python}', 
+                codeend = '\end{minted}\n',
+                outputstart = '\\begin{minted}{python}', 
+                outputend = '\end{minted}\n',
+                termstart = '\\begin{minted}{python}',
+                termend = '\end{minted}\n'))
+            
 
     def _chunkstotuple(self, code):
         # Make a list of tuples from the list of chuncks
@@ -448,7 +446,6 @@ class Pweb(object):
             return('UNKNOWN CHUNK TYPE: %s \n' % chunk['type'])
 
         #Muista poistaa!
-        chunk = code
 
         #A doc chunk
         if chunk['type'] == 'doc':
@@ -467,32 +464,23 @@ class Pweb(object):
 
         #Term sets echo to true
         if chunk['term']:
-            if self.usepygments:
-                result = self._pygmentize(chunk['content'])
-            else:
-                chunk['result'] = self._termindent(chunk['result'])
-                result = '%(termstart)s%(result)s%(termend)s' % chunk    
+            chunk['result'] = self._termindent(chunk['result'])
+            result = '%(termstart)s%(result)s%(termend)s' % chunk    
 
         #Other things than term
         elif chunk['evaluate'] and chunk ['echo'] and chunk['results'] == 'verbatim':
-            if self.usepygments:
-                result = self._pygmentize(chunk['content'])
-            else:
-                result = codestart + self._indent(chunk['content']) + codeend
-                
+            result = codestart + self._indent(chunk['content']) + codeend
             if len(chunk['result']) > 1:
-                if self.usepygments:
-                    result += self._pygmentize(chunk['result'])
-                else:
                     chunk['result'] = self._indent(chunk['result'])
                     result += '%(outputstart)s%(result)s%(outputend)s' % chunk
         elif chunk['evaluate'] and chunk ['echo'] and chunk['results'] != 'verbatim':
                 result = (codestart + chunk['content'] + codeend +
                          chunk['result'].replace('\n', '', 1))
         elif chunk['evaluate'] and not chunk['echo']:
-                #Remove extra line added when results are captured phase
+                #Remove extra line added when results are captured in run phase
                 result = chunk['result'].replace('\n', '', 1)
         else:
+            #This a test to see if all options have been captured
             result = "\\large{NOT YET IMPLEMENTED!!\n}" 
             result += str(chunk)
         #Handle figures
