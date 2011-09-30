@@ -5,13 +5,6 @@ import StringIO
 import code
 import inspect
 from . import formatters
-try:
-    from pygments import highlight
-    from pygments.lexers import PythonLexer
-    from pygments.formatters import HtmlFormatter, LatexFormatter
-except:
-    pass
-
 
 def pweave(file, doctype = 'tex', returnglobals = True, plot = True): 
     """Process a noweb python document and write output to a file"""  
@@ -419,9 +412,7 @@ class Pweb(object):
         sys.stderr.write('UNKNOWN CHUNK TYPE: %s \n' % chunk['type'])
         return(None)
 
-    def _pygmentize(self, code):
-        highlighted = highlight(code, PythonLexer(), LatexFormatter())
-        return(highlighted)
+    
 
     def _formatchunks(self, chunk):     
         codestart = self.formatdict['codestart']

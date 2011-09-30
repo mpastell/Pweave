@@ -24,7 +24,6 @@ def addtexfigure(chunk):
         result += "\\includegraphics[width=%s]{%s}\n" % (width, figname)
     return(result)
 
-addmintedfigure = addtexfigure
 
 def addrstfigure(chunk):
     figname = chunk['figure']
