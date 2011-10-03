@@ -5,6 +5,7 @@ import StringIO
 import code
 import inspect
 from . import formatters
+import pickle
 
 def pweave(file, doctype = 'tex', returnglobals = True, plot = True): 
     """Process a noweb python document and write output to a file"""  
@@ -59,6 +60,9 @@ class Pweb(object):
         self.isformatted = False
         self.usematplotlib = True
         self.usesho = False
+        #Pickle results for use with documentation mode
+        self.storeresults = True
+        self.documentationmode = False
         self.defaultoptions = dict(echo = True,
                             results = 'verbatim',
                             fig = False,
@@ -348,12 +352,47 @@ class Pweb(object):
                     from sho import saveplot
                     saveplot(figname)
         return(chunk)
+    
+    def store(self, data):
+        """A method used to pickle stuff for persistence"""
+        f = open('data.pkl', 'wb')
+        pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
+        f.close()
+
+    def restore(self):
+        """A method used to unpickle stuff"""
+        f = open('data.pkl', 'rb')
+        self._oldresults = pickle.load(f)
+        f.close()
+
+    def _getoldresults(self):
+        """Get the results of previous run for documentation mode"""
+        self.restore()
+        old = filter(lambda x: x['type']=='code', self._oldresults)
+        executed = self.parsed
+        for chunk in executed:
+            if chunk['type'] is not 'code':
+                continue
+            nbr = chunk['number']
+            stored = filter(lambda x : x['number'] == nbr,  old)[0]
+            #print stored
+            chunk.update(stored)
+        self.executed = executed
+        #print executed
+
 
     def run(self):
         if not self.isparsed:
             self.parse()
+        if self.documentationmode:
+        #The documentation mode uses results from previous  executions
+        #so that compilation is fast if you only work on doc chunks
+            self._getoldresults()
+            return
         self.executed = map(self._runcode, self.parsed)
         self.isexecuted = True
+        if self.storeresults:
+            self.store(self.executed)
 
     def format(self):
         if not self.isexecuted:
