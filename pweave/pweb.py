@@ -325,7 +325,10 @@ class Pweb(object):
         #    from sho import *
         if chunk['type'] == 'code':
             sys.stdout.write("Processing chunk " + str(chunk['number']) + '\n')
-            #Term always sets echo and eval to true
+            
+            if not chunk['evaluate']:
+                chunk['result'] = ''
+                return(chunk)
             if chunk['term']:
                 #try to use term, if fail use exec whole chunk
                 #term seems to fail on function definitions
@@ -338,10 +341,8 @@ class Pweb(object):
                     sys.stderr.write('%s\n%s\n' % (type(inst), inst.args))
                     chunk['result'] = self.loadstring(chunk['content'])
                     chunk['term'] = False
-            elif chunk['evaluate'] == True: 
+            else: 
                     chunk['result'] = self.loadstring(chunk['content'])
-            else:
-                    chunk['result'] = ''
         #After executing the code save the figure
         if chunk['fig']:
                 figname = Pweb.figdir + 'Fig' +str(chunk['number']) + self.formatdict['figfmt']
@@ -407,11 +408,15 @@ class Pweb(object):
         if not self.isformatted:
             self.format()
         if self.sink is None:
-            self.sink = re.split("\.+[a-zA-Z]+$", self.source)[0] + '.' + self.formatdict['extension']
+            self.sink = self._basename() + '.' + self.formatdict['extension']
         f = open(self.sink, 'w')
         f.write("".join(self.formatted))
         f.close()
         sys.stdout.write('Pweaved %s to %s\n' % (self.source, self.sink))
+
+    def _basename(self):
+        return(re.split("\.+[^\.]+$", self.source)[0])
+
 
     def weave(self):
         self.parse()
@@ -421,8 +426,7 @@ class Pweb(object):
 
     def tangle(self):
         self.parse()
-        target = re.split("\.+[a-zA-Z]+$", self.source)[0]
-        target = self.source.split('.')[-2] + '.py'
+        target = self._basename() + '.py'
         code = filter(lambda x : x['type'] == 'code', self.parsed)
         code = map(lambda x : x['content'], code)
         f = open(target, 'w')
@@ -487,10 +491,12 @@ class Pweb(object):
         #Code is not executed
         if not chunk['evaluate']:
             if chunk['echo']:
-                return(chunk['code'])
+                chunk['content'] = self._indent(chunk['content'])
+                result = '%(codestart)s%(content)s%(codeend)s' % chunk 
+                return(result)
             else:
                 return('')
-        
+   
         #Code is executed
         #-------------------
         result = ""
