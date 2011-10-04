@@ -267,26 +267,32 @@ class Pweb(object):
 
         return(chunkresult)
 
-    def loadinline(self, chunk):
-        matches = re.finditer("<[^>]*?py.*?>[^<]*</[^>]*?py.*?>", chunk)
-        if not matches:
-            return(chunk)
-        start = 0
-        result = ""
-        for match in matches:
-            index = match.span()
-            before = chunk[start : (index[0])]
-            start = index[1]
-            #evaluate inline code, wrapped in a print statement
-            evaluated = self.loadstring("print(" + re.findall("[^<>]+(?=[<])", match.group(0))[0] + ")" ).rstrip()
-            result += before + evaluated
+    def loadinline(self, content):
+        """Evaluate code from doc chunks using ERB markup"""
+        splitted = re.split('(<%.*?%>)', content)
+        #No inline code
+        if len(splitted)<2:
+            return(content)
+        
+        n = len(splitted)
 
-        if (start < len(chunk)):
-            result += chunk[start:len(chunk)]
-        return(result)      
+        for i in range(n):
+            elem = splitted[i]
+            if not elem.startswith('<%'):
+                continue
+            if elem.startswith('<%='):
+                code = elem.replace('<%=', '').replace('%>', '').lstrip()
+                result = self.loadstring('print %s,' % code).replace('\n','', 1)
+                splitted[i] = result
+                continue
+            if elem.startswith('<%'):
+                code = elem.replace('<%', '').replace('%>', '').lstrip()
+                exec(code, Pweb.globals)
+                splitted[i] = ''
+        return(''.join(splitted))
 
     def _runcode(self, chunk):
-
+        """Execute code from a code chunk based on options"""
         if chunk['type'] != 'doc' and chunk['type'] !='code':
             return(chunk)
         
@@ -539,9 +545,9 @@ if __name__ == "__main__":
         #pweave("matex.Rnw")
         #os.system("pdflatex matex.tex")
         #os.system('start matex.pdf')
-        pweave("ma.pnw", doctype ='sphinx')
+        #pweave("ma.pnw", doctype ='sphinx')
         os.system('rst2html.py ma.rst ma.html')
         pweave('ma.mdw', doctype = 'pandoc')
         os.system('pandoc -s ma.md -o map.html')
-        #os.system('pdflatex ma.tex')
-        #os.system('start ma.pdf')
+        os.system('pdflatex ma.tex')
+        os.system('start ma.pdf')
