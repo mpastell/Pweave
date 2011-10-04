@@ -166,9 +166,9 @@ class Pweb(object):
         return(a)
 
     def _chunkstodict(self, chunk):
-        if (re.findall('@[\s]*?\n', chunk[0])) and not (re.findall('<<.*>>=', chunk[1])):
+        if (re.findall('@[\s]*?$', chunk[0])) and not (re.findall('^<<.*?>>=[\s]*$', chunk[1], re.M)):
             return({'type' : 'doc', 'content':chunk[1]})
-        if (re.findall('<<.*>>=', chunk[0])):
+        if (re.findall('^<<.*>>=[\s]*?$', chunk[0], re.M)):
             codedict = {'type' : 'code', 'content':chunk[1]}
             codedict.update(self._getoptions(chunk[0]))
             return(codedict)       
@@ -197,7 +197,7 @@ class Pweb(object):
         code = "@\n" + codefile.read()
         codefile.close()
         #Split file to list at chunk separators
-        chunksep = re.compile('(<<.*?>>=)|(@[\s]*?\n)')
+        chunksep = re.compile('(^<<.*?>>=[\s]*$)|(@[\s]*?$)', re.M)
         codelist = chunksep.split(code)
         codelist = filter(lambda x : x != None, codelist)
         codelist = filter(lambda x :  not x.isspace() and x != "", codelist)
@@ -269,7 +269,7 @@ class Pweb(object):
 
     def loadinline(self, content):
         """Evaluate code from doc chunks using ERB markup"""
-        splitted = re.split('(<%.*?%>)', content)
+        splitted = re.split('(<%.*?%>)', content, flags = re.S)
         #No inline code
         if len(splitted)<2:
             return(content)
@@ -282,7 +282,10 @@ class Pweb(object):
                 continue
             if elem.startswith('<%='):
                 code = elem.replace('<%=', '').replace('%>', '').lstrip()
-                result = self.loadstring('print %s,' % code).replace('\n','', 1)
+                try:
+                    result = self.loadstring('print %s,' % code).replace('\n','', 1)
+                except:
+                    result = self.loadstring('%s' % code).replace('\n','', 1)
                 splitted[i] = result
                 continue
             if elem.startswith('<%'):
