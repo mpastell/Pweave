@@ -46,6 +46,17 @@ class Pweb(object):
     chunkprocessors = []
     globals = {}
     locals = {}
+    rcParams =  {'figure.figsize' : (6, 4),
+                           'savefig.dpi': 100,
+                           'font.size' : 10 }
+    defaultoptions = dict(echo = True,
+                            results = 'verbatim',
+                            fig = False,
+                            evaluate = True,
+                            width = None,
+                            caption = False,
+                            term = True)
+
     figdir = ''
     _mpl_imported = False
     
@@ -64,16 +75,6 @@ class Pweb(object):
         #Pickle results for use with documentation mode
         self.storeresults = True
         self.documentationmode = False
-        self.defaultoptions = dict(echo = True,
-                            results = 'verbatim',
-                            fig = False,
-                            evaluate = True,
-                            width = None,
-                            caption = False,
-                            term = True)
-        self.rcParams =  {'figure.figsize' : (6, 4),
-                           'savefig.dpi': 100,
-                           'font.size' : 10 }
         self.setformat(self.doctype)
 
     def setformat(self, doctype = 'tex'):
@@ -174,7 +175,7 @@ class Pweb(object):
             return(codedict)       
 
     def _getoptions(self, opt):
-        defaults = self.defaultoptions.copy() 
+        defaults = Pweb.defaultoptions.copy() 
 
         # Aliases for False and True to conform with Sweave syntax
         FALSE = False
@@ -321,7 +322,7 @@ class Pweb(object):
             if not self._mpl_imported:
                 import matplotlib
                 matplotlib.use('Agg')
-                matplotlib.rcParams.update(self.rcParams)
+                #matplotlib.rcParams.update(self.rcParams)            
             import matplotlib.pyplot as plt
             import matplotlib
             self._mpl_imported = True
