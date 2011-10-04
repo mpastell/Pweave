@@ -45,6 +45,7 @@ class Pweb(object):
     chunkformatters = []
     chunkprocessors = []
     globals = {}
+    locals = {}
     figdir = ''
     _mpl_imported = False
     
@@ -74,7 +75,6 @@ class Pweb(object):
                            'savefig.dpi': 100,
                            'font.size' : 10 }
         self.setformat(self.doctype)
-
 
     def setformat(self, doctype = 'tex'):
         self.doctype = doctype
@@ -166,9 +166,9 @@ class Pweb(object):
         return(a)
 
     def _chunkstodict(self, chunk):
-        if (re.findall('@(\s|)\n', chunk[0])) and not (re.findall('<<(.|)>>=', chunk[1])):
+        if (re.findall('@[\s]*?\n', chunk[0])) and not (re.findall('<<.*>>=', chunk[1])):
             return({'type' : 'doc', 'content':chunk[1]})
-        if (re.findall('<<(.|)+>>=', chunk[0])):
+        if (re.findall('<<.*>>=', chunk[0])):
             codedict = {'type' : 'code', 'content':chunk[1]}
             codedict.update(self._getoptions(chunk[0]))
             return(codedict)       
@@ -179,12 +179,13 @@ class Pweb(object):
         # Aliases for False and True to conform with Sweave syntax
         FALSE = False
         TRUE = True
+        
 
         #Parse options from chunk to a dictionary 
-        optstring = re.findall('[^<<]+[^>>=.+]', opt)
+        optstring = opt.replace('<<', '').replace('>>=', '').strip()
         if not optstring:
             return(defaults)
-        exec("chunkoptions =  dict(" + optstring[0] + ")")
+        exec("chunkoptions =  dict(" + optstring + ")")
         #Update the defaults 
         defaults.update(chunkoptions)
         return(defaults)
@@ -196,7 +197,7 @@ class Pweb(object):
         code = "@\n" + codefile.read()
         codefile.close()
         #Split file to list at chunk separators
-        chunksep = re.compile('(<<(.|)+>>=)|(@(\s|)\n)')
+        chunksep = re.compile('(<<.*?>>=)|(@[\s]*?\n)')
         codelist = chunksep.split(code)
         codelist = filter(lambda x : x != None, codelist)
         codelist = filter(lambda x :  not x.isspace() and x != "", codelist)
@@ -218,7 +219,9 @@ class Pweb(object):
         tmp = StringIO.StringIO()
         stdold = sys.stdout
         sys.stdout = tmp
-        exec(code, Pweb.globals) #self.globals)
+        compiled = compile(code, '<input>', 'exec')
+        exec(compiled, Pweb.globals)
+
         result = "\n" + tmp.getvalue()
         tmp.close()
         sys.stdout = stdold
@@ -249,7 +252,7 @@ class Pweb(object):
             tmp = StringIO.StringIO()
             stdold = sys.stdout
             sys.stdout = tmp
-            return_value = eval(compiled_statement, Pweb.globals)#self.globals)
+            return_value = eval(compiled_statement, Pweb.globals)
             result = tmp.getvalue()
             if return_value is not None:
                 result += repr(return_value)
