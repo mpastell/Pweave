@@ -25,8 +25,8 @@ if len(sys.argv)==1:
 parser = OptionParser(usage="%prog [options] sourcefile", version="%prog 0.2")
 parser.add_option("-f", "--format", dest="format", default='rst',
                   help="The output format: 'sphinx', 'rst' (default), 'pandoc' or 'tex'")
-parser.add_option("-m", "--matplotlib", dest="mplotlib", default='true',
-                  help="Do you want to use matplotlib true (default) or false")
+parser.add_option("-m", "--matplotlib", dest="mplotlib", default=True,
+                  help="Do you want to use matplotlib True (default) or False")
 parser.add_option("-g", "--figure-format", dest="figfmt",
                   help="Figure format for matplolib graphics: Defaults to 'png' for rst and Sphinx html documents and 'pdf' for tex")
 parser.add_option("-d", "--figure-directory", dest="figdir", default = 'images/',
@@ -34,5 +34,6 @@ parser.add_option("-d", "--figure-directory", dest="figdir", default = 'images/'
 (options, args) = parser.parse_args()
 infile = args[0]
 
-pweave.pweave(infile, doctype = options.format)
+print options.mplotlib
+pweave.pweave(infile, doctype = options.format, plot = options.mplotlib )
 
