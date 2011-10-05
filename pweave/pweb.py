@@ -5,9 +5,12 @@ from cStringIO import StringIO
 import code
 import inspect
 from . import formatters
-import pickle
+import cPickle as pickle
 
-def pweave(file, doctype = 'tex', plot = True, useminted = True, figdir = 'figures', cachedir = 'cache', documentationmode = False, storeresults = False, returnglobals = True): 
+def pweave(file, doctype = 'tex', plot = True, useminted = False,
+           docmode = False, cache = False,
+           figdir = 'figures', cachedir = 'cache',
+           figformat = None, returnglobals = True): 
     """
     Process a noweb python document and write output to a file
     """  
@@ -19,12 +22,15 @@ def pweave(file, doctype = 'tex', plot = True, useminted = True, figdir = 'figur
     else:
         doc.usematplotlib = plot
     if useminted:
-        doc.useminted = True
+        doc.useminted()
     Pweb.figdir = figdir
     Pweb.cachedir = cachedir
-    doc.documentationmode = documentationmode
-    doc.storeresults = storeresults
+    doc.documentationmode = docmode
+    doc.storeresults = cache
     
+    if figformat is not None:
+        doc.formatdict['figfmt'] = figformat
+
     #Returning globals
     try:
         doc.weave()
