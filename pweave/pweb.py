@@ -396,13 +396,19 @@ class Pweb(object):
     def restore(self):
         """A method used to unpickle stuff"""
         name = Pweb.cachedir + self._basename() + '.pkl'
-        f = open(name, 'rb')
-        self._oldresults = pickle.load(f)
-        f.close()
+        if os.path.exists(name):
+            f = open(name, 'rb')
+            self._oldresults = pickle.load(f)
+            f.close()
+            return(True)
+        else:
+            return(False)
 
     def _getoldresults(self):
         """Get the results of previous run for documentation mode"""
-        self.restore()
+        success = self.restore()
+        if not success:
+            return(False)
         old = filter(lambda x: x['type']=='code', self._oldresults)
         executed = self.parsed
         for chunk in executed:
@@ -415,8 +421,7 @@ class Pweb(object):
             #print stored
             chunk.update(stored)
         self.executed = executed
-        #print executed
-
+        return(True)
 
     def run(self):
         #Create directory for figures
@@ -428,12 +433,12 @@ class Pweb(object):
         #Documentation mode uses results from previous  executions
         #so that compilation is fast if you only work on doc chunks
         if self.documentationmode:
-            try:
-                self._getoldresults()
+           success = self._getoldresults()
+           if success:
                 return
-            except:
-                sys.stderr.write("DOCUMENTATION MODE ERROR:\nCan't find stored results, running the code and caching results for the next documentation mode run\n")
-                self.storeresults = True
+           else:
+               sys.stderr.write("DOCUMENTATION MODE ERROR:\nCan't find stored results, running the code and caching results for the next documentation mode run\n")
+               self.storeresults = True
         self.executed = map(self._runcode, self.parsed)
         self.isexecuted = True
         if self.storeresults:
