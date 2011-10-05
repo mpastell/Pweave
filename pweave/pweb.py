@@ -41,11 +41,10 @@ def _returnglobals():
 class Pweb(object):
     
     #Shared across class instances
-    globalformatdict = None
     chunkformatters = []
     chunkprocessors = []
     globals = {}
-    locals = {}
+    #locals = {}
     rcParams =  {'figure.figsize' : (6, 4),
                            'savefig.dpi': 100,
                            'font.size' : 10 }
@@ -485,14 +484,13 @@ class Pweb(object):
         chunk.update(self.formatdict)
             
         #Call custom formatters
-        code = self._getformatter(chunk)
+        chunk = self._getformatter(chunk)
    
-        if code is not None and type(code)!=dict:
-            return(code)
-        if code is None:
+        if chunk is not None and type(chunk)!=dict:
+            return(chunk)
+        if chunk is None:
             return('UNKNOWN CHUNK TYPE: %s \n' % chunk['type'])
 
-        #Muista poistaa!
 
         #A doc chunk
         if chunk['type'] == 'doc':
@@ -511,10 +509,15 @@ class Pweb(object):
         #-------------------
         result = ""
 
+        #Hidden results
+        if chunk['results'] == 'hidden':
+            chunk['result'] = ''
+
         #Term sets echo to true
         if chunk['term']:
-            chunk['result'] = self._termindent(chunk['result'])
-            result = '%(termstart)s%(result)s%(termend)s' % chunk    
+            if chunk['echo'] and chunk['results'] != 'hidden':
+                chunk['result'] = self._termindent(chunk['result'])
+                result = '%(termstart)s%(result)s%(termend)s' % chunk    
 
         #Other things than term
         elif chunk['evaluate'] and chunk ['echo'] and chunk['results'] == 'verbatim':
@@ -525,6 +528,11 @@ class Pweb(object):
         elif chunk['evaluate'] and chunk ['echo'] and chunk['results'] != 'verbatim':
                 result = (codestart + chunk['content'] + codeend +
                          chunk['result'].replace('\n', '', 1))
+        elif chunk['evaluate'] and not chunk['echo'] and chunk['results'] == 'verbatim':
+            if len(chunk['result']) > 1:
+                chunk['result'] = self._indent(chunk['result'])
+                result += '%(outputstart)s%(result)s%(outputend)s' % chunk
+
         elif chunk['evaluate'] and not chunk['echo']:
                 #Remove extra line added when results are captured in run phase
                 result = chunk['result'].replace('\n', '', 1)
