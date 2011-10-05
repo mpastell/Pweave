@@ -1,7 +1,7 @@
 import os
 import sys
 import re
-import StringIO
+from cStringIO import StringIO
 import code
 import inspect
 from . import formatters
@@ -15,6 +15,7 @@ def pweave(file, doctype = 'tex', returnglobals = True, plot = True):
     doc.setformat(doctype)
     if sys.platform == 'cli':
         doc.usesho = plot
+        doc.usematplotlib = False
     else:
         doc.usematplotlib = plot
     
@@ -45,18 +46,20 @@ class Pweb(object):
     chunkprocessors = []
     globals = {}
     #locals = {}
-    rcParams =  {'figure.figsize' : (6, 4),
-                           'savefig.dpi': 100,
-                           'font.size' : 10 }
+    #rcParams =  {'figure.figsize' : (6, 4),
+    #                       'savefig.dpi': 100,
+    #                       'font.size' : 10 }
     defaultoptions = dict(echo = True,
                             results = 'verbatim',
                             fig = False,
                             evaluate = True,
                             width = None,
                             caption = False,
-                            term = True)
+                            term = True,
+                            name = None)
 
-    figdir = ''
+    figdir = 'figures/'
+    cachedir = 'cache/'
     _mpl_imported = False
     
     def __init__(self, file = None):
@@ -75,6 +78,7 @@ class Pweb(object):
         self.storeresults = True
         self.documentationmode = False
         self.setformat(self.doctype)
+        self._stdout = sys.stdout
 
     def setformat(self, doctype = 'tex'):
         self.doctype = doctype
@@ -185,9 +189,18 @@ class Pweb(object):
         optstring = opt.replace('<<', '').replace('>>=', '').strip()
         if not optstring:
             return(defaults)
+        #First option can be a name/label
+        if optstring.split(',')[0].find('=')==-1:
+            splitted = optstring.split(',')
+            splitted[0] = 'name = "%s"' % splitted[0]
+            optstring = ','.join(splitted)
+
         exec("chunkoptions =  dict(" + optstring + ")")
         #Update the defaults 
         defaults.update(chunkoptions)
+        if defaults.has_key('label'):
+            defaults['name'] = defaults['label']
+
         return(defaults)
 
     def parse(self):
@@ -216,15 +229,15 @@ class Pweb(object):
         self.isparsed = True
 
     def loadstring(self, code):
-        tmp = StringIO.StringIO()
-        stdold = sys.stdout
+        tmp = StringIO()
+        #stdold = sys.stdout
         sys.stdout = tmp
         compiled = compile(code, '<input>', 'exec')
         exec(compiled, Pweb.globals)
 
         result = "\n" + tmp.getvalue()
         tmp.close()
-        sys.stdout = stdold
+        sys.stdout = self._stdout
         return(result)
 
     def loadterm(self, chunk):
@@ -249,15 +262,14 @@ class Pweb(object):
             if prompt != '>>>':
                 chunkresult += ('%s \n' % (prompt))
 
-            tmp = StringIO.StringIO()
-            stdold = sys.stdout
+            tmp = StringIO()
             sys.stdout = tmp
             return_value = eval(compiled_statement, Pweb.globals)
             result = tmp.getvalue()
             if return_value is not None:
                 result += repr(return_value)
             tmp.close()
-            sys.stdout = stdold
+            sys.stdout = self._stdout
             if result:
                 for line in result.splitlines():
                     chunkresult += line + '\n'
@@ -269,7 +281,8 @@ class Pweb(object):
 
     def loadinline(self, content):
         """Evaluate code from doc chunks using ERB markup"""
-        splitted = re.split('(<%.*?%>)', content, flags = re.S)
+        #Flags don't work with ironpython
+        splitted = re.split('(<%[\w\s\W]*?%>)', content)#, flags = re.S)
         #No inline code
         if len(splitted)<2:
             return(content)
@@ -286,6 +299,7 @@ class Pweb(object):
                     result = self.loadstring('print %s,' % code).replace('\n','', 1)
                 except:
                     result = self.loadstring('%s' % code).replace('\n','', 1)
+                    
                 splitted[i] = result
                 continue
             if elem.startswith('<%'):
@@ -333,7 +347,7 @@ class Pweb(object):
         #    sys.path.append("C:\Program Files (x86)\Sho 2.0 for .NET 4\Sho")
         #    from sho import *
         if chunk['type'] == 'code':
-            sys.stdout.write("Processing chunk " + str(chunk['number']) + '\n')
+            sys.stdout.write("Processing chunk %(number)s named %(name)s\n" % chunk)
             
             if not chunk['evaluate']:
                 chunk['result'] = ''
@@ -354,11 +368,15 @@ class Pweb(object):
                     chunk['result'] = self.loadstring(chunk['content'])
         #After executing the code save the figure
         if chunk['fig']:
-                figname = Pweb.figdir + 'Fig' +str(chunk['number']) + self.formatdict['figfmt']
+                if chunk['name'] is None:
+                    prefix = self._basename() + '_figure' + str(chunk['number'])
+                else:
+                    prefix = self._basename() + '_' + chunk['name']
+                figname = Pweb.figdir + prefix + self.formatdict['figfmt']
                 chunk['figure'] = figname
                 if self.usematplotlib:
                     for format in self.formatdict['savedformats']:
-                        plt.savefig(Pweb.figdir + 'Fig' + str(chunk['number']) + format)
+                        plt.savefig(Pweb.figdir + prefix + format)
                         plt.draw()
                     plt.clf()
                 if self.usesho:
@@ -368,13 +386,17 @@ class Pweb(object):
     
     def store(self, data):
         """A method used to pickle stuff for persistence"""
-        f = open('data.pkl', 'wb')
+        if not os.path.isdir(Pweb.cachedir):
+            os.mkdir(Pweb.cachedir)
+        name = Pweb.cachedir + self._basename() + '.pkl'
+        f = open(name, 'wb')
         pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
         f.close()
 
     def restore(self):
         """A method used to unpickle stuff"""
-        f = open('data.pkl', 'rb')
+        name = Pweb.cachedir + self._basename() + '.pkl'
+        f = open(name, 'rb')
         self._oldresults = pickle.load(f)
         f.close()
 
@@ -388,6 +410,8 @@ class Pweb(object):
                 continue
             nbr = chunk['number']
             stored = filter(lambda x : x['number'] == nbr,  old)[0]
+            if chunk['content'] != stored['content']:
+                sys.stderr.write('WARNING: contents of chunk number %(number)s (name = %(name)s) have changed\n' % chunk)
             #print stored
             chunk.update(stored)
         self.executed = executed
@@ -395,13 +419,21 @@ class Pweb(object):
 
 
     def run(self):
+        #Create directory for figures
+        if not os.path.isdir(Pweb.figdir):
+            os.mkdir(Pweb.figdir)
         if not self.isparsed:
             self.parse()
-        if self.documentationmode:
-        #The documentation mode uses results from previous  executions
+
+        #Documentation mode uses results from previous  executions
         #so that compilation is fast if you only work on doc chunks
-            self._getoldresults()
-            return
+        if self.documentationmode:
+            try:
+                self._getoldresults()
+                return
+            except:
+                sys.stderr.write("DOCUMENTATION MODE ERROR:\nCan't find stored results, running the code and caching results for the next documentation mode run\n")
+                self.storeresults = True
         self.executed = map(self._runcode, self.parsed)
         self.isexecuted = True
         if self.storeresults:
