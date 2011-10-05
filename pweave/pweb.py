@@ -7,18 +7,25 @@ import inspect
 from . import formatters
 import pickle
 
-def pweave(file, doctype = 'tex', returnglobals = True, plot = True): 
-    """Process a noweb python document and write output to a file"""  
+def pweave(file, doctype = 'tex', plot = True, useminted = True, figdir = 'figures', cachedir = 'cache', documentationmode = False, storeresults = False, returnglobals = True): 
+    """
+    Process a noweb python document and write output to a file
+    """  
     doc = Pweb(file)
-    
-    #Set options
     doc.setformat(doctype)
     if sys.platform == 'cli':
         doc.usesho = plot
         doc.usematplotlib = False
     else:
         doc.usematplotlib = plot
+    if useminted:
+        doc.useminted = True
+    Pweb.figdir = figdir
+    Pweb.cachedir = cachedir
+    doc.documentationmode = documentationmode
+    doc.storeresults = storeresults
     
+    #Returning globals
     try:
         doc.weave()
         if returnglobals:
@@ -58,8 +65,8 @@ class Pweb(object):
                             term = True,
                             name = None)
 
-    figdir = 'figures/'
-    cachedir = 'cache/'
+    figdir = 'figures'
+    cachedir = 'cache'
     _mpl_imported = False
     
     def __init__(self, file = None):
@@ -372,11 +379,11 @@ class Pweb(object):
                     prefix = self._basename() + '_figure' + str(chunk['number'])
                 else:
                     prefix = self._basename() + '_' + chunk['name']
-                figname = Pweb.figdir + prefix + self.formatdict['figfmt']
+                figname = Pweb.figdir + '/' + prefix + self.formatdict['figfmt']
                 chunk['figure'] = figname
                 if self.usematplotlib:
                     for format in self.formatdict['savedformats']:
-                        plt.savefig(Pweb.figdir + prefix + format)
+                        plt.savefig(Pweb.figdir + '/' + prefix + format)
                         plt.draw()
                     plt.clf()
                 if self.usesho:
@@ -388,14 +395,14 @@ class Pweb(object):
         """A method used to pickle stuff for persistence"""
         if not os.path.isdir(Pweb.cachedir):
             os.mkdir(Pweb.cachedir)
-        name = Pweb.cachedir + self._basename() + '.pkl'
+        name = Pweb.cachedir + '/' + self._basename() + '.pkl'
         f = open(name, 'wb')
         pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
         f.close()
 
     def restore(self):
         """A method used to unpickle stuff"""
-        name = Pweb.cachedir + self._basename() + '.pkl'
+        name = Pweb.cachedir + '/' + self._basename() + '.pkl'
         if os.path.exists(name):
             f = open(name, 'rb')
             self._oldresults = pickle.load(f)
@@ -439,6 +446,7 @@ class Pweb(object):
            else:
                sys.stderr.write("DOCUMENTATION MODE ERROR:\nCan't find stored results, running the code and caching results for the next documentation mode run\n")
                self.storeresults = True
+        exec("import sys\nsys.path.append('.')", Pweb.globals)
         self.executed = map(self._runcode, self.parsed)
         self.isexecuted = True
         if self.storeresults:
