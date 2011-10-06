@@ -26,7 +26,8 @@ Features:
 * Capture matplotlib graphics.
 * Evaluate inline code in documentation chunks
 * Cache all code and results from previous runs for superfast report
-  generation when you are only working with documentation.
+  generation when you are only working with documentation. Inline code
+  will be hidden in documentation mode.
 * Run from command line or interpreter
 
 Install:

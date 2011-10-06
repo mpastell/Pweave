@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 
 # Pweave, Report generation with Python
-# ============================================
+# =====================================
 # 
 # :Author: Matti Pastell <matti.pastell@helsinki.fi
-# :Website: http://mpastell.com
+# :Website: http://mpastell.com/pweave
 #  Version: 0.2
 
 import sys
-sys.path.append('.')
 from optparse import OptionParser
 import os
 from pweave import pweave
@@ -28,7 +27,7 @@ parser.add_option("-m", "--matplotlib", dest="mplotlib", default='true',
 parser.add_option("--use-minted", "--minted", action="store_true", dest="minted", help="Use minted package for code chunks in LaTeX documents", default=False)
 parser.add_option("-d","--documentation-mode", dest="docmode", 
                   action = "store_true" ,default=False,
-                  help="Use documentation mode, all results will be loaded from cache and inline code won't be evaluated")
+                  help="Use documentation mode, chunk code and results will be loaded from cache and inline code will be hidden")
 parser.add_option("-c","--cache-results", dest="cache", 
                   action = "store_true", default=False,
                   help="Cache results to disk for documentation mode")

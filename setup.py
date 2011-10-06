@@ -15,10 +15,13 @@ setup(name='Pweave',
       url='http://mpastell.com/pweave',
       packages=['pweave'],
       license=['GPL'],
-      scripts=['scripts/Pweave.py'],
+      scripts=['scripts/Pweave.py', 'scripts/Pweave'],
       classifiers=[
         'Development Status :: 4 - Beta',
         'Topic :: Text Processing :: Markup',
+        'Intended Audience :: Science/Research',
+        'Topic :: Scientific/Engineering',
+        'Topic :: Software Development :: Documentation',
         'License :: OSI Approved :: GNU General Public License (GPL)'],
       long_description = read('README.txt')
 )

@@ -68,7 +68,7 @@ class Pweb(object):
                             evaluate = True,
                             width = None,
                             caption = False,
-                            term = True,
+                            term = False,
                             name = None)
 
     figdir = 'figures'
@@ -421,7 +421,11 @@ class Pweb(object):
         old = filter(lambda x: x['type']=='code', self._oldresults)
         executed = self.parsed
         for chunk in executed:
-            if chunk['type'] is not 'code':
+            if chunk['type']!='code' and chunk['type']!='doc':
+                continue
+            #No caching for inline code yet, just hide it
+            if chunk['type'] is 'doc':
+                chunk.update(self._hideinline(chunk))
                 continue
             nbr = chunk['number']
             stored = filter(lambda x : x['number'] == nbr,  old)[0]
@@ -431,6 +435,12 @@ class Pweb(object):
             chunk.update(stored)
         self.executed = executed
         return(True)
+
+    def _hideinline(self, chunk):
+        """Hide inline code in doc mode"""
+        splitted = re.split('<%[\w\s\W]*?%>', chunk['content'])
+        chunk['content'] = ''.join(splitted)
+        return(chunk)
 
     def run(self):
         #Create directory for figures
@@ -517,14 +527,7 @@ class Pweb(object):
     
 
     def _formatchunks(self, chunk):     
-        codestart = self.formatdict['codestart']
-        codeend = self.formatdict['codeend']
-        termstart = self.formatdict['termstart']
-        termend = self.formatdict['termend']
-        outputstart = self.formatdict['outputstart'] 
-        outputend = self.formatdict['outputend']
-        indent = self.formatdict['indent']
-       
+               
         #add formatdict to the same with chunks dictionary, makes formatting 
         #commands more compact and makes options available for custom   
         #formatters
@@ -543,10 +546,12 @@ class Pweb(object):
         if chunk['type'] == 'doc':
              return(chunk['content'])
        
+        chunk['content'] = self._indent(chunk['content'])
+
+
         #Code is not executed
         if not chunk['evaluate']:
             if chunk['echo']:
-                chunk['content'] = self._indent(chunk['content'])
                 result = '%(codestart)s%(content)s%(codeend)s' % chunk 
                 return(result)
             else:
@@ -566,15 +571,18 @@ class Pweb(object):
                 chunk['result'] = self._termindent(chunk['result'])
                 result = '%(termstart)s%(result)s%(termend)s' % chunk    
 
+
         #Other things than term
         elif chunk['evaluate'] and chunk ['echo'] and chunk['results'] == 'verbatim':
-            result = codestart + self._indent(chunk['content']) + codeend
+            result = '%(codestart)s%(content)s%(codeend)s' % chunk
             if len(chunk['result']) > 1:
                     chunk['result'] = self._indent(chunk['result'])
                     result += '%(outputstart)s%(result)s%(outputend)s' % chunk
+
         elif chunk['evaluate'] and chunk ['echo'] and chunk['results'] != 'verbatim':
-                result = (codestart + chunk['content'] + codeend +
-                         chunk['result'].replace('\n', '', 1))
+                chunk['result'] = chunk['result'].replace('\n', '', 1)
+                result = '%(codestart)s%(content)s%(codeend)s%(result)s' % chunk
+
         elif chunk['evaluate'] and not chunk['echo'] and chunk['results'] == 'verbatim':
             if len(chunk['result']) > 1:
                 chunk['result'] = self._indent(chunk['result'])
@@ -583,10 +591,10 @@ class Pweb(object):
         elif chunk['evaluate'] and not chunk['echo']:
                 #Remove extra line added when results are captured in run phase
                 result = chunk['result'].replace('\n', '', 1)
-        else:
+        #else:
             #This a test to see if all options have been captured
-            result = "\\large{NOT YET IMPLEMENTED!!\n}" 
-            result += str(chunk)
+            #result = "\\large{NOT YET IMPLEMENTED!!\n}" 
+            #result += str(chunk)
         #Handle figures
         if chunk['fig']:
             #Call figure formatting function
@@ -594,19 +602,3 @@ class Pweb(object):
             
             result += figstring
         return(result) 
-    
-if __name__ == "__main__": 
-    if sys.platform == 'cli':
-        pweave("sho.Rnw")
-        os.system("pdflatex sho.tex")
-        os.system("start sho.pdf")
-    else:
-        #pweave("matex.Rnw")
-        #os.system("pdflatex matex.tex")
-        #os.system('start matex.pdf')
-        #pweave("ma.pnw", doctype ='sphinx')
-        os.system('rst2html.py ma.rst ma.html')
-        pweave('ma.mdw', doctype = 'pandoc')
-        os.system('pandoc -s ma.md -o map.html')
-        os.system('pdflatex ma.tex')
-        os.system('start ma.pdf')
