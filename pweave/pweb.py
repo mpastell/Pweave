@@ -308,17 +308,13 @@ class Pweb(object):
                 continue
             if elem.startswith('<%='):
                 code = elem.replace('<%=', '').replace('%>', '').lstrip()
-                try:
-                    result = self.loadstring('print %s,' % code).replace('\n','', 1)
-                except:
-                    result = self.loadstring('%s' % code).replace('\n','', 1)
-                    
+                result = self.loadstring('print %s,' % code).replace('\n','', 1)
                 splitted[i] = result
                 continue
             if elem.startswith('<%'):
                 code = elem.replace('<%', '').replace('%>', '').lstrip()
-                exec(code, Pweb.globals)
-                splitted[i] = ''
+                result = self.loadstring('%s' % code).replace('\n','', 1)
+                splitted[i] = result
         return(''.join(splitted))
 
     def _runcode(self, chunk):
