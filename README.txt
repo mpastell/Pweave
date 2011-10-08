@@ -14,9 +14,8 @@ able to weave a python code between <<>>= and @ blocks and include the
 results and capture matplotlib plots in the document. Additionally it
 supports evaluating inline code in documentation chunks using <% %>
 (code will be evaluated in place) and <%= %> (result of expression
-will be printed) tags. It supports reST, Sphinx, Latex, and Pandoc markdown
-markups. Pweave is good for creating reports and tutorials. It can
-also be used to make websites together with Sphinx or rest2web.
+will be printed) tags. It supports reST, Sphinx, Latex, and Pandoc
+markdown markups. Pweave is good for creating reports and tutorials. It canalso be used to make websites together with Sphinx or rest2web.
 
 Features:
 ----------

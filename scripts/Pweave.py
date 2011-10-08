@@ -23,7 +23,7 @@ parser = OptionParser(usage="%prog [options] sourcefile", version="%prog 0.2")
 parser.add_option("-f", "--format", dest="format", default='rst',
                   help="The output format: 'sphinx', 'rst' (default), 'pandoc' or 'tex'")
 parser.add_option("-m", "--matplotlib", dest="mplotlib", default='true',
-                  help="Do you want to use matplotlib True (default) or False")
+                  help="Do you want to use matplotlib (or Sho with Ironpython) True (default) or False")
 parser.add_option("--use-minted", "--minted", action="store_true", dest="minted", help="Use minted package for code chunks in LaTeX documents", default=False)
 parser.add_option("-d","--documentation-mode", dest="docmode", 
                   action = "store_true" ,default=False,

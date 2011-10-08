@@ -165,11 +165,11 @@ class Pweb(object):
 
     def useminted(self):
          if self.doctype == 'tex':
-            self.formatdict.update(dict(codestart = '\\begin{minted}{python}', 
+            self.formatdict.update(dict(codestart ='\\begin{minted}[mathescape]{python}', 
                 codeend = '\end{minted}\n',
-                outputstart = '\\begin{minted}{python}', 
+                outputstart = '\\begin{minted}[mathescape]{python}', 
                 outputend = '\end{minted}\n',
-                termstart = '\\begin{minted}{python}',
+                termstart = '\\begin{minted}[mathescape]{python}', 
                 termend = '\end{minted}\n'))
             
 
