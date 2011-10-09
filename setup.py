@@ -8,7 +8,7 @@ def read(fname):
 
 
 setup(name='Pweave',
-      version='0.2',
+      version='0.20',
       description='Scientific reports with embedded python computations with reST, LaTeX or markdown',
       author='Matti Pastell',
       author_email='matti.pastell@helsinki.fi',

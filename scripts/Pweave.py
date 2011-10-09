@@ -19,7 +19,7 @@ if len(sys.argv)==1:
     sys.exit()
 
 # Command line options
-parser = OptionParser(usage="%prog [options] sourcefile", version="%prog 0.2")
+parser = OptionParser(usage="%prog [options] sourcefile", version="%prog 0.20")
 parser.add_option("-f", "--format", dest="format", default='rst',
                   help="The output format: 'sphinx', 'rst' (default), 'pandoc' or 'tex'")
 parser.add_option("-m", "--matplotlib", dest="mplotlib", default='true',
