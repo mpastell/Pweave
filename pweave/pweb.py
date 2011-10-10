@@ -64,6 +64,7 @@ class Pweb(object):
     chunkformatters = []
     chunkprocessors = []
     globals = {}
+    wrap = 70
     #locals = {}
     #rcParams =  {'figure.figsize' : (6, 4),
     #                       'savefig.dpi': 100,
@@ -173,9 +174,9 @@ class Pweb(object):
          if self.doctype == 'tex':
             self.formatdict.update(dict(codestart ='\\begin{minted}[mathescape]{python}',
                 codeend = '\end{minted}\n',
-                outputstart = '\\begin{minted}[mathescape]{python}',
+                outputstart = '\\begin{minted}[mathescape, frame = topline]{python}',
                 outputend = '\end{minted}\n',
-                termstart = '\\begin{minted}[mathescape]{python}',
+                termstart = '\\begin{minted}[mathescape, frame = topline]{python}',
                 termend = '\end{minted}\n'))
 
 
@@ -292,8 +293,6 @@ class Pweb(object):
             if result:
                 #for line in result.splitlines():
                 #    chunkresult += line + '\n'
-                #wrapper = textwrap.TextWrapper(initial_indent="", width = 60, drop_whitespace = True, replace_whitespace = True)
-                #chunkresult += wrapper.fill(result) + '\n'
                 chunkresult += result
                 #textwrap.fill(result, 60) + '\n'
                 #result
@@ -488,7 +487,15 @@ class Pweb(object):
         if self.sink is None:
             self.sink = self._basename() + '.' + self.formatdict['extension']
         f = open(self.sink, 'w')
-        f.write("".join(self.formatted))
+        text = "".join(self.formatted)
+        if Pweb.wrap:
+            splitted = text.split("\n")
+            result = ""
+            for line in splitted:
+                result += formatters.wrapper(line, Pweb.wrap) + '\n'
+            text = result
+
+        f.write(text)
         f.close()
         sys.stdout.write('Pweaved %s to %s\n' % (self.source, self.sink))
 

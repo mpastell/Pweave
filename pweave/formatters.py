@@ -65,3 +65,8 @@ def addsphinxfigure(chunk):
         result += ('.. image:: %s\n   :width: %s\n\n'   % (figname, width))
     return(result)
 
+def wrapper(string, width):
+    """Wrap a string to specified width like Python terminal"""
+    if len(string) < width:
+        return string
+    return string[0:width] + '\n' + wrapper(string[width:len(string)], width)
