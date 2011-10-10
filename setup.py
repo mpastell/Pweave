@@ -2,6 +2,7 @@
 #from distutils.core import setup
 from setuptools import setup
 import os
+import pweave
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
@@ -14,7 +15,7 @@ setup(name='Pweave',
               ['Pweave = pweave.scripts:weave',
                'Ptangle = pweave.scripts:tangle'
                ]},
-      version='0.20',
+      version=pweave.__version__,
       description='Scientific reports with embedded python computations with reST, LaTeX or markdown',
       author='Matti Pastell',
       author_email='matti.pastell@helsinki.fi',

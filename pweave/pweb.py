@@ -1,7 +1,6 @@
 import os
 import sys
 import re
-import textwrap
 from cStringIO import StringIO
 import code
 import inspect
@@ -64,19 +63,19 @@ class Pweb(object):
     chunkformatters = []
     chunkprocessors = []
     globals = {}
-    wrap = 70
     #locals = {}
     #rcParams =  {'figure.figsize' : (6, 4),
     #                       'savefig.dpi': 100,
     #                       'font.size' : 10 }
     defaultoptions = dict(echo = True,
-                            results = 'verbatim',
-                            fig = False,
-                            evaluate = True,
-                            width = None,
-                            caption = False,
-                            term = False,
-                            name = None)
+                          results = 'verbatim',
+                          fig = False,
+                          evaluate = True,
+                          width = None,
+                          caption = False,
+                          term = False,
+                          name = None,
+                          wrap = False)
 
     figdir = 'figures'
     cachedir = 'cache'
@@ -174,9 +173,9 @@ class Pweb(object):
          if self.doctype == 'tex':
             self.formatdict.update(dict(codestart ='\\begin{minted}[mathescape]{python}',
                 codeend = '\end{minted}\n',
-                outputstart = '\\begin{minted}[mathescape, frame = topline]{python}',
+                outputstart = '\\begin{minted}[mathescape]{python}',
                 outputend = '\end{minted}\n',
-                termstart = '\\begin{minted}[mathescape, frame = topline]{python}',
+                termstart = '\\begin{minted}[mathescape]{python}',
                 termend = '\end{minted}\n'))
 
 
@@ -245,6 +244,9 @@ class Pweb(object):
             if chunk['type'] == 'code':
                 chunk['number'] = n
                 n += 1
+        #Remove extra line inserted during parsing
+        parsedlist[0]['content'] =  parsedlist[0]['content'].replace('\n', '', 1)
+
         self.parsed = parsedlist
         self.isparsed = True
 
@@ -488,12 +490,12 @@ class Pweb(object):
             self.sink = self._basename() + '.' + self.formatdict['extension']
         f = open(self.sink, 'w')
         text = "".join(self.formatted)
-        if Pweb.wrap:
-            splitted = text.split("\n")
-            result = ""
-            for line in splitted:
-                result += formatters.wrapper(line, Pweb.wrap) + '\n'
-            text = result
+        #if Pweb.wrap:
+        #    splitted = text.split("\n")
+        #    result = ""
+        #    for line in splitted:
+        #        result += formatters.wrapper(line, Pweb.wrap) + '\n'
+        #    text = result
 
         f.write(text)
         f.close()
