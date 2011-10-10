@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-from distutils.core import setup
+#from distutils.core import setup
+from setuptools import setup
 import os
 
 def read(fname):
@@ -8,6 +9,11 @@ def read(fname):
 
 
 setup(name='Pweave',
+      entry_points = {
+          'console_scripts' :
+              ['Pweave = pweave.scripts:weave',
+               'Ptangle = pweave.scripts:tangle'
+               ]},
       version='0.20',
       description='Scientific reports with embedded python computations with reST, LaTeX or markdown',
       author='Matti Pastell',
@@ -15,7 +21,6 @@ setup(name='Pweave',
       url='http://mpastell.com/pweave',
       packages=['pweave'],
       license=['GPL'],
-      scripts=['scripts/Pweave.py', 'scripts/Pweave'],
       classifiers=[
         'Development Status :: 4 - Beta',
         'Topic :: Text Processing :: Markup',

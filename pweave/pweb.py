@@ -1,6 +1,7 @@
 import os
 import sys
 import re
+import textwrap
 from cStringIO import StringIO
 import code
 import inspect
@@ -10,10 +11,10 @@ import cPickle as pickle
 def pweave(file, doctype = 'tex', plot = True, useminted = False,
            docmode = False, cache = False,
            figdir = 'figures', cachedir = 'cache',
-           figformat = None, returnglobals = True): 
+           figformat = None, returnglobals = True):
     """
     Process a noweb python document and write output to a file
-    """  
+    """
     doc = Pweb(file)
     doc.setformat(doctype)
     if sys.platform == 'cli':
@@ -27,7 +28,7 @@ def pweave(file, doctype = 'tex', plot = True, useminted = False,
     Pweb.cachedir = cachedir
     doc.documentationmode = docmode
     doc.storeresults = cache
-    
+
     if figformat is not None:
         doc.formatdict['figfmt'] = figformat
 
@@ -42,8 +43,8 @@ def pweave(file, doctype = 'tex', plot = True, useminted = False,
         sys.stderr.write('%s\n%s\n' % (type(inst), inst.args))
         #Return varibles used this far if there is an exception
         if returnglobals:
-            _returnglobals()
- 
+           _returnglobals()
+
 def _returnglobals():
     """Inspect stack to get the scope of the terminal/script calling pweave function"""
     if hasattr(sys,'_getframe'):
@@ -51,9 +52,14 @@ def _returnglobals():
         caller.f_globals.update(Pweb.globals)
     if not hasattr(sys,'_getframe'):
         print('%s\n%s\n' % ("Can't return globals" ,"Start Ironpython with ipy -X:Frames if you wan't this to work"))
-                 
+
+def ptangle(file):
+    doc = Pweb(file)
+    doc.tangle()
+
+
 class Pweb(object):
-    
+
     #Shared across class instances
     chunkformatters = []
     chunkprocessors = []
@@ -74,7 +80,7 @@ class Pweb(object):
     figdir = 'figures'
     cachedir = 'cache'
     _mpl_imported = False
-    
+
     def __init__(self, file = None):
         self.source = file
         self.sink = None
@@ -96,23 +102,23 @@ class Pweb(object):
     def setformat(self, doctype = 'tex'):
         self.doctype = doctype
         if doctype == 'tex':
-            self.formatdict = dict(codestart = '\\begin{verbatim}', 
+            self.formatdict = dict(codestart = '\\begin{verbatim}',
                 codeend = '\end{verbatim}\n',
-                outputstart = '\\begin{verbatim}', 
-                outputend = '\end{verbatim}\n', 
+                outputstart = '\\begin{verbatim}',
+                outputend = '\end{verbatim}\n',
                 indent = '',
                 figfmt = '.pdf',
                 extension = 'tex',
                 width = '\\textwidth',
                 doctype = 'tex')
         if doctype == 'rst':
-            self.formatdict = dict(codestart = '::\n', 
+            self.formatdict = dict(codestart = '::\n',
                 codeend = '\n\n',
-                outputstart = '::\n', 
+                outputstart = '::\n',
                 outputend = '\n\n',
                 #rst has specific format (doctest) for term blocks
                 termstart = '',
-                termend = '\n\n', 
+                termend = '\n\n',
                 termindent = '',
                 indent = '    ',
                 figfmt = '.png',
@@ -122,8 +128,8 @@ class Pweb(object):
         if doctype == 'pandoc':
             self.formatdict = dict(codestart = '~~~~{.python}',
                 codeend = '~~~~~~~~~~~~~\n\n',
-                outputstart = '~~~~{.python}', 
-                outputend = '~~~~~~~~~~~~~\n\n', 
+                outputstart = '~~~~{.python}',
+                outputend = '~~~~~~~~~~~~~\n\n',
                 indent = '',
                 termindent = '',
                 figfmt = '.png',
@@ -131,13 +137,13 @@ class Pweb(object):
                 width = '15 cm',
                 doctype = 'pandoc')
         if doctype == 'sphinx':
-            self.formatdict = dict(codestart = '::\n', 
+            self.formatdict = dict(codestart = '::\n',
                 codeend = '\n\n',
-                outputstart = '.. code-block::\n', 
+                outputstart = '.. code-block::\n',
                 outputend = '\n\n',
                 #rst has specific format (doctest) for term blocks
                 termstart = '',
-                termend = '\n\n', 
+                termend = '\n\n',
                 termindent = '',
                 indent = '    ',
                 #Sphinx determines the figure format automatically
@@ -158,25 +164,25 @@ class Pweb(object):
         self._fillkey('termindent', self.formatdict['indent'])
         self._fillkey('termend', self.formatdict['codeend'])
         self._fillkey('savedformats', list([self.formatdict['figfmt']]))
-    
+
     def _fillkey(self, key, value):
         if not self.formatdict.has_key(key):
             self.formatdict[key] = value
 
     def useminted(self):
          if self.doctype == 'tex':
-            self.formatdict.update(dict(codestart ='\\begin{minted}[mathescape]{python}', 
+            self.formatdict.update(dict(codestart ='\\begin{minted}[mathescape]{python}',
                 codeend = '\end{minted}\n',
-                outputstart = '\\begin{minted}[mathescape]{python}', 
+                outputstart = '\\begin{minted}[mathescape]{python}',
                 outputend = '\end{minted}\n',
-                termstart = '\\begin{minted}[mathescape]{python}', 
+                termstart = '\\begin{minted}[mathescape]{python}',
                 termend = '\end{minted}\n'))
-            
+
 
     def _chunkstotuple(self, code):
         # Make a list of tuples from the list of chuncks
         a = list()
-    
+
         for i in range(len(code)-1):
             x = (code[i], code[i+1])
             a.append(x)
@@ -188,17 +194,17 @@ class Pweb(object):
         if (re.findall('^<<.*>>=[\s]*?$', chunk[0], re.M)):
             codedict = {'type' : 'code', 'content':chunk[1]}
             codedict.update(self._getoptions(chunk[0]))
-            return(codedict)       
+            return(codedict)
 
     def _getoptions(self, opt):
-        defaults = Pweb.defaultoptions.copy() 
+        defaults = Pweb.defaultoptions.copy()
 
         # Aliases for False and True to conform with Sweave syntax
         FALSE = False
         TRUE = True
-        
 
-        #Parse options from chunk to a dictionary 
+
+        #Parse options from chunk to a dictionary
         optstring = opt.replace('<<', '').replace('>>=', '').strip()
         if not optstring:
             return(defaults)
@@ -209,7 +215,7 @@ class Pweb(object):
             optstring = ','.join(splitted)
 
         exec("chunkoptions =  dict(" + optstring + ")")
-        #Update the defaults 
+        #Update the defaults
         defaults.update(chunkoptions)
         if defaults.has_key('label'):
             defaults['name'] = defaults['label']
@@ -260,7 +266,7 @@ class Pweb(object):
         prompt = ">>>"
         chunkresult = "\n"
         block = chunk.lstrip().splitlines()
-   
+
         for x in block:
             chunkresult += ('%s %s\n' % (prompt, x))
             statement += x + '\n'
@@ -284,8 +290,14 @@ class Pweb(object):
             tmp.close()
             sys.stdout = self._stdout
             if result:
-                for line in result.splitlines():
-                    chunkresult += line + '\n'
+                #for line in result.splitlines():
+                #    chunkresult += line + '\n'
+                #wrapper = textwrap.TextWrapper(initial_indent="", width = 60, drop_whitespace = True, replace_whitespace = True)
+                #chunkresult += wrapper.fill(result) + '\n'
+                chunkresult += result
+                #textwrap.fill(result, 60) + '\n'
+                #result
+                #
 
             statement = ""
             prompt = ">>>"
@@ -299,7 +311,7 @@ class Pweb(object):
         #No inline code
         if len(splitted)<2:
             return(content)
-        
+
         n = len(splitted)
 
         for i in range(n):
@@ -321,43 +333,43 @@ class Pweb(object):
         """Execute code from a code chunk based on options"""
         if chunk['type'] != 'doc' and chunk['type'] !='code':
             return(chunk)
-        
+
         #Make function to dispatch based on the type
         #Execute a function from a list of functions
         #Store builtin functions in a class and add them to a list
         #when the object initialises or just use getattr?
-		
+
 		#List functions from a class:
         #filter(lambda x : not x.startswith('_')   ,dir(pweave.PwebFormatters))
-		
+
 		#Users can then append their own functions
         #filter(lambda x: x.func_name=='f', a)[0](10)
 
         if chunk['type'] == 'doc':
             chunk['content'] = self.loadinline(chunk['content'])
             return(chunk)
-       
-       #Settings for figures, matplotlib and sho 
+
+       #Settings for figures, matplotlib and sho
         if chunk['width'] is None:
                 chunk['width'] = self.formatdict['width']
         if self.usematplotlib:
             if not self._mpl_imported:
                 import matplotlib
                 matplotlib.use('Agg')
-                #matplotlib.rcParams.update(self.rcParams)            
+                #matplotlib.rcParams.update(self.rcParams)
             import matplotlib.pyplot as plt
             import matplotlib
             self._mpl_imported = True
-            
+
             #['figure.figsize'] = (6, 4)
-            #matplotlib.rcParams['figure.dpi'] = 200 
+            #matplotlib.rcParams['figure.dpi'] = 200
         #Sho should be added in users code if it is used
         #if self.usesho:
         #    sys.path.append("C:\Program Files (x86)\Sho 2.0 for .NET 4\Sho")
         #    from sho import *
         if chunk['type'] == 'code':
             sys.stdout.write("Processing chunk %(number)s named %(name)s\n" % chunk)
-            
+
             if not chunk['evaluate']:
                 chunk['result'] = ''
                 return(chunk)
@@ -373,7 +385,7 @@ class Pweb(object):
                     sys.stderr.write('%s\n%s\n' % (type(inst), inst.args))
                     chunk['result'] = self.loadstring(chunk['content'])
                     chunk['term'] = False
-            else: 
+            else:
                     chunk['result'] = self.loadstring(chunk['content'])
         #After executing the code save the figure
         if chunk['fig']:
@@ -392,7 +404,7 @@ class Pweb(object):
                     from sho import saveplot
                     saveplot(figname)
         return(chunk)
-    
+
     def store(self, data):
         """A method used to pickle stuff for persistence"""
         if not os.path.isdir(Pweb.cachedir):
@@ -524,18 +536,18 @@ class Pweb(object):
         sys.stderr.write('UNKNOWN CHUNK TYPE: %s \n' % chunk['type'])
         return(None)
 
-    
 
-    def _formatchunks(self, chunk):     
-               
-        #add formatdict to the same with chunks dictionary, makes formatting 
-        #commands more compact and makes options available for custom   
+
+    def _formatchunks(self, chunk):
+
+        #add formatdict to the same with chunks dictionary, makes formatting
+        #commands more compact and makes options available for custom
         #formatters
         chunk.update(self.formatdict)
-            
+
         #Call custom formatters
         chunk = self._getformatter(chunk)
-   
+
         if chunk is not None and type(chunk)!=dict:
             return(chunk)
         if chunk is None:
@@ -545,18 +557,18 @@ class Pweb(object):
         #A doc chunk
         if chunk['type'] == 'doc':
              return(chunk['content'])
-       
+
         chunk['content'] = self._indent(chunk['content'])
 
 
         #Code is not executed
         if not chunk['evaluate']:
             if chunk['echo']:
-                result = '%(codestart)s%(content)s%(codeend)s' % chunk 
+                result = '%(codestart)s%(content)s%(codeend)s' % chunk
                 return(result)
             else:
                 return('')
-   
+
         #Code is executed
         #-------------------
         result = ""
@@ -569,7 +581,7 @@ class Pweb(object):
         if chunk['term']:
             if chunk['echo'] and chunk['results'] != 'hidden':
                 chunk['result'] = self._termindent(chunk['result'])
-                result = '%(termstart)s%(result)s%(termend)s' % chunk    
+                result = '%(termstart)s%(result)s%(termend)s' % chunk
 
 
         #Other things than term
@@ -593,12 +605,12 @@ class Pweb(object):
                 result = chunk['result'].replace('\n', '', 1)
         #else:
             #This a test to see if all options have been captured
-            #result = "\\large{NOT YET IMPLEMENTED!!\n}" 
+            #result = "\\large{NOT YET IMPLEMENTED!!\n}"
             #result += str(chunk)
         #Handle figures
         if chunk['fig']:
             #Call figure formatting function
             figstring = getattr(formatters, ('add%sfigure' % self.formatdict['doctype']))(chunk)
-            
+
             result += figstring
-        return(result) 
+        return(result)
