@@ -5,6 +5,7 @@ from cStringIO import StringIO
 import code
 import inspect
 from . import formatters
+from formatters import *
 import cPickle as pickle
 
 
@@ -220,9 +221,10 @@ class PwebProcessor(object):
             chunk['content'] = self.loadinline(chunk['content'])
             return(chunk)
 
-       #Settings for figures, matplotlib and sho
-        if chunk['width'] is None:
-                chunk['width'] = self.formatdict['width']
+        #Settings for figures, matplotlib and sho
+        #if chunk['width'] is None:
+        #        chunk['width'] = self.formatdict['width']
+        
         if Pweb.usematplotlib:
             if not Pweb._mpl_imported:
                 import matplotlib
@@ -439,17 +441,10 @@ class Pweb(object):
         self.setformat(self.doctype)
 
     def setformat(self, doctype = 'tex'):
+        #Formatters are needed  when the code is executed and formatted 
         self.doctype = doctype
         if doctype == 'tex':
-            self.formatdict = dict(codestart = '\\begin{verbatim}',
-                codeend = '\end{verbatim}\n',
-                outputstart = '\\begin{verbatim}',
-                outputend = '\end{verbatim}\n',
-                indent = '',
-                figfmt = '.pdf',
-                extension = 'tex',
-                width = '\\textwidth',
-                doctype = 'tex')
+            self.formatter = PwebTexFormatter()
         if doctype == 'rst':
             self.formatdict = dict(codestart = '::\n',
                 codeend = '\n\n',
@@ -495,7 +490,7 @@ class Pweb(object):
 
         #Fill in the blank options that are now only used for rst
         #but also allow e.g. special latex style for terminal blocks etc.
-        self._fillformatdict()
+        #self._fillformatdict()
 
     def _fillformatdict(self):
         """Fill in the blank fields in formatdictionary"""
@@ -524,16 +519,17 @@ class Pweb(object):
         self.isparsed = True
 
     def run(self):
-        runner = PwebProcessor(self.parsed, self.source, self.documentationmode, self.formatdict)
+        runner = PwebProcessor(self.parsed, self.source, self.documentationmode, self.formatter.getformatdict())
         runner.run()
         self.executed = runner.getresults()
         self.isexecuted = True
 
     def format(self):
-
         if not self.isexecuted:
             self.run()
-        self.formatted = map(self._formatchunks, self.executed)
+        self.formatter.setexecuted(self.executed)
+        self.formatter.format()
+        self.formatted =  self.formatter.getformatted()
         self.isformatted = True
 
     def write(self):
@@ -596,79 +592,4 @@ class Pweb(object):
         sys.stderr.write('UNKNOWN CHUNK TYPE: %s \n' % chunk['type'])
         return(None)
 
-    def _formatchunks(self, chunk):
-
-        #add formatdict to the same with chunks dictionary, makes formatting
-        #commands more compact and makes options available for custom
-        #formatters
-        chunk.update(self.formatdict)
-
-        #Call custom formatters
-        chunk = self._getformatter(chunk)
-
-        if chunk is not None and type(chunk)!=dict:
-            return(chunk)
-        if chunk is None:
-            return('UNKNOWN CHUNK TYPE: %s \n' % chunk['type'])
-
-
-        #A doc chunk
-        if chunk['type'] == 'doc':
-             return(chunk['content'])
-
-        chunk['content'] = self._indent(chunk['content'])
-
-
-        #Code is not executed
-        if not chunk['evaluate']:
-            if chunk['echo']:
-                result = '%(codestart)s%(content)s%(codeend)s' % chunk
-                return(result)
-            else:
-                return('')
-
-        #Code is executed
-        #-------------------
-        result = ""
-
-        #Hidden results
-        if chunk['results'] == 'hidden':
-            chunk['result'] = ''
-
-        #Term sets echo to true
-        if chunk['term']:
-            if chunk['echo'] and chunk['results'] != 'hidden':
-                chunk['result'] = self._termindent(chunk['result'])
-                result = '%(termstart)s%(result)s%(termend)s' % chunk
-
-
-        #Other things than term
-        elif chunk['evaluate'] and chunk ['echo'] and chunk['results'] == 'verbatim':
-            result = '%(codestart)s%(content)s%(codeend)s' % chunk
-            if len(chunk['result']) > 1:
-                    chunk['result'] = self._indent(chunk['result'])
-                    result += '%(outputstart)s%(result)s%(outputend)s' % chunk
-
-        elif chunk['evaluate'] and chunk ['echo'] and chunk['results'] != 'verbatim':
-                chunk['result'] = chunk['result'].replace('\n', '', 1)
-                result = '%(codestart)s%(content)s%(codeend)s%(result)s' % chunk
-
-        elif chunk['evaluate'] and not chunk['echo'] and chunk['results'] == 'verbatim':
-            if len(chunk['result']) > 1:
-                chunk['result'] = self._indent(chunk['result'])
-                result += '%(outputstart)s%(result)s%(outputend)s' % chunk
-
-        elif chunk['evaluate'] and not chunk['echo']:
-                #Remove extra line added when results are captured in run phase
-                result = chunk['result'].replace('\n', '', 1)
-        #else:
-            #This a test to see if all options have been captured
-            #result = "\\large{NOT YET IMPLEMENTED!!\n}"
-            #result += str(chunk)
-        #Handle figures
-        if chunk['fig']:
-            #Call figure formatting function
-            figstring = getattr(formatters, ('add%sfigure' % self.formatdict['doctype']))(chunk)
-
-            result += figstring
-        return(result)
+    
