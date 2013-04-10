@@ -15,19 +15,20 @@ setup(name='Pweave',
               ['Pweave = pweave.scripts:weave',
                'Ptangle = pweave.scripts:tangle'
                ]},
-      version=pweave.__version__,
+      version = pweave.__version__,
       description='Scientific reports with embedded python computations with reST, LaTeX or markdown',
       author='Matti Pastell',
       author_email='matti.pastell@helsinki.fi',
       url='http://mpastell.com/pweave',
       packages=['pweave'],
       license=['GPL'],
+      long_description = read('README.txt'),
       classifiers=[
         'Development Status :: 4 - Beta',
         'Topic :: Text Processing :: Markup',
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering',
         'Topic :: Software Development :: Documentation',
-        'License :: OSI Approved :: GNU General Public License (GPL)'],
-      long_description = read('README.txt')
+        'License :: OSI Approved :: GNU General Public License (GPL)']
+
 )
