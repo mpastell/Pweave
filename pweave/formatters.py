@@ -18,7 +18,7 @@ class PwebFormatter(object):
         self.executed = executed
 
     def format(self):
-        self.formatted = map(self._formatchunks, self.executed)
+        self.formatted = map(self.formatchunks, self.executed)
 
     def getformatdict(self):
         return(self.formatdict)
@@ -34,7 +34,7 @@ class PwebFormatter(object):
         if len(string) < width:
             return string
         #Wrap also comment lines
-        if string[0] is "#":
+        if string.lstrip()[0] is "#":
             return string[0:width] + '\n' + self._wrapper("#" + string[width:len(string)], width)
         else:
             return string[0:width] + '\n' + self._wrapper(string[width:len(string)], width)
@@ -46,7 +46,7 @@ class PwebFormatter(object):
             result += self._wrapper(line, 75) + '\n'
         return(result)
 
-    def _formatchunks(self, chunk):
+    def formatchunks(self, chunk):
 
         #add formatdict to the same with chunks dictionary, makes formatting
         #commands more compact and makes options available for custom
@@ -57,8 +57,6 @@ class PwebFormatter(object):
         for key in self.formatdict.keys():
             if not chunk.has_key(key):
                 chunk[key] = self.formatdict[key]
-
-        #chunk.update(self.formatdict) #Old way with a bug
 
         ## Call custom formatters
         #chunk = self._getformatter(chunk)
@@ -71,6 +69,7 @@ class PwebFormatter(object):
         #A doc chunk
         if chunk['type'] == 'doc':
              return(chunk['content'])
+
 
 
         if chunk['wrap']:
@@ -105,7 +104,7 @@ class PwebFormatter(object):
         #Other things than term
         elif chunk['evaluate'] and chunk ['echo'] and chunk['results'] == 'verbatim':
             result = '%(codestart)s%(content)s%(codeend)s' % chunk
-            if len(chunk['result']) > 1:
+            if len(chunk['result'].strip()) > 1:
                     chunk['result'] = self._indent(chunk['result'])
                     result += '%(outputstart)s%(result)s%(outputend)s' % chunk
 
@@ -114,7 +113,7 @@ class PwebFormatter(object):
                 result = '%(codestart)s%(content)s%(codeend)s%(result)s' % chunk
 
         elif chunk['evaluate'] and not chunk['echo'] and chunk['results'] == 'verbatim':
-            if len(chunk['result']) > 1:
+            if len(chunk['result'].strip()) > 1:
                 chunk['result'] = self._indent(chunk['result'])
                 result += '%(outputstart)s%(result)s%(outputend)s' % chunk
 
@@ -127,7 +126,8 @@ class PwebFormatter(object):
             #result += str(chunk)
         #Handle figures
         if chunk['fig']:
-            result += self.formatfigure(chunk)
+            if chunk['include']:
+                result += self.formatfigure(chunk)
             #Call figure formatting function
             #figstring = getattr(formatters, ('add%sfigure' % self.formatdict['doctype']))(chunk)
             #result += figstring
@@ -167,22 +167,27 @@ class PwebTexFormatter(PwebFormatter):
                 doctype = 'tex')
 
     def formatfigure(self, chunk):
-        figname = chunk['figure']
+
+        fignames = chunk['figure']
         caption = chunk['caption']
         width = chunk['width']
-        result = ""   
+        result = ""        
+        figstring = ""
+
+        for fig in fignames:
+            figstring += ("\\includegraphics[width= %s]{%s}\n" % (width, fig)) 
 
         #Figure environment
         if chunk['caption']:
             result += ("\\begin{figure}\n"\
-                        "\\includegraphics[width= %s]{%s}\n"\
-                        "\\caption{%s}\n" % (width, figname, caption))
+                        "%s"     
+                        "\\caption{%s}\n" % (figstring, caption))
             if chunk.has_key("name"):
                 result += "\label{%s}\n" % chunk['name']
             result += "\\end{figure}\n"
 
         else:
-            result += "\\includegraphics[width=%s]{%s}\n" % (width, figname)
+            result += figstring
         return(result)
 
 class PwebRstFormatter(PwebFormatter):
@@ -203,17 +208,21 @@ class PwebRstFormatter(PwebFormatter):
                 doctype = 'rst')
 
     def formatfigure(self, chunk):
-        figname = chunk['figure']
+        fignames = chunk['figure']
         caption = chunk['caption']
         width = chunk['width']
-        result = ""   
+        result = ""
+        figstring = ""
+
+        for fig in fignames:
+            figstring += ('.. image:: %s\n   :width: %s\n\n'   % (fig, width))    
 
         if chunk['caption']:
             result += (".. figure:: %s\n"\
                         "   :width: %s\n\n"\
-                        "   %s\n\n" % (figname, width, caption))
+                        "   %s\n\n" % (fignames[0], width, caption))
         else:
-            result += ('.. image:: %s\n   :width: %s\n\n'   % (figname, width))
+            result += figstring
         return(result)
 
     def _indent(self, text):
@@ -244,9 +253,9 @@ class PwebPandocFormatter(PwebFormatter):
         result = ""   
         
         if chunk['caption']:
-            result += '![%s](%s)\n' % (caption, figname)
+            result += '![%s](%s)\n' % (caption, figname[0])
         else:
-            result += '![](%s)\\\n' % (figname)
+            result += '![](%s)\\\n' % (figname[0])
         return(result)
 
 class PwebSphinxFormatter(PwebRstFormatter):
@@ -278,8 +287,8 @@ class PwebSphinxFormatter(PwebRstFormatter):
         if chunk['caption']:
             result += (".. figure:: %s\n"\
                         "   :width: %s\n\n"\
-                        "   %s\n\n" % (figname, width, caption))
+                        "   %s\n\n" % (figname[0], width, caption))
         else:
-            result += ('.. image:: %s\n   :width: %s\n\n'   % (figname, width))
+            result += ('.. image:: %s\n   :width: %s\n\n'   % (figname[0], width))
         return(result)
 

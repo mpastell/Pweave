@@ -262,21 +262,40 @@ class PwebProcessor(object):
                     chunk['result'] = self.loadstring(chunk['content'])
         #After executing the code save the figure
         if chunk['fig']:
-                if chunk['name'] is None:
-                    prefix = self._basename() + '_figure' + str(chunk['number'])
-                else:
-                    prefix = self._basename() + '_' + chunk['name']
-                figname = Pweb.figdir + '/' + prefix + self.formatdict['figfmt']
-                chunk['figure'] = figname
-                if Pweb.usematplotlib:
-                    for format in self.formatdict['savedformats']:
-                        plt.savefig(Pweb.figdir + '/' + prefix + format)
-                        plt.draw()
-                    plt.clf()
-                if Pweb.usesho:
-                    from sho import saveplot
-                    saveplot(figname)
+            chunk['figure'] = self.savefigs(chunk)                
         return(chunk)
+
+
+    def savefigs(self, chunk):
+        if chunk['name'] is None:
+            prefix = self._basename() + '_figure' + str(chunk['number'])
+        else:
+            prefix = self._basename() + '_' + chunk['name']
+        
+        fignames = []
+
+        if Pweb.usematplotlib:
+            import matplotlib.pyplot as plt
+            #Iterate over figures
+            figs = plt.get_fignums()
+            #print figs
+            for i in figs:
+                plt.figure(i)
+                name = Pweb.figdir + '/' + prefix + "_" + str(i) + self.formatdict['figfmt']
+                for format in self.formatdict['savedformats']:
+                    plt.savefig(Pweb.figdir + '/' + prefix + "_" + str(i) + format)
+                    plt.draw()
+                fignames.append(name)
+                #plt.clf()
+                plt.close()
+
+        if Pweb.usesho:
+            from sho import saveplot
+            figname = Pweb.figdir + '/' + prefix + self.formatdict['figfmt']
+            saveplot(figname)
+            fignames = [figname]
+
+        return(fignames)
 
     def restore(self):
         """A method used to unpickle stuff"""
@@ -406,6 +425,7 @@ class Pweb(object):
     defaultoptions = dict(echo = True,
                           results = 'verbatim',
                           fig = False,
+                          include = True,
                           evaluate = True,
                           #width = None,
                           caption = False,
@@ -438,9 +458,13 @@ class Pweb(object):
         self.documentationmode = False
         self.setformat(self.doctype)
 
-    def setformat(self, doctype = 'tex'):
+    def setformat(self, doctype = 'tex', Formatter = None):
         #Formatters are needed  when the code is executed and formatted 
-        self.doctype = doctype
+        if Formatter is not None:
+            self.formatter = Formatter()
+            return
+        
+        
         if doctype == 'tex':
             self.formatter = PwebTexFormatter()
         if doctype == 'rst':
