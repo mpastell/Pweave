@@ -18,65 +18,54 @@ class PwebFormatter(object):
         self.executed = executed
 
     def format(self):
-        self.formatted = map(self.formatchunks, self.executed)
+        self.formatted = []
+        for chunk in self.executed:
+            #Fill in default options, if they are not defined for a chunk
+            for key in self.formatdict.keys():
+                if not chunk.has_key(key):
+                    chunk[key] = self.formatdict[key]
+            
+            #Preformat chunk content before default formatters
+            chunk = self.preformat_chunk(chunk)
 
-    def getformatdict(self):
-        return(self.formatdict)
+            if chunk['type'] is "doc":
+                self.formatted.append(self.format_docchunk(chunk))
+            elif chunk['type'] is "code":
+                self.formatted.append(self.format_codechunks(chunk))
+            else:
+                self.formatted.append(chunk["content"])
+        #print self.formatted
 
-    def getformatted(self):
-        return(self.formatted)
+    def preformat_chunk(self, chunk):
+        """You can use this method in subclasses to preformat chunk content""" 
+        return(chunk)
 
-    def updateformatdict(self, dict):
-        self.formatdict.update(dict)
-
-    def _wrapper(self, string, width = 75):
-        """Wrap a string to specified width like Python terminal"""
-        if len(string) < width:
-            return string
-        #Wrap also comment lines
-        if string.lstrip()[0] is "#":
-            return string[0:width] + '\n' + self._wrapper("#" + string[width:len(string)], width)
+    def format_termchunk(self, chunk):    
+        if chunk['echo'] and chunk['results'] != 'hidden':
+            chunk['result'] = self._termindent(chunk['result'])
+            result = '%(termstart)s%(result)s%(termend)s' % chunk
         else:
-            return string[0:width] + '\n' + self._wrapper(string[width:len(string)], width)
-
-    def _wrap(self, content):
-        splitted = content.split("\n")
-        result = ""
-        for line in splitted:
-            result += self._wrapper(line, 75) + '\n'
+            result = ""
         return(result)
 
-    def formatchunks(self, chunk):
+    def format_codeblock(self, chunk):
+        pass
 
-        #add formatdict to the same with chunks dictionary, makes formatting
-        #commands more compact and makes options available for custom
-        #formatters
+    def format_results(self, chunk):
+        pass
 
-
-        #Fill in default options, if they are not defined for a chunk
-        for key in self.formatdict.keys():
-            if not chunk.has_key(key):
-                chunk[key] = self.formatdict[key]
-
-        ## Call custom formatters
-        #chunk = self._getformatter(chunk)
-
-        #if chunk is not None and type(chunk)!=dict:
-        #    return(chunk)
-        #if chunk is None:
-        #    return('UNKNOWN CHUNK TYPE: %s \n' % chunk['type'])
-
-        #A doc chunk
-        if chunk['type'] == 'doc':
-             return(chunk['content'])
-
-
-
+    def format_codechunks(self, chunk):
         if chunk['wrap']:
             chunk['content'] = self._wrap(chunk['content'])
             chunk['result'] = self._wrap(chunk['result'])
 
         chunk['content'] = self._indent(chunk['content'])
+
+        
+        #Implement this for clarity
+        #content = self.format_codeblock(chunk)
+        #results = format_results(chunk)
+        #return(content + results)
 
         #Code is not executed
         if not chunk['evaluate']:
@@ -88,7 +77,11 @@ class PwebFormatter(object):
 
         #Code is executed
         #-------------------
+        
+        
         result = ""
+
+
 
         #Hidden results
         if chunk['results'] == 'hidden':
@@ -96,11 +89,7 @@ class PwebFormatter(object):
 
         #Term sets echo to true
         if chunk['term']:
-            if chunk['echo'] and chunk['results'] != 'hidden':
-                chunk['result'] = self._termindent(chunk['result'])
-                result = '%(termstart)s%(result)s%(termend)s' % chunk
-
-
+           result = self.format_termchunk(chunk)
         #Other things than term
         elif chunk['evaluate'] and chunk ['echo'] and chunk['results'] == 'verbatim':
             result = '%(codestart)s%(content)s%(codeend)s' % chunk
@@ -133,6 +122,35 @@ class PwebFormatter(object):
             #result += figstring
         return(result)
     
+    def format_docchunk(self, chunk):
+        return(chunk['content'])
+
+    def getformatdict(self):
+        return(self.formatdict)
+
+    def getformatted(self):
+        return(self.formatted)
+
+    def updateformatdict(self, dict):
+        self.formatdict.update(dict)
+
+    def _wrapper(self, string, width = 75):
+        """Wrap a string to specified width like Python terminal"""
+        if len(string) < width:
+            return string
+        #Wrap also comment lines
+        if string.lstrip()[0] is "#":
+            return string[0:width] + '\n' + self._wrapper("#" + string[width:len(string)], width)
+        else:
+            return string[0:width] + '\n' + self._wrapper(string[width:len(string)], width)
+
+    def _wrap(self, content):
+        splitted = content.split("\n")
+        result = ""
+        for line in splitted:
+            result += self._wrapper(line, 75) + '\n'
+        return(result)
+
     def _fillformatdict(self):
         """Fill in the blank options that are now only used for rst
             but also allow e.g. special latex style for terminal blocks etc."""
