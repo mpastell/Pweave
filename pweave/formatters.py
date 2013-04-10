@@ -25,6 +25,13 @@ class PwebFormatter(object):
                 if not chunk.has_key(key):
                     chunk[key] = self.formatdict[key]
             
+            #Wrap text if option is set
+            if chunk['type'] is not "doc":
+                if chunk['wrap']:
+                    chunk['content'] = self._wrap(chunk['content'])
+                    chunk['result'] = self._wrap(chunk['result'])
+
+            
             #Preformat chunk content before default formatters
             chunk = self.preformat_chunk(chunk)
 
@@ -55,9 +62,7 @@ class PwebFormatter(object):
         pass
 
     def format_codechunks(self, chunk):
-        if chunk['wrap']:
-            chunk['content'] = self._wrap(chunk['content'])
-            chunk['result'] = self._wrap(chunk['result'])
+        
 
         chunk['content'] = self._indent(chunk['content'])
 
@@ -309,4 +314,46 @@ class PwebSphinxFormatter(PwebRstFormatter):
         else:
             result += ('.. image:: %s\n   :width: %s\n\n'   % (figname[0], width))
         return(result)
+
+class PwebHTMLFormatter(PwebFormatter):
+
+    def format_codechunks(self, chunk):
+        from pygments import highlight
+        from pygments.lexers import PythonLexer
+        from pygments.formatters import HtmlFormatter, LatexFormatter
+    
+        chunk['content'] = highlight(chunk['content'], PythonLexer(), HtmlFormatter())
+        if len(chunk['result'].strip()) > 0 and chunk['results'] is 'verbatim':
+            chunk['result'] = highlight(chunk['result'], PythonLexer(), HtmlFormatter()) 
+        return(PwebFormatter.format_codechunks(self, chunk))
+    
+    def initformat(self):
+        self.formatdict = dict(codestart = '',
+                               codeend = '',
+                outputstart = '',
+                outputend = '',
+                figfmt = '.png',
+                extension = 'html',
+                width = '600',
+                doctype = 'html')
+        
+    def formatfigure(self, chunk):
+        result = ""
+        figstring = ""
+        for fig in chunk['figure']:
+            figstring += ('<img src="%s" width="%s"/>\n' % (fig, chunk['width']))
+
+        #Figure environment
+        if chunk['caption']:
+            result += ("<figure>\n"\
+                        "%s"     
+                        "<figcaption>%s</figcaption>\n</figure>" % (figstring, chunk['caption']))
+             
+
+        else:
+            result += figstring
+        return(result)
+        
+            
+        return(figstring)
 

@@ -473,6 +473,8 @@ class Pweb(object):
             self.formatter = PwebPandocFormatter()
         if doctype == 'sphinx':
             self.formatter = PwebSphinxFormatter()
+        if doctype == 'html':
+            self.formatter = PwebHTMLFormatter()
 
     def updateformat(self, dict):
         self.formatter.formatdict(dict)

@@ -25,6 +25,8 @@
   <ItemGroup>
     <Compile Include="formatters.py" />
     <Compile Include="pweb.py" />
+    <Compile Include="setup.py" />
+    <Compile Include="test.py" />
     <Compile Include="__init__.py" />
   </ItemGroup>
   <ItemGroup>
