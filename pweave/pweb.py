@@ -402,18 +402,16 @@ class Pweb(object):
     chunkprocessors = []
     globals = {}
 
-
-
     #: Default options for code chunks
     defaultoptions = dict(echo = True,
                           results = 'verbatim',
                           fig = False,
                           evaluate = True,
-                          width = None,
+                          #width = None,
                           caption = False,
                           term = False,
                           name = None,
-                          wrap = False)
+                          wrap = True)
 
     figdir = 'figures'
     cachedir = 'cache'
@@ -446,70 +444,24 @@ class Pweb(object):
         if doctype == 'tex':
             self.formatter = PwebTexFormatter()
         if doctype == 'rst':
-            self.formatdict = dict(codestart = '::\n',
-                codeend = '\n\n',
-                outputstart = '::\n',
-                outputend = '\n\n',
-                #rst has specific format (doctest) for term blocks
-                termstart = '',
-                termend = '\n\n',
-                termindent = '',
-                indent = '    ',
-                figfmt = '.png',
-                extension = 'rst',
-                width = '15 cm',
-                doctype = 'rst')
+            self.formatter = PwebRstFormatter()
         if doctype == 'pandoc':
-            self.formatdict = dict(codestart = '~~~~{.python}',
-                codeend = '~~~~~~~~~~~~~\n\n',
-                outputstart = '~~~~{.python}',
-                outputend = '~~~~~~~~~~~~~\n\n',
-                indent = '',
-                termindent = '',
-                figfmt = '.png',
-                extension = 'md',
-                width = '15 cm',
-                doctype = 'pandoc')
+            self.formatter = PwebPandocFormatter()
         if doctype == 'sphinx':
-            self.formatdict = dict(codestart = '::\n',
-                codeend = '\n\n',
-                outputstart = '.. code-block::\n',
-                outputend = '\n\n',
-                #rst has specific format (doctest) for term blocks
-                termstart = '',
-                termend = '\n\n',
-                termindent = '',
-                indent = '    ',
-                #Sphinx determines the figure format automatically
-                #for different output formats
-                figfmt = '.*',
-                savedformats = ['.png', '.pdf'],
-                extension = 'rst',
-                width = '15 cm',
-                doctype = 'rst')
+            self.formatter = PwebSphinxFormatter()
 
-        #Fill in the blank options that are now only used for rst
-        #but also allow e.g. special latex style for terminal blocks etc.
-        #self._fillformatdict()
-
-    def _fillformatdict(self):
-        """Fill in the blank fields in formatdictionary"""
-        self._fillkey('termstart', self.formatdict['codestart'])
-        self._fillkey('termindent', self.formatdict['indent'])
-        self._fillkey('termend', self.formatdict['codeend'])
-        self._fillkey('savedformats', list([self.formatdict['figfmt']]))
-
-    def _fillkey(self, key, value):
-        if not self.formatdict.has_key(key):
-            self.formatdict[key] = value
+    def updateformat(self, dict):
+        self.formatter.formatdict(dict)
 
     def useminted(self):
          if self.doctype == 'tex':
-            self.formatdict.update(dict(codestart ='\\begin{minted}[mathescape]{python}',
+            self.formatter.updateformatdict(
+              dict(
+                codestart = r'\begin{minted}[mathescape, fontsize=\footnotesize, xleftmargin=0.5em]{python}',
                 codeend = '\end{minted}\n',
-                outputstart = '\\begin{minted}[mathescape]{python}',
+                outputstart = r'\begin{minted}[fontsize=\footnotesize, fontshape=sl, xleftmargin=0.5em, mathescape]{text}',
                 outputend = '\end{minted}\n',
-                termstart = '\\begin{minted}[mathescape]{python}',
+                termstart = r'\begin{minted}[fontsize=\footnotesize, xleftmargin=0.5em, mathescape]{python}',
                 termend = '\end{minted}\n'))
     
     def parse(self):
@@ -536,12 +488,12 @@ class Pweb(object):
         if not self.isformatted:
             self.format()
         if self.sink is None:
-            self.sink = self._basename() + '.' + self.formatdict['extension']
+            self.sink = self._basename() + '.' + self.formatter.getformatdict()['extension']
         f = open(self.sink, 'w')
         text = "".join(self.formatted)
       
-        splitted = text.split("\n")
-        result = ""
+        #splitted = text.split("\n")
+        #result = ""
         #for line in splitted:
         #    result += formatters.wrapper(line, 75) + '\n'
         #    text = result
@@ -567,12 +519,6 @@ class Pweb(object):
         f.write('\n'.join(code))
         f.close()
         sys.stdout.write('Tangled code from %s to %s\n' % (self.source, target))
-
-    def _indent(self, text):
-        return(text.replace('\n', '\n' + self.formatdict['indent']))
-
-    def _termindent(self, text):
-        return(text.replace('\n', '\n' + self.formatdict['termindent']))
 
     def _getformatter(self, chunk):
         """Call code from pweave.formatters and user provided formatters
