@@ -47,3 +47,8 @@ Documentation
 -------------
 
 Pweave documentation can be found from the website http://mpastell.com/pweave
+
+Release Notes
+-------------
+
+Release are in: http://mpastell.com/pweave/release.html 

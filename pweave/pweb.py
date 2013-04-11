@@ -10,7 +10,7 @@ import cPickle as pickle
 
 
 
-def pweave(file, doctype = 'rst', plot = True, useminted = False,
+def pweave(file, doctype = 'rst', plot = True,
            docmode = False, cache = False,
            figdir = 'figures', cachedir = 'cache',
            figformat = None, returnglobals = True):
@@ -20,7 +20,6 @@ def pweave(file, doctype = 'rst', plot = True, useminted = False,
     :param file: ``string`` input file
     :param doctype: ``string`` document format: 'sphinx', 'rst', 'pandoc' or 'tex'
     :param plot: ``bool`` use matplotlib (or Sho with Ironpython) 
-    :param useminted: ``bool`` use minted package for code chunks in LaTeX documents
     :param docmode: ``bool`` use documentation mode, chunk code and results will be loaded from cache and inline code will be hidden
     :param cache: ``bool`` Cache results to disk for documentation mode
     :param figdir: ``string`` directory path for figures
@@ -36,8 +35,7 @@ def pweave(file, doctype = 'rst', plot = True, useminted = False,
         Pweb.usematplotlib = False
     else:
         Pweb.usematplotlib = plot
-    if useminted:
-        doc.useminted()
+    
     Pweb.figdir = figdir
     Pweb.cachedir = cachedir
     doc.documentationmode = docmode
@@ -431,7 +429,8 @@ class Pweb(object):
                           caption = False,
                           term = False,
                           name = None,
-                          wrap = True)
+                          wrap = True,
+                          f_pos = "htpb")
 
     figdir = 'figures'
     cachedir = 'cache'
@@ -440,12 +439,12 @@ class Pweb(object):
     storeresults = True
     _mpl_imported = False
 
-    def __init__(self, file = None):
+    def __init__(self, file = None, format = "tex"):
         
         #: The source document
         self.source = file
         self.sink = None
-        self.doctype = 'tex'
+        self.doctype = format
         self.parsed = None
         self.executed = None
         self.formatted = None
@@ -463,32 +462,13 @@ class Pweb(object):
         if Formatter is not None:
             self.formatter = Formatter()
             return
+        #Get formatter class from available formatters
+        self.formatter = PwebFormats.formats[doctype]['class']()
         
         
-        if doctype == 'tex':
-            self.formatter = PwebTexFormatter()
-        if doctype == 'rst':
-            self.formatter = PwebRstFormatter()
-        if doctype == 'pandoc':
-            self.formatter = PwebPandocFormatter()
-        if doctype == 'sphinx':
-            self.formatter = PwebSphinxFormatter()
-        if doctype == 'html':
-            self.formatter = PwebHTMLFormatter()
-
     def updateformat(self, dict):
         self.formatter.formatdict(dict)
-
-    def useminted(self):
-         if self.doctype == 'tex':
-            self.formatter.updateformatdict(
-              dict(
-                codestart = r'\begin{minted}[mathescape, fontsize=\footnotesize, xleftmargin=0.5em]{python}',
-                codeend = '\end{minted}\n',
-                outputstart = r'\begin{minted}[fontsize=\footnotesize, fontshape=sl, xleftmargin=0.5em, mathescape]{text}',
-                outputend = '\end{minted}\n',
-                termstart = r'\begin{minted}[fontsize=\footnotesize, xleftmargin=0.5em, mathescape]{python}',
-                termend = '\end{minted}\n'))
+              
     
     def parse(self):
         parser = PwebReader(self.source)

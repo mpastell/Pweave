@@ -8,6 +8,8 @@
 #def formatcapschunk(chunk):
 #    return(chunk['content'].upper())
 
+
+
 class PwebFormatter(object):
 
     def __init__(self):
@@ -202,16 +204,48 @@ class PwebTexFormatter(PwebFormatter):
 
         #Figure environment
         if chunk['caption']:
-            result += ("\\begin{figure}\n"\
+            result += ("\\begin{figure}[%s]\n"\
                         "%s"     
-                        "\\caption{%s}\n" % (figstring, caption))
+                        "\\caption{%s}\n" % (chunk['f_pos'] ,figstring, caption))
             if chunk.has_key("name"):
-                result += "\label{%s}\n" % chunk['name']
+                result += "\label{fig:%s}\n" % chunk['name']
             result += "\\end{figure}\n"
 
         else:
             result += figstring
         return(result)
+
+class PwebMintedFormatter(PwebTexFormatter):
+                
+    def initformat(self):
+        
+        self.formatdict = dict(
+             codestart = r'\begin{minted}[mathescape, fontsize=\small, xleftmargin=0.5em]{python}',
+             codeend = '\end{minted}\n',
+             outputstart = r'\begin{minted}[fontsize=\small, xleftmargin=0.5em, mathescape, frame = leftline]{text}',
+             outputend = '\end{minted}\n',
+             termstart = r'\begin{minted}[fontsize=\footnotesize, xleftmargin=0.5em, mathescape]{python}',
+             termend = '\end{minted}\n',
+             figfmt = '.pdf',
+             extension = 'tex',
+             width = '\\textwidth',
+             doctype = 'tex')
+
+class PwebTexPweaveFormatter(PwebTexFormatter):
+    """User defined formatting for chunks in header using pweavecode, pweaveoutput and pweaveterm environments"""
+    def initformat(self):
+        
+        self.formatdict = dict(
+             codestart = r'\begin{pweavecode}',
+             codeend = '\end{pweavecode}\n',
+             outputstart = r'\begin{pweaveout}',
+             outputend = '\end{pweaveout}\n',
+             termstart = r'\begin{pweaveterm}',
+             termend = '\end{pweaveterm}\n',
+             figfmt = '.pdf',
+             extension = 'tex',
+             width = '\\textwidth',
+             doctype = 'tex')
 
 class PwebRstFormatter(PwebFormatter):
 
@@ -284,9 +318,9 @@ class PwebPandocFormatter(PwebFormatter):
 class PwebSphinxFormatter(PwebRstFormatter):
 
     def initformat(self):
-          self.formatdict = dict(codestart = '::\n',
+          self.formatdict = dict(codestart = '.. code-block:: python\n',
                 codeend = '\n\n',
-                outputstart = '.. code-block::\n',
+                outputstart = '::\n',
                 outputend = '\n\n',
                 #rst has specific format (doctest) for term blocks
                 termstart = '',
@@ -356,4 +390,42 @@ class PwebHTMLFormatter(PwebFormatter):
         
             
         return(figstring)
+
+class PwebFormats(object):
+    """Contains a dictionary of available output formats"""
+    formats = {'tex' : {'class' : PwebTexFormatter, 'description' :  'Latex with verbatim for code and results'},
+               'texminted' : {'class' : PwebMintedFormatter, 'description' :  'Latex with predefined minted environment for codeblocks'},
+               'texpweave' : {'class' : PwebTexPweaveFormatter, 'description' :  'Latex output with user defined formatting using named environments (in latex header)'},
+               'rst' : {'class' : PwebRstFormatter, 'description' :  'reStructuredText'}, 
+               'pandoc' :  {'class' : PwebPandocFormatter, 'description' :  'Pandoc markdown'}, 
+               'sphinx' : {'class' : PwebSphinxFormatter, 'description' :  'reStructuredText for Sphinx'}, 
+               'html' : {'class' : PwebHTMLFormatter, 'description' :  'HTML with pygments highlighting'}
+               }
+    
+    @classmethod
+    def shortformats(cls):
+        fmtstring = ""
+        names = cls.formats.keys()
+        n = len(names)
+        for i in range(n):
+            fmtstring += (" %s") % (names[i])
+            if i < (n-1):
+                fmtstring += ","
+
+        return(fmtstring)
+
+    @classmethod
+    def getformats(cls):
+        fmtstring = "" 
+        for format in cls.formats:
+            fmtstring += ("* %s:\n   %s\n") % (format, cls.formats[format]['description'])
+        return(fmtstring)
+
+    @classmethod
+    def listformats(cls):
+        print(cls.getformats())
+        
+
+    
+    
 
