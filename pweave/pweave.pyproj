@@ -5,14 +5,13 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{2eeb56a0-30e2-4333-bfd6-698a8e3fe999}</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>
-    </StartupFile>
-    <SearchPath>
-    </SearchPath>
-    <WorkingDirectory>.</WorkingDirectory>
+    <StartupFile>..\test2.py</StartupFile>
+    <SearchPath>E:\Dropbox\ohjelmat\pweave\;..\</SearchPath>
+    <WorkingDirectory>..\</WorkingDirectory>
     <AssemblyName>pweave</AssemblyName>
     <Name>pweave</Name>
     <RootNamespace>pweave</RootNamespace>
+    <IsWindowsApplication>False</IsWindowsApplication>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,10 +22,18 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\setup.py">
+      <Link>setup.py</Link>
+    </Compile>
+    <Compile Include="..\test.py">
+      <Link>test.py</Link>
+    </Compile>
+    <Compile Include="..\test2.py">
+      <Link>test2.py</Link>
+    </Compile>
     <Compile Include="formatters.py" />
     <Compile Include="pweb.py" />
-    <Compile Include="setup.py" />
-    <Compile Include="test.py" />
+    <Compile Include="scripts.py" />
     <Compile Include="__init__.py" />
   </ItemGroup>
   <ItemGroup>

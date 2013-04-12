@@ -15,6 +15,8 @@ class PwebFormatter(object):
     def __init__(self):
         self.initformat()
         self._fillformatdict()
+        self.header = None
+        self.footer = None
 
     def setexecuted(self, executed):
         self.executed = executed
@@ -22,27 +24,35 @@ class PwebFormatter(object):
     def format(self):
         self.formatted = []
         for chunk in self.executed:
-            #Fill in default options, if they are not defined for a chunk
-            for key in self.formatdict.keys():
-                if not chunk.has_key(key):
-                    chunk[key] = self.formatdict[key]
+            #Fill in options for code chunks
+            if chunk['type'] == "code":
+                for key in self.formatdict.keys():
+                    if not chunk.has_key(key):
+                        chunk[key] = self.formatdict[key]
             
             #Wrap text if option is set
-            if chunk['type'] is not "doc":
-                if chunk['wrap']:
+            if chunk['type'] == "code":
+                if chunk['wrap'] == True:
                     chunk['content'] = self._wrap(chunk['content'])
                     chunk['result'] = self._wrap(chunk['result'])
-
+                if chunk['wrap'] == 'code':
+                    chunk['content'] = self._wrap(chunk['content'])
+                if chunk['wrap'] == 'results':
+                    chunk['result'] = self._wrap(chunk['result'])
             
             #Preformat chunk content before default formatters
             chunk = self.preformat_chunk(chunk)
 
-            if chunk['type'] is "doc":
+            if chunk['type'] == "doc":
                 self.formatted.append(self.format_docchunk(chunk))
-            elif chunk['type'] is "code":
+            elif chunk['type'] == "code":
                 self.formatted.append(self.format_codechunks(chunk))
             else:
                 self.formatted.append(chunk["content"])
+
+        #Add header and footer
+        self.add_header()
+        self.add_footer()
         #print self.formatted
 
     def preformat_chunk(self, chunk):
@@ -64,7 +74,6 @@ class PwebFormatter(object):
         pass
 
     def format_codechunks(self, chunk):
-        
 
         chunk['content'] = self._indent(chunk['content'])
 
@@ -83,12 +92,8 @@ class PwebFormatter(object):
                 return('')
 
         #Code is executed
-        #-------------------
-        
-        
+        #-------------------        
         result = ""
-
-
 
         #Hidden results
         if chunk['results'] == 'hidden':
@@ -132,6 +137,16 @@ class PwebFormatter(object):
     def format_docchunk(self, chunk):
         return(chunk['content'])
 
+    def add_header(self):
+        """Can be used to add header to self.formatted list"""
+        if self.header is not None:
+            self.formatted = [self.header] + self.formatted
+
+    def add_footer(self):
+        """Can be used to add footer to self.formatted list"""
+        if self.footer is not None:
+            self.formatted.append(self.footer)
+
     def getformatdict(self):
         return(self.formatdict)
 
@@ -146,7 +161,7 @@ class PwebFormatter(object):
         if len(string) < width:
             return string
         #Wrap also comment lines
-        if string.lstrip()[0] is "#":
+        if string.lstrip()[0] == "#":
             return string[0:width] + '\n' + self._wrapper("#" + string[width:len(string)], width)
         else:
             return string[0:width] + '\n' + self._wrapper(string[width:len(string)], width)
@@ -357,7 +372,7 @@ class PwebHTMLFormatter(PwebFormatter):
         from pygments.formatters import HtmlFormatter, LatexFormatter
     
         chunk['content'] = highlight(chunk['content'], PythonLexer(), HtmlFormatter())
-        if len(chunk['result'].strip()) > 0 and chunk['results'] is 'verbatim':
+        if len(chunk['result'].strip()) > 0 and chunk['results'] == 'verbatim':
             chunk['result'] = highlight(chunk['result'], PythonLexer(), HtmlFormatter()) 
         return(PwebFormatter.format_codechunks(self, chunk))
     
@@ -423,7 +438,9 @@ class PwebFormats(object):
 
     @classmethod
     def listformats(cls):
+        print("\nPweave supported output formats:\n")
         print(cls.getformats())
+        print("More info: http://mpastell.com/pweave/formats.html \n")
         
 
     

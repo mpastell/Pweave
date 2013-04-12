@@ -6,14 +6,16 @@ import code
 import inspect
 from . import formatters
 from formatters import *
+from . import processors
+from processors import *
 import cPickle as pickle
-
+import copy
 
 
 def pweave(file, doctype = 'rst', plot = True,
            docmode = False, cache = False,
            figdir = 'figures', cachedir = 'cache',
-           figformat = None, returnglobals = True):
+           figformat = None, returnglobals = True, listformats = False):
     """
     Processes a Pweave document and writes output to a file
 
@@ -26,7 +28,17 @@ def pweave(file, doctype = 'rst', plot = True,
     :param cachedir: ``string`` directory path for cached results used in documentation mode
     :param figformat: ``string`` format for saved figures (e.g. '.png'), if None then the default for each format is used
     :param returnglobals: ``bool`` if True the namespace of the executed document is added to callers global dictionary. Then it is possible to work interactively with the data while writing the document. IronPython needs to be started with -X:Frames or this won't work.
+    :param listformats: ``bool`` List available formats and exit
     """
+
+    if listformats:
+        PwebFormats.listformats()
+        return
+
+    
+
+    assert file != "" is not None, "No input specified"
+
 
     doc = Pweb(file)
     doc.setformat(doctype)
@@ -154,6 +166,7 @@ class PwebReader(object):
 
         return(defaults)
 
+
 class PwebProcessor(object):
     """Runs code from parsed Pweave documents"""
 
@@ -177,7 +190,8 @@ class PwebProcessor(object):
         if self.documentationmode:
            success = self._getoldresults()
            if success:
-                return
+               print "restoring" 
+               return
            else:
                sys.stderr.write("DOCUMENTATION MODE ERROR:\nCan't find stored results, running the code and caching results for the next documentation mode run\n")
                Pweb.storeresults = True
@@ -188,7 +202,7 @@ class PwebProcessor(object):
             self.store(self.executed)
 
     def getresults(self):
-        return(self.executed)
+        return(copy.deepcopy(self.executed))
 
     def store(self, data):
         """A method used to pickle stuff for persistence"""
@@ -198,6 +212,11 @@ class PwebProcessor(object):
         f = open(name, 'wb')
         pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
         f.close()
+        #print (len(data))
+        #f = open(name, 'w')
+        #f.write(json.dumps(data, indent=4, separators=(',', ': ')))
+        #f.close()
+
 
     def _runcode(self, chunk):
         """Execute code from a code chunk based on options"""
@@ -302,6 +321,10 @@ class PwebProcessor(object):
             f = open(name, 'rb')
             self._oldresults = pickle.load(f)
             f.close()
+            #f = open(name, 'r')
+            #self._oldresults= json.loads(f.read())
+            #print(len(self._oldresults))
+            #f.close()
             return(True)
         else:
             return(False)
@@ -311,25 +334,40 @@ class PwebProcessor(object):
 
     def _getoldresults(self):
         """Get the results of previous run for documentation mode"""
+        from pprint import pprint
         success = self.restore()
         if not success:
             return(False)
-        old = filter(lambda x: x['type']=='code', self._oldresults)
-        executed = self.parsed
-        for chunk in executed:
-            if chunk['type']!='code' and chunk['type']!='doc':
-                continue
-            #No caching for inline code yet, just hide it
-            if chunk['type'] is 'doc':
-                chunk.update(self._hideinline(chunk))
-                continue
-            nbr = chunk['number']
-            stored = filter(lambda x : x['number'] == nbr,  old)[0]
-            if chunk['content'] != stored['content']:
-                sys.stderr.write('WARNING: contents of chunk number %(number)s (name = %(name)s) have changed\n' % chunk)
-            #print stored
-            chunk.update(stored)
+
+        executed = []
+
+        n = len(self.parsed)
+
+        for i in range(n):
+            chunk = self.parsed[i]
+            if chunk['type'] is not "code":
+                executed.append(chunk.copy())
+            else:
+                executed.append(self._oldresults[i].copy())
+
+        #old = filter(lambda x: x['type']=='code', self._oldresults)
+        #executed = self.parsed
+        #for chunk in executed:
+        #    if chunk['type']!='code' and chunk['type']!='doc':
+        #        continue
+        #    #No caching for inline code yet, just hide it
+        #    if chunk['type'] is 'doc':
+        #        chunk.update(self._hideinline(chunk))
+        #        continue
+        #    nbr = chunk['number']
+        #    stored = filter(lambda x : x['number'] == nbr,  old)[0]
+        #    if chunk['content'] != stored['content']:
+        #        sys.stderr.write('WARNING: contents of chunk number %(number)s (name = %(name)s) have changed\n' % chunk)
+        #    print stored
+        #    chunk.update(stored)
+            
         self.executed = executed
+        #pprint(self.executed)
         return(True)
 
     def loadstring(self, code):
@@ -412,14 +450,18 @@ class PwebProcessor(object):
         return(chunk)
 
 class Pweb(object):
-    """Processes a complete document and contains Pweave options"""
+    """Processes a complete document
+    
+    :param file: ``string`` name of the input document.
+    :param format: ``string`` output format from supported formats. See: http://mpastell.com/pweave/formats.html
+    """
 
     #Shared across class instances
     chunkformatters = []
     chunkprocessors = []
     globals = {}
 
-    #: Default options for code chunks
+    
     defaultoptions = dict(echo = True,
                           results = 'verbatim',
                           fig = False,
@@ -431,17 +473,24 @@ class Pweb(object):
                           name = None,
                           wrap = True,
                           f_pos = "htpb")
-
+    
+    #: Pweave figure directory
     figdir = 'figures'
+    
+    #: Pweave cache directory
     cachedir = 'cache'
+    
+    #: Use plots? 
     usematplotlib = True
+    
+
     usesho = False
     storeresults = True
     _mpl_imported = False
 
     def __init__(self, file = None, format = "tex"):
         
-        #: The source document
+        #The source document
         self.source = file
         self.sink = None
         self.doctype = format
@@ -453,44 +502,59 @@ class Pweb(object):
         self.isformatted = False
         
         self.usesho = False
-        #Pickle results for use with documentation mode
+        
+        #: Use documentation mode?
+        
         self.documentationmode = False
         self.setformat(self.doctype)
 
     def setformat(self, doctype = 'tex', Formatter = None):
+        """Set output format for the document
+        
+        :param doctype: ``string`` output format from supported formats. See: http://mpastell.com/pweave/formats.html
+        :param Formatter: Formatter class, can be used to specify custom formatters. See: http://mpastell.com/pweave/subclassing.html
+        
+        """
         #Formatters are needed  when the code is executed and formatted 
         if Formatter is not None:
             self.formatter = Formatter()
             return
         #Get formatter class from available formatters
         self.formatter = PwebFormats.formats[doctype]['class']()
-        
-        
-    def updateformat(self, dict):
-        self.formatter.formatdict(dict)
+ 
+    def getformat(self):
+        """Get current format dictionary. See: http://mpastell.com/pweave/customizing.html"""
+        return(self.formatter.formatdict)
               
+    def updateformat(self, dict):
+        """Update existing format, See: http://mpastell.com/pweave/customizing.html"""
+        self.formatter.formatdict.update(dict)
     
     def parse(self):
+        """Parse document""" 
         parser = PwebReader(self.source)
         parser.read()
         self.parsed = parser.getparsed()
         self.isparsed = True
 
     def run(self):
-        runner = PwebProcessor(self.parsed, self.source, self.documentationmode, self.formatter.getformatdict())
+        """Execute code in the document"""
+        runner = PwebProcessor(copy.deepcopy(self.parsed), self.source, self.documentationmode, self.formatter.getformatdict())
         runner.run()
         self.executed = runner.getresults()
         self.isexecuted = True
 
     def format(self):
+        """Format the code for writing""" 
         if not self.isexecuted:
             self.run()
-        self.formatter.setexecuted(self.executed)
+        self.formatter.setexecuted(copy.deepcopy(self.executed))
         self.formatter.format()
         self.formatted =  self.formatter.getformatted()
         self.isformatted = True
 
     def write(self):
+        """Write formatted code to file"""
         if not self.isformatted:
             self.format()
         if self.sink is None:
@@ -511,12 +575,14 @@ class Pweb(object):
         return(re.split("\.+[^\.]+$", self.source)[0])
 
     def weave(self):
+        """Weave the document, equals -> parse, run, format, write"""
         self.parse()
         self.run()
         self.format()
         self.write()
 
     def tangle(self):
+        """Tangle the document"""
         self.parse()
         target = self._basename() + '.py'
         code = filter(lambda x : x['type'] == 'code', self.parsed)
@@ -544,4 +610,4 @@ class Pweb(object):
         sys.stderr.write('UNKNOWN CHUNK TYPE: %s \n' % chunk['type'])
         return(None)
 
-    
+  
