@@ -22,6 +22,15 @@ htmltemplate["header"] = """
       font: 14px/21px "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
       text-align : justify
       }
+
+      h1.title {font-size : 1.6em}
+
+      h1 {font-size : 1.4em}
+
+      h2 {font-size : 1.2em}
+
+      h3 {font-size : 1.1em}
+
       h1, h2, h3, h4, h5, h6
       {
       color : maroon;

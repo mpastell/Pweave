@@ -65,10 +65,18 @@ class PwebProcessor(object):
         #f.close()
 
 
+
     def _runcode(self, chunk):
         """Execute code from a code chunk based on options"""
         if chunk['type'] != 'doc' and chunk['type'] !='code':
             return(chunk)
+        #Add defaultoptions to parsed options
+        if chunk['type'] == 'code':
+           defaults = Pweb.defaultoptions.copy()
+           defaults.update(chunk["options"])
+           chunk.update(defaults)
+           del chunk['options']
+
 
         #Make function to dispatch based on the type
         #Execute a function from a list of functions
@@ -119,9 +127,12 @@ class PwebProcessor(object):
                 except Exception as inst:
                     sys.stdout = stdold
                     sys.stderr.write('Failed to execute chunk in term mode executing with term = False instead\nThis can sometimes happen at least with function definitions even if there is no syntax error\nEXCEPTION :')
-                    sys.stderr.write('%s\n%s\n' % (type(inst), inst.args))
-                    chunk['result'] = self.loadstring(chunk['content'])
-                    chunk['term'] = False
+                    try:
+                        sys.stderr.write('Executing in term mode:')
+                        chunk['result'] = self.loadstring(chunk['content'])
+                        chunk['term'] = False
+                    except:
+                        raise
             else:
                     chunk['result'] = self.loadstring(chunk['content'])
         #After executing the code save the figure
@@ -371,7 +382,12 @@ class Pweb(object):
             self.formatter = Formatter(self.source)
             return
         #Get formatter class from available formatters
-        self.formatter = PwebFormats.formats[doctype]['class'](self.source)
+        try:
+            self.formatter = PwebFormats.formats[doctype]['class'](self.source)
+        except KeyError as e:
+            raise Exception("Pweave: Unknown output format")
+            
+
  
     def setreader(self, Reader = readers.PwebReader):
         """Set class reading for reading documents, 
@@ -463,5 +479,4 @@ class Pweb(object):
             return(chunk)
         sys.stderr.write('UNKNOWN CHUNK TYPE: %s \n' % chunk['type'])
         return(None)
-
   

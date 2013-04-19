@@ -14,6 +14,8 @@ def weave():
     parser = OptionParser(usage="Pweave [options] sourcefile", version="Pweave " + pweave.__version__)
     parser.add_option("-f", "--format", dest="format", default='rst',
                       help="The output format. Available formats: " + pweave.PwebFormats.shortformats() + " Use Pweave -l to list descriptions or see http://mpastell.com/pweave/formats.html")
+    parser.add_option("-i", "--input-format", dest="informat", default='noweb',
+                      help="Input format: noweb or script")
     parser.add_option("-l","--list-formats", dest="listformats", action = "store_true" ,default=False,
                       help="List output formats")
     parser.add_option("-m", "--matplotlib", dest="mplotlib", default='true',
@@ -47,7 +49,7 @@ def weave():
     else:
         figfmt = None
 
-    pweave.pweave(infile, doctype = options.format, plot = mplotlib,
+    pweave.pweave(infile, doctype = options.format, informat=options.informat, plot = mplotlib,
            docmode = options.docmode, cache = options.cache, figdir = options.figdir,
            cachedir = options.cachedir, figformat = figfmt, listformats = options.listformats)
 

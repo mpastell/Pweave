@@ -2,6 +2,7 @@
 import re
 import sys
 import copy
+from subprocess import Popen, PIPE
 
 
 class PwebReader(object):
@@ -33,12 +34,17 @@ class PwebReader(object):
         #Parse code+options and text chunks from the tuple
         parsedlist = map(self._chunkstodict, codetuple)
         parsedlist = filter(lambda x: x != None, parsedlist)
-        #number codechunks, start from 1
-        n = 1
+        #number chunks, start from 1
+        nc = 1
+        nd = 1
         for chunk in parsedlist:
             if chunk['type'] == 'code':
-                chunk['number'] = n
-                n += 1
+                chunk['number'] = nc
+                nc += 1
+            if chunk['type'] == 'doc':
+                chunk['number'] = nd
+                nd += 1
+
         #Remove extra line inserted during parsing
         parsedlist[0]['content'] =  parsedlist[0]['content'].replace('\n', '', 1)
 
@@ -52,8 +58,8 @@ class PwebReader(object):
         if (re.findall('@[\s]*?$', chunk[0])) and not (re.findall('^<<.*?>>=[\s]*$', chunk[1], re.M)):
             return({'type' : 'doc', 'content':chunk[1]})
         if (re.findall('^<<.*>>=[\s]*?$', chunk[0], re.M)):
-            codedict = {'type' : 'code', 'content':chunk[1]}
-            codedict.update(self._getoptions(chunk[0]))
+            opts = self._getoptions(chunk[0])
+            codedict = {'type' : 'code', 'content':chunk[1], 'options' : opts}
             return(codedict)
 
     def _chunkstotuple(self, code):
@@ -66,17 +72,14 @@ class PwebReader(object):
         return(a)
 
     def _getoptions(self, opt):
-        defaults = pweb.Pweb.defaultoptions.copy()
-
         # Aliases for False and True to conform with Sweave syntax
         FALSE = False
         TRUE = True
 
-
         #Parse options from chunk to a dictionary
         optstring = opt.replace('<<', '').replace('>>=', '').strip()
         if not optstring:
-            return(defaults)
+            return({})
         #First option can be a name/label
         if optstring.split(',')[0].find('=')==-1:
             splitted = optstring.split(',')
@@ -84,14 +87,12 @@ class PwebReader(object):
             optstring = ','.join(splitted)
 
         exec("chunkoptions =  dict(" + optstring + ")")
-        #Update the defaults
-        defaults.update(chunkoptions)
-        if defaults.has_key('label'):
-            defaults['name'] = defaults['label']
+        if chunkoptions.has_key('label'):
+            chunkoptions['name'] = chunkoptions['label']
 
-        return(defaults)
+        return(chunkoptions)
 
-class PwebSpinReader(PwebReader):
+class PwebScriptReader(PwebReader):
     
     def __init__(self, file = None, string = None):
         PwebReader.__init__(self, file, string)
@@ -144,10 +145,9 @@ class PwebSpinReader(PwebReader):
             if self.docstart(line) and self.state =="code":
                 self.state = "doc"
                 if read.strip() != "":
-                    chunk = {"type" : "code", "content" : "\n" + read.rstrip(), "number" : codeN}
+                    chunks.append( {"type" : "code", "content" : "\n" + read.rstrip(), 
+                                    "number" : codeN, "options" : opts})
                     codeN +=1
-                    chunk.update(opts)
-                    chunks.append(chunk.copy())
                 read = ""
 
             if self.state == "doc":
@@ -159,23 +159,20 @@ class PwebSpinReader(PwebReader):
 
         #Handle the last chunk
         if self.state == "code":
-            chunk = {"type" : "code", "content" : "\n" + read.rstrip(), "number" : codeN}
-            chunk.update(opts)
-            chunks.append(chunk.copy())
+            chunks.append( {"type" : "code", "content" : "\n" + read.rstrip(), 
+                                    "number" : codeN, "options" : opts})
         if self.state == "doc":
             chunks.append({"type" : "doc", "content" : read, "number" : docN})
         self.parsed = chunks
 
     def getoptions(self, opt):
-        defaults = pweb.Pweb.defaultoptions.copy()
-
         # Aliases for False and True to conform with Sweave syntax
         FALSE = False
         TRUE = True
         #Parse options from chunk to a dictionary
         optstring = opt.replace('#+', '', 1).strip()
         if not optstring:
-            return(defaults)
+            return({})
         #First option can be a name/label
         if optstring.split(',')[0].find('=')==-1:
             splitted = optstring.split(',')
@@ -184,11 +181,94 @@ class PwebSpinReader(PwebReader):
 
         exec("chunkoptions =  dict(" + optstring + ")")
         #Update the defaults
-        defaults.update(chunkoptions)
-        if defaults.has_key('label'):
-            defaults['name'] = defaults['label']
+        
+        if chunkoptions.has_key('label'):
+            chunkoptions['name'] = chunkoptions['label']
 
-        return(defaults)
+        return(chunkoptions)
+
+class PwebConvert(object):
+    """Convert from one input format to another"""
+
+    def __init__(self, file = None, informat = "script", outformat = "noweb", pandoc_args= None):
+        self.informat = informat
+        self.outformat = outformat
+        if informat == "noweb":
+            self.doc = PwebReader(file)
+        if informat == "script":
+            self.doc = PwebScriptReader(file)
+        self.pandoc_args = pandoc_args
+        if self.informat == self.outformat:
+            self.basename =  re.split("\.+[^\.]+$", file)[0] + "_converted"
+        else:
+            self.basename =  re.split("\.+[^\.]+$", file)[0]
+        self.doc.parse()
+        self.convert()
+        self.write()
+
+
+    def format_docchunk(self, content):
+        """Format doc chunks for output"""
+        if self.pandoc_args is not None:
+            pandoc = Popen(["pandoc.exe"] + self.pandoc_args.split(), stdin = PIPE, stdout = PIPE)
+            pandoc.stdin.write(content)
+            content = (pandoc.communicate()[0]).replace("\r", "")
+
+        if self.outformat == "noweb":
+            return(content)
+        if self.outformat == "script":
+            lines = content.splitlines()
+            flines = [("#' " + x) for x in lines]
+            return("\n".join(flines))
+
+    def write(self):
+        if self.outformat == "noweb":
+            ext = ".Pnw"
+        if self.outformat == "script":
+            ext = ".py"
+        file = self.basename + ext
+        f = open(file, "w")
+        f.write(self.converted)
+        f.close()
+        print "Output written to " + file
+        
+    def convert(self):
+        output = []
+
+        if self.outformat == "noweb":
+           code = "<<%s>>=%s\n@\n"
+        if self.outformat == "script":
+           code = "#+ %s\n%s"
+
+        for chunk in self.doc.parsed:
+                if chunk["type"] == "doc":
+                    output.append(self.format_docchunk(chunk["content"]))
+                if chunk["type"] == "code":
+                    optstring = self.get_optstring(chunk)
+                    output.append(code % (optstring, chunk["content"]))
+
+        self.converted = "\n".join(output)
+
+    def get_optstring(self, chunk):
+        optstring = ""
+        n = len(chunk["options"].keys())
+        i = 0
+        for key in chunk["options"].keys():
+            i +=1
+            if type(chunk["options"][key]) == bool:
+                optstring += key + '=' + str(chunk["options"][key])
+            else:
+                optstring += key + '="' + str(chunk["options"][key]) + '"'
+            if (i < n):
+                optstring += ", "
+
+        return(optstring)
+
+
+
+
+
+
     
 
 

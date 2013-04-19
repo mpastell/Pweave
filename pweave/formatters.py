@@ -1,4 +1,5 @@
 import sys
+from subprocess import Popen, PIPE
 # Pweave output formatters
 
 
@@ -45,6 +46,9 @@ class PwebFormatter(object):
 
         
         #Flatten to string, make conversion and headers etc.
+
+        for i in range(len(self.formatted)):
+            self.formatted[i] = self.formatted[i].decode('utf-8')
         self.formatted = "\n".join(self.formatted)
         self.convert() #Convert to e.g. markdown
         self.add_header()
@@ -156,7 +160,7 @@ class PwebFormatter(object):
         return(self.formatdict)
 
     def getformatted(self):
-        return(self.formatted)
+        return(self.formatted.encode('utf-8'))
 
     def updateformatdict(self, dict):
         self.formatdict.update(dict)
@@ -503,7 +507,6 @@ class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
 class PwebPandocMDtoHTMLFormatter(PwebMDtoHTMLFormatter):
     
     def convert(self):
-        from subprocess import Popen, PIPE
         try:
             pandoc = Popen(["pandoc.exe", "--mathjax", "-t", "html", "-f", "markdown"], stdin = PIPE, stdout = PIPE)
         #pandoc = Popen(["pandoc.exe", "--mathjax"], stdin = PIPE, stdout = PIPE)
@@ -566,7 +569,6 @@ class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
     def format_docchunk(self, chunk):
         if chunk.has_key("number") and chunk['number'] == 1:
             chunk = self.parsetitle(chunk)
-        from subprocess import Popen, PIPE
         try:
             pandoc = Popen(["pandoc.exe", "-t", "latex", "-f", "markdown"], stdin = PIPE, stdout = PIPE)
         except:
@@ -610,7 +612,7 @@ class PwebFormats(object):
     @classmethod
     def getformats(cls):
         fmtstring = "" 
-        for format in cls.formats:
+        for format in sorted(cls.formats):
             fmtstring += ("* %s:\n   %s\n") % (format, cls.formats[format]['description'])
         return(fmtstring)
 

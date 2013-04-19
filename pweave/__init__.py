@@ -13,7 +13,7 @@ from subprocess import Popen, PIPE
 __version__ = '0.22b'
 
 
-def pweave(file, doctype = 'rst', plot = True,
+def pweave(file, doctype = 'rst', informat = "noweb", plot = True,
            docmode = False, cache = False,
            figdir = 'figures', cachedir = 'cache',
            figformat = None, returnglobals = True, listformats = False):
@@ -21,7 +21,8 @@ def pweave(file, doctype = 'rst', plot = True,
     Processes a Pweave document and writes output to a file
 
     :param file: ``string`` input file
-    :param doctype: ``string`` document format: 'sphinx', 'rst', 'pandoc' or 'tex'
+    :param doctype: ``string`` output document format: call with listformats true to get list of supported formats.
+    :param informat: ``string`` input format: "noweb" or "script"
     :param plot: ``bool`` use matplotlib (or Sho with Ironpython) 
     :param docmode: ``bool`` use documentation mode, chunk code and results will be loaded from cache and inline code will be hidden
     :param cache: ``bool`` Cache results to disk for documentation mode
@@ -36,13 +37,18 @@ def pweave(file, doctype = 'rst', plot = True,
         PwebFormats.listformats()
         return
 
-    
-
     assert file != "" is not None, "No input specified"
 
 
     doc = Pweb(file)
     doc.setformat(doctype)
+    
+    if informat=="noweb":
+        doc.setreader(readers.PwebReader)
+    if informat=="script":
+        doc.setreader(readers.PwebScriptReader)
+
+
     if sys.platform == 'cli':
         Pweb.usesho = plot
         Pweb.usematplotlib = False
@@ -66,10 +72,10 @@ def pweave(file, doctype = 'rst', plot = True,
         #this way you can modify the weaved variables from repl
             _returnglobals()
     except Exception as inst:
-        sys.stderr.write('%s\n%s\n' % (type(inst), inst.args))
         #Return varibles used this far if there is an exception
         if returnglobals:
            _returnglobals()
+        raise
 
 def _returnglobals():
     """Inspect stack to get the scope of the terminal/script calling pweave function"""
@@ -87,10 +93,12 @@ def ptangle(file):
     doc = Pweb(file)
     doc.tangle()
 
-
 def publish(file, format = "html"):
+    """Publish python script and results to html or pdf"""
+
     if format == "html":
         pformat = "md2html"
+        Pweb.defaultoptions.update({"wrap" : False})
     elif format == "pdf":
         pformat = "pandoc2latex"
     else:
@@ -99,8 +107,7 @@ def publish(file, format = "html"):
         
     doc = Pweb(file)
     doc.setformat(pformat)
-    Pweb.defaultoptions.update({'wrap' : 'code'})
-    doc.setreader(readers.PwebSpinReader)
+    doc.setreader(readers.PwebScriptReader)
     doc.parse()
     doc.run()
     doc.format()
@@ -115,5 +122,19 @@ def publish(file, format = "html"):
         x = latex.communicate()[0]
         print ("\n").join(x.splitlines()[-2:])
 
-def spin(file, format = "md"):
-    pass
+def spin(file):
+    """Convert input file from script format to noweb format, similar to Knitr's spin."""
+    doc = readers.PwebConvert(file)
+    
+def convert(file, informat="noweb", outformat="script", pandoc_args=None):
+    """Convert input file from script to noweb or vice versa"""
+    doc = readers.PwebConvert(file, informat, outformat, pandoc_args)
+    
+
+
+
+    
+ 
+
+    
+    
