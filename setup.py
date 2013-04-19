@@ -13,7 +13,8 @@ setup(name='Pweave',
       entry_points = {
           'console_scripts' :
               ['Pweave = pweave.scripts:weave',
-               'Ptangle = pweave.scripts:tangle'
+               'Ptangle = pweave.scripts:tangle',
+               'pypublish = pweave.scripts:publish'
                ]},
       version = pweave.__version__,
       description='Scientific reports with embedded python computations with reST, LaTeX or markdown',

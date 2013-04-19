@@ -83,7 +83,7 @@ if sys.platform == 'cli':
 #        os.system("start sho.pdf")
 else:
     #Tex
-    doc = pweave.Pweb('ma-tex.Plw', "texminted")
+    doc = pweave.Pweb('ma-tex.Plw', "texpygments")
     #doc = pweave.Pweb('sho.Rnw')
     #doc.setformat(Formatter = MyTex)
     #doc.documentationmode = False
@@ -92,30 +92,30 @@ else:
     #doc.run()
     doc.weave()
     #doc.tangle()
-    os.system('pdflatex -shell-escape ma-tex.tex')
+    os.system('pdflatex ma-tex.tex')
 
-    #Rst
-    doc2 = pweave.Pweb('ma.Pnw')
-    doc2.setformat('rst')
-    doc2.documentationmode = False
-    doc2.weave()
-    os.system('rst2html ma.rst > ma-rst.html')
+    ##Rst
+    #doc2 = pweave.Pweb('ma.Pnw')
+    #doc2.setformat('rst')
+    #doc2.documentationmode = False
+    #doc2.weave()
+    #os.system('rst2html ma.rst > ma-rst.html')
 
-    #HTML
-    doc3 = pweave.Pweb('ma2.htmlw')
-    #pweave.Pweb.defaultoptions.update(wrap = False)
-    #doc3.setformat(Formatter = MyHtml)
-    doc3.setformat("html")
-    doc3.weave()
+    ##HTML
+    #doc3 = pweave.Pweb('ma2.htmlw')
+    ##pweave.Pweb.defaultoptions.update(wrap = False)
+    ##doc3.setformat(Formatter = MyHtml)
+    #doc3.setformat("html")
+    #doc3.weave()
 
-    #Markdown to HTML
-    doc4 = pweave.Pweb('ma.mdw')
-    doc4.setformat(Formatter = MDtoHTML)
-    doc4.weave()
-    #print doc4.parsed[1]
-    #print doc4.executed[1]
-    #pprint(MDtoHTML.before)
-    #print 
+    ##Markdown to HTML
+    #doc4 = pweave.Pweb('ma.mdw')
+    #doc4.setformat(Formatter = MDtoHTML)
+    #doc4.weave()
+    ##print doc4.parsed[1]
+    ##print doc4.executed[1]
+    ##pprint(MDtoHTML.before)
+    ##print 
     
 
     

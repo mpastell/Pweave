@@ -11,7 +11,7 @@ def weave():
         sys.exit()
 
 # Command line options
-    parser = OptionParser(usage="Pweave[options] sourcefile", version="Pweave " + pweave.__version__)
+    parser = OptionParser(usage="Pweave [options] sourcefile", version="Pweave " + pweave.__version__)
     parser.add_option("-f", "--format", dest="format", default='rst',
                       help="The output format. Available formats: " + pweave.PwebFormats.shortformats() + " Use Pweave -l to list descriptions or see http://mpastell.com/pweave/formats.html")
     parser.add_option("-l","--list-formats", dest="listformats", action = "store_true" ,default=False,
@@ -50,6 +50,24 @@ def weave():
     pweave.pweave(infile, doctype = options.format, plot = mplotlib,
            docmode = options.docmode, cache = options.cache, figdir = options.figdir,
            cachedir = options.cachedir, figformat = figfmt, listformats = options.listformats)
+
+def publish():
+    if len(sys.argv)==1:
+        print "Publish a python script. Part of Pweave %s, use -h for help" % pweave.__version__
+        sys.exit()
+    parser = OptionParser(usage="pypublish [options] sourcefile", version="Part of Pweave " + pweave.__version__)
+    parser.add_option("-f", "--format", dest="format", default='html',
+                      help = "Output format html or pdf, pdf output requires pandoc and pdflatex")
+    
+    (options, args) = parser.parse_args()
+
+    try:
+        infile = args[0]
+    except:
+        infile = ""
+
+    pweave.publish(infile, options.format)
+
 
 def tangle():
     if len(sys.argv)==1:

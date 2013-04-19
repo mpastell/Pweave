@@ -1,22 +1,15 @@
-
-
-#Format chunks
-#def formatdocchunk(chunk):
-#    return(chunk['content'])
-
-#A test formatter for custom call code
-#def formatcapschunk(chunk):
-#    return(chunk['content'].upper())
-
+import sys
+# Pweave output formatters
 
 
 class PwebFormatter(object):
 
-    def __init__(self):
+    def __init__(self, source = None):
         self.initformat()
         self._fillformatdict()
         self.header = None
         self.footer = None
+        self.source = source
 
     def setexecuted(self, executed):
         self.executed = executed
@@ -50,10 +43,17 @@ class PwebFormatter(object):
             else:
                 self.formatted.append(chunk["content"])
 
-        #Add header and footer
+        
+        #Flatten to string, make conversion and headers etc.
+        self.formatted = "\n".join(self.formatted)
+        self.convert() #Convert to e.g. markdown
         self.add_header()
         self.add_footer()
         #print self.formatted
+
+    def convert(self):
+        pass
+        
 
     def preformat_chunk(self, chunk):
         """You can use this method in subclasses to preformat chunk content""" 
@@ -77,6 +77,9 @@ class PwebFormatter(object):
 
         chunk['content'] = self._indent(chunk['content'])
 
+        #Ugly fix to extra whitespace after chunks, 
+        #should really find out where extra whitespace comes from
+        #chunk['result'] = chunk['result'].rstrip() + "\n"
         
         #Implement this for clarity
         #content = self.format_codeblock(chunk)
@@ -125,6 +128,8 @@ class PwebFormatter(object):
             #This a test to see if all options have been captured
             #result = "\\large{NOT YET IMPLEMENTED!!\n}"
             #result += str(chunk)
+
+
         #Handle figures
         if chunk['fig']:
             if chunk['include']:
@@ -140,12 +145,12 @@ class PwebFormatter(object):
     def add_header(self):
         """Can be used to add header to self.formatted list"""
         if self.header is not None:
-            self.formatted = [self.header] + self.formatted
+            self.formatted = self.header + self.formatted
 
     def add_footer(self):
         """Can be used to add footer to self.formatted list"""
         if self.footer is not None:
-            self.formatted.append(self.footer)
+            self.formatted += self.footer
 
     def getformatdict(self):
         return(self.formatdict)
@@ -246,6 +251,35 @@ class PwebMintedFormatter(PwebTexFormatter):
              width = '\\textwidth',
              doctype = 'tex')
 
+class PwebTexPygmentsFormatter(PwebTexFormatter):
+
+     def initformat(self):
+        
+        self.formatdict = dict(
+             codestart = "",
+             codeend = "",
+             outputstart = "",
+             outputend = "",
+             termstart = "",
+             termend = "",
+             figfmt = '.pdf',
+             extension = 'tex',
+             width = '\\textwidth',
+             doctype = 'tex')
+
+     def format_codechunks(self, chunk):
+        from pygments import highlight
+        from pygments.lexers import PythonLexer, TextLexer
+        from pygments.formatters import LatexFormatter
+    
+        chunk['content'] = highlight(chunk['content'], PythonLexer(), LatexFormatter(verboptions="fontsize=\small, xleftmargin=0.5em"))
+        if len(chunk['result'].strip()) > 0 and chunk['results'] == 'verbatim':
+            if chunk['term']:
+                chunk['result'] = highlight(chunk['result'], PythonLexer(), LatexFormatter(verboptions="fontsize=\small, xleftmargin=0.5em")) 
+            else:
+                chunk['result'] = highlight(chunk['result'], TextLexer(), LatexFormatter(verboptions="fontsize=\small, xleftmargin=0.5em")) 
+        return(PwebFormatter.format_codechunks(self, chunk))
+
 class PwebTexPweaveFormatter(PwebTexFormatter):
     """User defined formatting for chunks in header using pweavecode, pweaveoutput and pweaveterm environments"""
     def initformat(self):
@@ -319,15 +353,19 @@ class PwebPandocFormatter(PwebFormatter):
                 doctype = 'pandoc')
      
     def formatfigure(self, chunk):
-        figname = chunk['figure']
+        fignames = chunk['figure']
         caption = chunk['caption']
         width = chunk['width']
-        result = ""   
-        
+        result = ""
+        figstring = ""
+
+        for fig in fignames:
+            figstring += '![](%s)\\\n' % (fig)
+            
         if chunk['caption']:
-            result += '![%s](%s)\n' % (caption, figname[0])
+            result += '![%s](%s)\n' % (caption, fignames[0])
         else:
-            result += '![](%s)\\\n' % (figname[0])
+            result += figstring 
         return(result)
 
 class PwebSphinxFormatter(PwebRstFormatter):
@@ -351,25 +389,30 @@ class PwebSphinxFormatter(PwebRstFormatter):
                 doctype = 'rst')
 
     def formatfigure(self, chunk):
-        figname = chunk['figure']
+        fignames = chunk['figure']
         caption = chunk['caption']
         width = chunk['width']
-        result = ""   
+        result = ""
+        figstring = ""
+
+        for fig in fignames:
+            figstring += ('.. image:: %s\n   :width: %s\n\n'   % (fig, width))    
 
         if chunk['caption']:
             result += (".. figure:: %s\n"\
                         "   :width: %s\n\n"\
-                        "   %s\n\n" % (figname[0], width, caption))
+                        "   %s\n\n" % (fignames[0], width, caption))
         else:
-            result += ('.. image:: %s\n   :width: %s\n\n'   % (figname[0], width))
-        return(result)
+            result += figstring
+        return(result)   
 
+        
 class PwebHTMLFormatter(PwebFormatter):
 
     def format_codechunks(self, chunk):
         from pygments import highlight
         from pygments.lexers import PythonLexer
-        from pygments.formatters import HtmlFormatter, LatexFormatter
+        from pygments.formatters import HtmlFormatter
     
         chunk['content'] = highlight(chunk['content'], PythonLexer(), HtmlFormatter())
         if len(chunk['result'].strip()) > 0 and chunk['results'] == 'verbatim':
@@ -406,15 +449,150 @@ class PwebHTMLFormatter(PwebFormatter):
             
         return(figstring)
 
+class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
+
+    def __init__(self, source):
+        from templates import htmltemplate
+        from . import __version__
+        import time
+        PwebHTMLFormatter.__init__(self, source)
+        self.header = htmltemplate["header"]
+        self.footer = (htmltemplate["footer"] % 
+                      {"source" : self.source, "version" : __version__, "time" : time.strftime("%d-%m-%Y", time.localtime())}) 
+
+    def format_docchunk(self, chunk):
+        if chunk.has_key("number") and chunk['number'] == 1:
+            chunk = self.parsetitle(chunk)
+        return(chunk['content'])
+
+    def parsetitle(self, chunk):
+        """Parse titleblock from first doc chunk, like Pandoc"""
+        lines = chunk['content'].splitlines()
+        if len(lines) > 3:
+            if lines[0].startswith("%"):
+                lines[0] = '<H1 class = "title">%s</H1>' %  (lines[0].replace("%", "", ))
+                if lines[1].startswith("%"):
+                    lines[1] = '<strong>Author:</strong> %s <BR/>' %  (lines[1].replace("%", "", ))
+                if lines[2].startswith("%"):
+                    lines[2] = '<strong>Date:</strong> %s <BR/>' %  (lines[2].replace("%", "", ))
+        chunk['content'] = ("\n").join(lines)
+        return(chunk)
+
+
+    def convert(self):
+        try:
+            from markdown import markdown
+        except:
+            try:
+                from markdown2 import markdown
+            except:
+                raise
+        
+        #Use Mathjax if it is available
+        try:
+            import markdown2Mathjax as MJ
+            tmp = MJ.sanitizeInput(self.formatted)
+            markedDownText = markdown(tmp[0])
+            finalOutput = MJ.reconstructMath(markedDownText,tmp[1], inline_delims=["\\(","\\)"])
+            self.formatted = finalOutput
+        except:
+            sys.stderr.write("WARNING: Can't import markdown2Mathjax, expect problems with math formatting.\n")
+            self.formatted = markdown(self.formatted)
+
+
+class PwebPandocMDtoHTMLFormatter(PwebMDtoHTMLFormatter):
+    
+    def convert(self):
+        from subprocess import Popen, PIPE
+        try:
+            pandoc = Popen(["pandoc.exe", "--mathjax", "-t", "html", "-f", "markdown"], stdin = PIPE, stdout = PIPE)
+        #pandoc = Popen(["pandoc.exe", "--mathjax"], stdin = PIPE, stdout = PIPE)
+        except:
+            sys.stderr.write("ERROR: Can't find pandoc")
+            raise
+        pandoc.stdin.write(self.formatted)
+        self.formatted = pandoc.communicate()[0]
+        #return(chunk['content'])
+        
+
+class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
+
+    def __init__(self, source = None):
+        PwebTexPygmentsFormatter.__init__(self, source)
+        from pygments.formatters import LatexFormatter
+        x = LatexFormatter()
+        self.header = (r"""\documentclass[a4paper,11pt,final]{article}
+        \usepackage{fancyvrb, color, graphicx, hyperref, ,amsmath, url}
+        \usepackage{palatino}
+        \usepackage[a4paper,text={16.5cm,25.2cm},centering]{geometry}
+        
+        \hypersetup  
+        {   pdfauthor = {Pweave},
+            pdftitle={Published from %s},
+            colorlinks=TRUE,
+            linkcolor=black,
+            citecolor=blue,
+            urlcolor=blue
+        }
+        \setlength{\parindent}{0pt}
+        \setlength{\parskip}{1.2ex}
+        %s
+        """) % (self.source, x.get_style_defs())
+        self.footer = r"\end{document}"
+
+    
+    def parsetitle(self, chunk):
+        """Parse titleblock from first doc chunk, like Pandoc"""
+        lines = chunk['content'].splitlines()
+        if len(lines) > 3:
+            if lines[0].startswith("%"):
+                self.header += '\n\\title{%s}\n' %  (lines[0].replace("%", "", ))
+                lines[0] = ""
+                if lines[1].startswith("%"):
+                    self.header += '\\author{%s}\n' %  (lines[1].replace("%", "", ))
+                    lines[1] = ""
+                if lines[2].startswith("%"):
+                    self.header += '\\date{%s}\n' %  (lines[2].replace("%", "", ))
+                    lines[2] = ""
+                self.header += "\n\\begin{document}\n\maketitle\n"
+            #If there is no titleblock
+            else:
+                self.header += ["\\begin{document}\n"] + lines
+
+        chunk['content'] = ("\n").join(lines)
+        return(chunk)
+
+
+    def format_docchunk(self, chunk):
+        if chunk.has_key("number") and chunk['number'] == 1:
+            chunk = self.parsetitle(chunk)
+        from subprocess import Popen, PIPE
+        try:
+            pandoc = Popen(["pandoc.exe", "-t", "latex", "-f", "markdown"], stdin = PIPE, stdout = PIPE)
+        except:
+            sys.stderr.write("ERROR: Can't find pandoc")
+            raise
+        pandoc.stdin.write(chunk['content'])
+        chunk['content'] = pandoc.communicate()[0]
+        return(chunk['content'])
+    
+        #pandoc.stdin.write(self.formatted)
+        #self.formatted = pandoc.communicate()[0]
+        #self.formatted
+
 class PwebFormats(object):
     """Contains a dictionary of available output formats"""
     formats = {'tex' : {'class' : PwebTexFormatter, 'description' :  'Latex with verbatim for code and results'},
                'texminted' : {'class' : PwebMintedFormatter, 'description' :  'Latex with predefined minted environment for codeblocks'},
                'texpweave' : {'class' : PwebTexPweaveFormatter, 'description' :  'Latex output with user defined formatting using named environments (in latex header)'},
+               'texpygments' : {'class' : PwebTexPygmentsFormatter, 'description' :  'Latex output with pygments highlighted output'},
                'rst' : {'class' : PwebRstFormatter, 'description' :  'reStructuredText'}, 
                'pandoc' :  {'class' : PwebPandocFormatter, 'description' :  'Pandoc markdown'}, 
                'sphinx' : {'class' : PwebSphinxFormatter, 'description' :  'reStructuredText for Sphinx'}, 
-               'html' : {'class' : PwebHTMLFormatter, 'description' :  'HTML with pygments highlighting'}
+               'html' : {'class' : PwebHTMLFormatter, 'description' :  'HTML with pygments highlighting'},
+               'md2html' : {'class' : PwebMDtoHTMLFormatter, 'description' :  'Markdown to HTML using Python-Markdown'},
+               'pandoc2latex' : {'class' : PwebPandoctoTexFormatter, 'description' :  'Markdown to Latex using Pandoc, requires Pandoc in path'},
+               'pandoc2html' : {'class' : PwebPandocMDtoHTMLFormatter, 'description' :  'Markdown to HTML using Pandoc, requires Pandoc in path'}
                }
     
     @classmethod

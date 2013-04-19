@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{2eeb56a0-30e2-4333-bfd6-698a8e3fe999}</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>..\test2.py</StartupFile>
+    <StartupFile>..\spintest.py</StartupFile>
     <SearchPath>E:\Dropbox\ohjelmat\pweave\;..\</SearchPath>
     <WorkingDirectory>..\</WorkingDirectory>
     <AssemblyName>pweave</AssemblyName>
@@ -25,15 +25,23 @@
     <Compile Include="..\setup.py">
       <Link>setup.py</Link>
     </Compile>
+    <Compile Include="..\spintest.py">
+      <Link>spintest.py</Link>
+    </Compile>
     <Compile Include="..\test.py">
       <Link>test.py</Link>
     </Compile>
     <Compile Include="..\test2.py">
       <Link>test2.py</Link>
     </Compile>
+    <Compile Include="..\testString.py">
+      <Link>testString.py</Link>
+    </Compile>
     <Compile Include="formatters.py" />
     <Compile Include="pweb.py" />
+    <Compile Include="readers.py" />
     <Compile Include="scripts.py" />
+    <Compile Include="templates.py" />
     <Compile Include="__init__.py" />
   </ItemGroup>
   <ItemGroup>

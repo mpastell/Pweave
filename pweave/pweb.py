@@ -6,165 +6,12 @@ import code
 import inspect
 from . import formatters
 from formatters import *
-from . import processors
-from processors import *
+from . import readers
 import cPickle as pickle
 import copy
 
 
-def pweave(file, doctype = 'rst', plot = True,
-           docmode = False, cache = False,
-           figdir = 'figures', cachedir = 'cache',
-           figformat = None, returnglobals = True, listformats = False):
-    """
-    Processes a Pweave document and writes output to a file
 
-    :param file: ``string`` input file
-    :param doctype: ``string`` document format: 'sphinx', 'rst', 'pandoc' or 'tex'
-    :param plot: ``bool`` use matplotlib (or Sho with Ironpython) 
-    :param docmode: ``bool`` use documentation mode, chunk code and results will be loaded from cache and inline code will be hidden
-    :param cache: ``bool`` Cache results to disk for documentation mode
-    :param figdir: ``string`` directory path for figures
-    :param cachedir: ``string`` directory path for cached results used in documentation mode
-    :param figformat: ``string`` format for saved figures (e.g. '.png'), if None then the default for each format is used
-    :param returnglobals: ``bool`` if True the namespace of the executed document is added to callers global dictionary. Then it is possible to work interactively with the data while writing the document. IronPython needs to be started with -X:Frames or this won't work.
-    :param listformats: ``bool`` List available formats and exit
-    """
-
-    if listformats:
-        PwebFormats.listformats()
-        return
-
-    
-
-    assert file != "" is not None, "No input specified"
-
-
-    doc = Pweb(file)
-    doc.setformat(doctype)
-    if sys.platform == 'cli':
-        Pweb.usesho = plot
-        Pweb.usematplotlib = False
-    else:
-        Pweb.usematplotlib = plot
-    
-    Pweb.figdir = figdir
-    Pweb.cachedir = cachedir
-    doc.documentationmode = docmode
-    doc.storeresults = cache
-
-    if figformat is not None:
-        doc.formatdict['figfmt'] = figformat
-        doc.formatdict['savedformats'] = [figformat]
-
-    #Returning globals
-    try:
-        doc.weave()
-        if returnglobals:
-        #Get the calling scope and return results to its globals
-        #this way you can modify the weaved variables from repl
-            _returnglobals()
-    except Exception as inst:
-        sys.stderr.write('%s\n%s\n' % (type(inst), inst.args))
-        #Return varibles used this far if there is an exception
-        if returnglobals:
-           _returnglobals()
-
-def _returnglobals():
-    """Inspect stack to get the scope of the terminal/script calling pweave function"""
-    if hasattr(sys,'_getframe'):
-        caller = inspect.stack()[2][0]
-        caller.f_globals.update(Pweb.globals)
-    if not hasattr(sys,'_getframe'):
-        print('%s\n%s\n' % ("Can't return globals" ,"Start Ironpython with ipy -X:Frames if you wan't this to work"))
-
-def ptangle(file):
-    """Tangles a noweb file i.e. extracts code from code chunks to a .py file
-    
-    :param file: ``string`` the pweave document containing the code
-    """
-    doc = Pweb(file)
-    doc.tangle()
-
-class PwebReader(object):
-    """Reads and parses Pweb documents"""
-
-    def __init__(self, file = None):
-        self.source = file
-
-    def read(self):
-        codefile = open(self.source, 'r')
-        #Prepend "@\n" to code in order to
-        #ChunksToDict to work with the first text chunk
-        code = "@\n" + codefile.read()
-        codefile.close()
-        #Split file to list at chunk separators
-        chunksep = re.compile('(^<<.*?>>=[\s]*$)|(@[\s]*?$)', re.M)
-        codelist = chunksep.split(code)
-        codelist = filter(lambda x : x != None, codelist)
-        codelist = filter(lambda x :  not x.isspace() and x != "", codelist)
-        #Make a tuple for parsing
-        codetuple = self._chunkstotuple(codelist)
-        #Parse code+options and text chunks from the tuple
-        parsedlist = map(self._chunkstodict, codetuple)
-        parsedlist = filter(lambda x: x != None, parsedlist)
-        #number codechunks, start from 1
-        n = 1
-        for chunk in parsedlist:
-            if chunk['type'] == 'code':
-                chunk['number'] = n
-                n += 1
-        #Remove extra line inserted during parsing
-        parsedlist[0]['content'] =  parsedlist[0]['content'].replace('\n', '', 1)
-
-        self.parsed = parsedlist
-        self.isparsed = True
-
-    def getparsed(self):
-        return(self.parsed)
-
-    def _chunkstodict(self, chunk):
-        if (re.findall('@[\s]*?$', chunk[0])) and not (re.findall('^<<.*?>>=[\s]*$', chunk[1], re.M)):
-            return({'type' : 'doc', 'content':chunk[1]})
-        if (re.findall('^<<.*>>=[\s]*?$', chunk[0], re.M)):
-            codedict = {'type' : 'code', 'content':chunk[1]}
-            codedict.update(self._getoptions(chunk[0]))
-            return(codedict)
-
-    def _chunkstotuple(self, code):
-        # Make a list of tuples from the list of chuncks
-        a = list()
-
-        for i in range(len(code)-1):
-            x = (code[i], code[i+1])
-            a.append(x)
-        return(a)
-
-    def _getoptions(self, opt):
-        defaults = Pweb.defaultoptions.copy()
-
-        # Aliases for False and True to conform with Sweave syntax
-        FALSE = False
-        TRUE = True
-
-
-        #Parse options from chunk to a dictionary
-        optstring = opt.replace('<<', '').replace('>>=', '').strip()
-        if not optstring:
-            return(defaults)
-        #First option can be a name/label
-        if optstring.split(',')[0].find('=')==-1:
-            splitted = optstring.split(',')
-            splitted[0] = 'name = "%s"' % splitted[0]
-            optstring = ','.join(splitted)
-
-        exec("chunkoptions =  dict(" + optstring + ")")
-        #Update the defaults
-        defaults.update(chunkoptions)
-        if defaults.has_key('label'):
-            defaults['name'] = defaults['label']
-
-        return(defaults)
 
 
 class PwebProcessor(object):
@@ -346,7 +193,7 @@ class PwebProcessor(object):
         for i in range(n):
             chunk = self.parsed[i]
             if chunk['type'] is not "code":
-                executed.append(chunk.copy())
+                executed.append(self._hideinline(chunk.copy()))
             else:
                 executed.append(self._oldresults[i].copy())
 
@@ -459,12 +306,14 @@ class Pweb(object):
     #Shared across class instances
     chunkformatters = []
     chunkprocessors = []
+    
+    #: Globals dictionary used when evaluating code
     globals = {}
 
     
     defaultoptions = dict(echo = True,
                           results = 'verbatim',
-                          fig = False,
+                          fig = True,
                           include = True,
                           evaluate = True,
                           #width = None,
@@ -485,7 +334,7 @@ class Pweb(object):
     
 
     usesho = False
-    storeresults = True
+    storeresults = False
     _mpl_imported = False
 
     def __init__(self, file = None, format = "tex"):
@@ -504,8 +353,10 @@ class Pweb(object):
         self.usesho = False
         
         #: Use documentation mode?
-        
         self.documentationmode = False
+
+        self.Reader = readers.PwebReader
+
         self.setformat(self.doctype)
 
     def setformat(self, doctype = 'tex', Formatter = None):
@@ -517,11 +368,16 @@ class Pweb(object):
         """
         #Formatters are needed  when the code is executed and formatted 
         if Formatter is not None:
-            self.formatter = Formatter()
+            self.formatter = Formatter(self.source)
             return
         #Get formatter class from available formatters
-        self.formatter = PwebFormats.formats[doctype]['class']()
+        self.formatter = PwebFormats.formats[doctype]['class'](self.source)
  
+    def setreader(self, Reader = readers.PwebReader):
+        """Set class reading for reading documents, 
+        readers can be used to implement different input markups""" 
+        self.Reader = Reader
+
     def getformat(self):
         """Get current format dictionary. See: http://mpastell.com/pweave/customizing.html"""
         return(self.formatter.formatdict)
@@ -530,10 +386,14 @@ class Pweb(object):
         """Update existing format, See: http://mpastell.com/pweave/customizing.html"""
         self.formatter.formatdict.update(dict)
     
-    def parse(self):
+    def parse(self, string = None, basename = "string_input"):
         """Parse document""" 
-        parser = PwebReader(self.source)
-        parser.read()
+        if string is None:
+            parser = self.Reader(file = self.source)
+        else:
+            parser = self.Reader(string = string)
+            self.source = basename
+        parser.parse()
         self.parsed = parser.getparsed()
         self.isparsed = True
 
@@ -553,30 +413,24 @@ class Pweb(object):
         self.formatted =  self.formatter.getformatted()
         self.isformatted = True
 
-    def write(self):
+    def write(self, action = "Pweaved"):
         """Write formatted code to file"""
         if not self.isformatted:
             self.format()
         if self.sink is None:
             self.sink = self._basename() + '.' + self.formatter.getformatdict()['extension']
         f = open(self.sink, 'w')
-        text = "".join(self.formatted)
-      
-        #splitted = text.split("\n")
-        #result = ""
-        #for line in splitted:
-        #    result += formatters.wrapper(line, 75) + '\n'
-        #    text = result
-        f.write(text)
+        f.write(self.formatted.replace("\r", ""))
         f.close()
-        sys.stdout.write('Pweaved %s to %s\n' % (self.source, self.sink))
+        sys.stdout.write('%s %s to %s\n' % (action, self.source, self.sink))
 
     def _basename(self):
         return(re.split("\.+[^\.]+$", self.source)[0])
 
     def weave(self):
         """Weave the document, equals -> parse, run, format, write"""
-        self.parse()
+        if not self.isparsed:
+            self.parse()
         self.run()
         self.format()
         self.write()
