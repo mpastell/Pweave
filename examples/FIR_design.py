@@ -10,7 +10,7 @@
 #' Text is written in markdown in lines starting with "`#'` " and code
 #' is executed and results are included in the published document.
 #' The concept is similar to
-#' publishing documents with [MATLAB](http://mathworks.com) or using
+#' publishing documents with u[MATLAB](http://mathworks.com) or using
 #' stitch with [Knitr](http://http://yihui.name/knitr/demo/stitch/).
 
 #' Notice that you don't need to define chunk options (see
