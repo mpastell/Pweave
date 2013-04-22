@@ -464,10 +464,8 @@ class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
         self.footer = (htmltemplate["footer"] % 
                       {"source" : self.source, "version" : __version__, "time" : time.strftime("%d-%m-%Y", time.localtime())}) 
 
-    def format_docchunk(self, chunk):
-        if chunk.has_key("number") and chunk['number'] == 1:
-            chunk = self.parsetitle(chunk)
-        return(chunk['content'])
+    
+       
 
     def parsetitle(self, chunk):
         """Parse titleblock from first doc chunk, like Pandoc"""
@@ -483,7 +481,10 @@ class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
         return(chunk)
 
 
-    def convert(self):
+    def format_docchunk(self, chunk):
+        if chunk.has_key("number") and chunk['number'] == 1:
+            chunk = self.parsetitle(chunk)
+
         try:
             from markdown import markdown
         except:
@@ -495,14 +496,14 @@ class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
         #Use Mathjax if it is available
         try:
             import markdown2Mathjax as MJ
-            tmp = MJ.sanitizeInput(self.formatted)
+            tmp = MJ.sanitizeInput(chunk['content'])
             markedDownText = markdown(tmp[0])
             finalOutput = MJ.reconstructMath(markedDownText,tmp[1], inline_delims=["\\(","\\)"])
-            self.formatted = finalOutput
+            chunk['content'] = finalOutput
         except:
             sys.stderr.write("WARNING: Can't import markdown2Mathjax, expect problems with math formatting.\n")
-            self.formatted = markdown(self.formatted)
-
+            chunk['content'] = markdown(chunk['content'])
+        return(chunk['content'])
 
 class PwebPandocMDtoHTMLFormatter(PwebMDtoHTMLFormatter):
     
