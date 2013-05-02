@@ -61,9 +61,8 @@ def pweave(file, doctype = 'rst', informat = "noweb", plot = True,
     doc.storeresults = cache
 
     if figformat is not None:
-        doc.formatdict['figfmt'] = figformat
-        doc.formatdict['savedformats'] = [figformat]
-
+        doc.updateformat({'figfmt' : figformat, 'savedformats' : [figformat]})
+        
     #Returning globals
     try:
         doc.weave()

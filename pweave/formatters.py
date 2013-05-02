@@ -165,7 +165,7 @@ class PwebFormatter(object):
     def updateformatdict(self, dict):
         self.formatdict.update(dict)
 
-    def _wrapper(self, string, width = 75):
+    def _wrapper(self, string, width = 80):
         """Wrap a string to specified width like Python terminal"""
         if len(string) < width:
             return string
@@ -179,7 +179,7 @@ class PwebFormatter(object):
         splitted = content.split("\n")
         result = ""
         for line in splitted:
-            result += self._wrapper(line, 75) + '\n'
+            result += self._wrapper(line) + '\n'
         return(result)
 
     def _fillformatdict(self):
@@ -229,6 +229,7 @@ class PwebTexFormatter(PwebFormatter):
         #Figure environment
         if chunk['caption']:
             result += ("\\begin{figure}[%s]\n"\
+                        "\\center\n"\
                         "%s"     
                         "\\caption{%s}\n" % (chunk['f_pos'] ,figstring, caption))
             if chunk.has_key("name"):

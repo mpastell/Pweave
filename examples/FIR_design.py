@@ -1,5 +1,5 @@
 #' % FIR filter design with Python and SciPy
-#' % Matti Pastell  [http://mpastell.com/](http://mpastell.com)
+#' % Matti Pastell
 #' % 15th April 2013
 
 #' # Introduction

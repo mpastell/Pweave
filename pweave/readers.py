@@ -212,7 +212,7 @@ class PwebConvert(object):
         if self.pandoc_args is not None:
             pandoc = Popen(["pandoc.exe"] + self.pandoc_args.split(), stdin = PIPE, stdout = PIPE)
             pandoc.stdin.write(content)
-            content = (pandoc.communicate()[0]).replace("\r", "")
+            content = (pandoc.communicate()[0]).replace("\r", "") + "\n"
 
         if self.outformat == "noweb":
             return(content)
@@ -238,7 +238,7 @@ class PwebConvert(object):
         if self.outformat == "noweb":
            code = "<<%s>>=%s\n@\n"
         if self.outformat == "script":
-           code = "#+ %s\n%s"
+           code = "#+ %s\n%s\n"
 
         for chunk in self.doc.parsed:
                 if chunk["type"] == "doc":

@@ -1,8 +1,9 @@
+from pygments.formatters import HtmlFormatter
 
 htmltemplate =  {}
 
 
-htmltemplate["header"] = """
+htmltemplate["header"] = ("""
 <HTML>
   <HEAD>
 
@@ -12,11 +13,10 @@ htmltemplate["header"] = """
     src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
     </script>
   
-    <link rel="stylesheet" href="pygments.css"/>
     <style>
       body
       {
-      max-width : 800px;
+      max-width : 1000px;
       margin : auto;
       margin-top : 20px;
       font: 14px/21px "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -42,7 +42,6 @@ htmltemplate["header"] = """
       border-width : 1px;
       border-color : gray;
       padding-left : 5px;
-      max-width : 800px;
       }
       
       a
@@ -56,10 +55,13 @@ htmltemplate["header"] = """
       color : gray;
       text-align : right;
       }
+
+      %s
+
     </style>        
   </HEAD>
   <BODY>
-"""
+""" % HtmlFormatter().get_style_defs())
 
 htmltemplate["footer"] = """
     <HR/>

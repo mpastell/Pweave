@@ -27,7 +27,7 @@ import matplotlib.pyplot as plt
 #' Read the data from [pydatasets repo](https://github.com/cpcloud/pydatasets) using Pandas:
 
 url = 'https://raw.github.com/cpcloud/pydatasets/master/datasets/MASS/whiteside.csv'
-whiteside = pd.read_csv(url)
+whiteside = pd.read_csv(url, index_col=0)
 
 #' # Fitting the model
 #' Let's see what the relationship between the gas consumption is before the insulation.
