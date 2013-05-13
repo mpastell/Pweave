@@ -78,3 +78,8 @@ def tangle():
         sys.exit()
 
     pweave.ptangle(sys.argv[1])
+
+def convert():
+    if len(sys.argv)==1:
+	print("This is Pweave document converter")
+    

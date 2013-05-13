@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{2eeb56a0-30e2-4333-bfd6-698a8e3fe999}</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>..\spintest.py</StartupFile>
+    <StartupFile>..\test2.py</StartupFile>
     <SearchPath>E:\Dropbox\ohjelmat\pweave\;..\</SearchPath>
     <WorkingDirectory>..\</WorkingDirectory>
     <AssemblyName>pweave</AssemblyName>

@@ -5,20 +5,9 @@ import copy
 from subprocess import Popen, PIPE
 
 
-class PwebReader(object):
+class PwebReaderOld(object):
     """Reads and parses Pweb documents"""
 
-    def __init__(self, file = None, string = None):
-        
-        self.source = file
-
-        #Get input from string or 
-        if file != None:
-            codefile = open(self.source, 'r')
-            self.rawtext = codefile.read()
-            codefile.close()
-        else:
-            self.rawtext = string
 
     def parse(self):
         #Prepend "@\n" to code in order to
@@ -92,10 +81,113 @@ class PwebReader(object):
 
         return(chunkoptions)
 
+class PwebReader(object):
+    
+    def __init__(self, file = None, string = None):    
+        self.source = file
+        #Get input from string or 
+        if file != None:
+            codefile = open(self.source, 'r')
+            self.rawtext = codefile.read()
+            codefile.close()
+        else:
+            self.rawtext = string
+        self.state = "doc" #Initial state of document
+    
+    def getparsed(self):
+        return(copy.deepcopy(self.parsed))
+
+    def count_emptylines(self, line):
+        """Counts empty lines for parser, the result is stored in self.n_emptylines"""
+        if line.strip() == "":
+            self.n_emptylines += 1
+        else:
+            self.n_emptylines = 0
+
+    def codestart(self, line):
+      starts = line.startswith("<<") and  line.rstrip().endswith(">>=")
+      return((starts, True))
+
+    def docstart(self, line):
+        return((line.strip() == "@", True))
+
+    def parse(self):
+        lines = self.rawtext.splitlines()
+
+        read = ""
+        chunks = []
+        codeN = 1
+        docN = 1
+        opts = self.getoptions("")
+        self.n_emptylines = 0
+        self.lineNo = 0
+
+        for line in lines:
+
+            (code_starts, skip) = self.codestart(line)
+            if code_starts  and self.state != "code":
+                self.state = "code"
+                opts = self.getoptions(line)
+                chunks.append({"type" : "doc", "content" : read, "number" : docN})
+                docN +=1
+                read = ""
+                if skip:
+                    continue #Don't append options code
+
+            (doc_starts, skip) = self.docstart(line)
+            if doc_starts and self.state =="code":
+                self.state = "doc"
+                if read.strip() != "" or opts.has_key("source"): #Don't parse empty chunks unless source is specified
+                    chunks.append( {"type" : "code", "content" : "\n" + read.rstrip(), 
+                                    "number" : codeN, "options" : opts})
+                codeN +=1
+                read = ""
+                if skip:
+                    continue
+
+            if self.state == "doc":
+                if hasattr(self, "strip_comments"):
+                    line = self.strip_comments(line)
+
+            read += line + "\n"
+            self.count_emptylines(line)
+            self.lineNo += 1
+
+        #Handle the last chunk
+        if self.state == "code":
+            chunks.append( {"type" : "code", "content" : "\n" + read.rstrip(), 
+                                    "number" : codeN, "options" : opts})
+        if self.state == "doc":
+            chunks.append({"type" : "doc", "content" : read, "number" : docN})
+        self.parsed = chunks
+
+    def getoptions(self, opt):
+        # Aliases for False and True to conform with Sweave syntax
+        FALSE = False
+        TRUE = True
+
+        #Parse options from chunk to a dictionary
+        optstring = opt.replace('<<', '').replace('>>=', '').strip()
+        if not optstring:
+            return({})
+        #First option can be a name/label
+        if optstring.split(',')[0].find('=')==-1:
+            splitted = optstring.split(',')
+            splitted[0] = 'name = "%s"' % splitted[0]
+            optstring = ','.join(splitted)
+
+        exec("chunkoptions =  dict(" + optstring + ")")
+        if chunkoptions.has_key('label'):
+            chunkoptions['name'] = chunkoptions['label']
+
+        return(chunkoptions)
+
+
 class PwebScriptReader(PwebReader):
     
     def __init__(self, file = None, string = None):
         PwebReader.__init__(self, file, string)
+        self.state = "code" #Initial state
 
     def count_emptylines(self, line):
         """Counts empty lines for parser, the result is stored in self.n_emptylines"""
@@ -110,60 +202,13 @@ class PwebScriptReader(PwebReader):
       return((starts, skip))
 
     def docstart(self, line):
-        return(line.startswith("#' "))
+        return((line.startswith("#' "), False))
 
     def strip_comments(self, line):
         line = line.replace("#' ", "", 1) 
         return(line)
 
-    def parse(self):
-        lines = self.rawtext.splitlines()
 
-        self.state = "code"
-        read = ""
-        chunks = []
-        codeN = 1
-        docN = 1
-        opts = self.getoptions("")
-        self.n_emptylines = 0
-        self.lineNo = 0
-
-        for line in lines:
-
-            (code_starts, skip) = self.codestart(line)
-            if code_starts  and self.state != "code":
-                self.state = "code"
-                if line.startswith("#+"):
-                    opts = self.getoptions(line)
-                else: 
-                    opts = self.getoptions("")
-                chunks.append({"type" : "doc", "content" : read, "number" : docN})
-                docN +=1
-                read = ""
-                if skip:
-                    continue #Don't append options code
-            if self.docstart(line) and self.state =="code":
-                self.state = "doc"
-                if read.strip() != "":
-                    chunks.append( {"type" : "code", "content" : "\n" + read.rstrip(), 
-                                    "number" : codeN, "options" : opts})
-                    codeN +=1
-                read = ""
-
-            if self.state == "doc":
-                line = self.strip_comments(line)
-
-            read += line + "\n"
-            self.count_emptylines(line)
-            self.lineNo += 1
-
-        #Handle the last chunk
-        if self.state == "code":
-            chunks.append( {"type" : "code", "content" : "\n" + read.rstrip(), 
-                                    "number" : codeN, "options" : opts})
-        if self.state == "doc":
-            chunks.append({"type" : "doc", "content" : read, "number" : docN})
-        self.parsed = chunks
 
     def getoptions(self, opt):
         # Aliases for False and True to conform with Sweave syntax
@@ -186,6 +231,7 @@ class PwebScriptReader(PwebReader):
             chunkoptions['name'] = chunkoptions['label']
 
         return(chunkoptions)
+
 
 class PwebConvert(object):
     """Convert from one input format to another"""
@@ -210,7 +256,7 @@ class PwebConvert(object):
     def format_docchunk(self, content):
         """Format doc chunks for output"""
         if self.pandoc_args is not None:
-            pandoc = Popen(["pandoc.exe"] + self.pandoc_args.split(), stdin = PIPE, stdout = PIPE)
+            pandoc = Popen(["pandoc"] + self.pandoc_args.split(), stdin = PIPE, stdout = PIPE)
             pandoc.stdin.write(content)
             content = (pandoc.communicate()[0]).replace("\r", "") + "\n"
 

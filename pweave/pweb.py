@@ -11,9 +11,6 @@ import cPickle as pickle
 import copy
 
 
-
-
-
 class PwebProcessor(object):
     """Runs code from parsed Pweave documents"""
 
@@ -65,17 +62,24 @@ class PwebProcessor(object):
         #f.close()
 
 
-
     def _runcode(self, chunk):
         """Execute code from a code chunk based on options"""
         if chunk['type'] != 'doc' and chunk['type'] !='code':
             return(chunk)
+
         #Add defaultoptions to parsed options
         if chunk['type'] == 'code':
            defaults = Pweb.defaultoptions.copy()
            defaults.update(chunk["options"])
            chunk.update(defaults)
            del chunk['options']
+
+         #Read the content from file or object
+        if chunk.has_key("source"):
+            if type(chunk["source"])== str:
+                chunk["content"] = open(chunk["source"], "r").read()
+            else:
+                chunk["content"] = inspect.getsource(chunk["source"])
 
 
         #Make function to dispatch based on the type
@@ -156,6 +160,9 @@ class PwebProcessor(object):
             #print figs
             for i in figs:
                 plt.figure(i)
+                plt.figure(i).set_size_inches(chunk['f_size'])
+                #plt.figure(i).set_size_inches(4,4)
+
                 name = Pweb.figdir + '/' + prefix + "_" + str(i) + self.formatdict['figfmt']
                 for format in self.formatdict['savedformats']:
                     plt.savefig(Pweb.figdir + '/' + prefix + "_" + str(i) + format)
@@ -307,6 +314,92 @@ class PwebProcessor(object):
         chunk['content'] = ''.join(splitted)
         return(chunk)
 
+class PwebIPythonProcessor(PwebProcessor):
+    """Runs code from parsed Pweave documents"""
+
+    def __init__(self, parsed, source, mode, formatdict):
+        PwebProcessor.__init__(self, parsed, source, mode, formatdict)
+        import IPython
+        x = IPython.core.interactiveshell.InteractiveShell()
+        self.IPy = x.get_ipython()
+        self.prompt_count = 1
+
+    def loadstring(self, code):
+        tmp = StringIO()
+        sys.stdout = tmp
+        #compiled = compile(code, '<input>', 'exec')
+        #exec compiled in Pweb.globals
+        self.IPy.run_cell(code)
+        result = "\n" + tmp.getvalue()
+        tmp.close()
+        sys.stdout = self._stdout
+        return(result)
+
+    def loadterm(self, chunk):
+        #Write output to a StringIO object
+        #loop trough the code lines
+        statement = ""
+        prompt = "In[%i]: " % self.prompt_count
+        chunkresult = "\n"
+        block = chunk.lstrip().splitlines()
+
+        for x in block:
+            chunkresult += ('\n%s %s\n' % (prompt, x))
+            statement += x + '\n'
+
+            # Is the statement complete?
+            compiled_statement = code.compile_command(statement)
+            if compiled_statement is None:
+                # No, not yet.
+                prompt = "..."
+                continue
+
+            if not prompt.startswith('In['):
+                chunkresult += ('%s \n' % (prompt))
+
+            tmp = StringIO()
+            sys.stdout = tmp
+            #return_value = eval(compiled_statement, Pweb.globals)
+            self.IPy.run_code(compiled_statement)
+            result = tmp.getvalue()
+            #if return_value is not None:
+            #    result += repr(return_value)
+            tmp.close()
+            sys.stdout = self._stdout
+            if result:
+                chunkresult += ("\nOut[%i]: " % self.prompt_count) + result
+
+            statement = ""
+            self.prompt_count +=1
+            prompt = 'In[%i]: ' % self.prompt_count
+
+        return(chunkresult)
+
+    def loadinline(self, content):
+        """Evaluate code from doc chunks using ERB markup"""
+        #Flags don't work with ironpython
+        splitted = re.split('(<%[\w\s\W]*?%>)', content)#, flags = re.S)
+        #No inline code
+        if len(splitted)<2:
+            return(content)
+
+        n = len(splitted)
+
+        for i in range(n):
+            elem = splitted[i]
+            if not elem.startswith('<%'):
+                continue
+            if elem.startswith('<%='):
+                code = elem.replace('<%=', '').replace('%>', '').lstrip()
+                result = self.loadstring('print %s,' % code).replace('\n','', 1)
+                splitted[i] = result
+                continue
+            if elem.startswith('<%'):
+                code = elem.replace('<%', '').replace('%>', '').lstrip()
+                result = self.loadstring('%s' % code).replace('\n','', 1)
+                splitted[i] = result
+        return(''.join(splitted))
+
 class Pweb(object):
     """Processes a complete document
     
@@ -332,7 +425,8 @@ class Pweb(object):
                           term = False,
                           name = None,
                           wrap = True,
-                          f_pos = "htpb")
+                          f_pos = "htpb",
+                          f_size = (8, 6))
     
     #: Pweave figure directory
     figdir = 'figures'
@@ -415,7 +509,8 @@ class Pweb(object):
 
     def run(self):
         """Execute code in the document"""
-        runner = PwebProcessor(copy.deepcopy(self.parsed), self.source, self.documentationmode, self.formatter.getformatdict())
+        #runner = PwebProcessor(copy.deepcopy(self.parsed), self.source, self.documentationmode, self.formatter.getformatdict())
+        runner = PwebIPythonProcessor(copy.deepcopy(self.parsed), self.source, self.documentationmode, self.formatter.getformatdict())
         runner.run()
         self.executed = runner.getresults()
         self.isexecuted = True

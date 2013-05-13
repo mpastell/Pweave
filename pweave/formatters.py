@@ -277,12 +277,12 @@ class PwebTexPygmentsFormatter(PwebTexFormatter):
         from pygments.lexers import PythonLexer, TextLexer
         from pygments.formatters import LatexFormatter
     
-        chunk['content'] = highlight(chunk['content'], PythonLexer(), LatexFormatter(verboptions="fontsize=\small, xleftmargin=0.5em"))
+        chunk['content'] = highlight(chunk['content'], PythonLexer(), LatexFormatter(verboptions="samepage=true,frame=single,fontsize=\small, xleftmargin=0.5em"))
         if len(chunk['result'].strip()) > 0 and chunk['results'] == 'verbatim':
             if chunk['term']:
-                chunk['result'] = highlight(chunk['result'], PythonLexer(), LatexFormatter(verboptions="fontsize=\small, xleftmargin=0.5em")) 
+                chunk['result'] = highlight(chunk['result'], PythonLexer(), LatexFormatter(verboptions="samepage=true,frame=single,fontsize=\small, xleftmargin=0.5em")) 
             else:
-                chunk['result'] = highlight(chunk['result'], TextLexer(), LatexFormatter(verboptions="fontsize=\small, xleftmargin=0.5em")) 
+                chunk['result'] = highlight(chunk['result'], TextLexer(), LatexFormatter(verboptions="samepage=true,frame=leftline,fontsize=\small, xleftmargin=0.5em")) 
         return(PwebFormatter.format_codechunks(self, chunk))
 
 class PwebTexPweaveFormatter(PwebTexFormatter):
@@ -510,7 +510,7 @@ class PwebPandocMDtoHTMLFormatter(PwebMDtoHTMLFormatter):
     
     def convert(self):
         try:
-            pandoc = Popen(["pandoc.exe", "--mathjax", "-t", "html", "-f", "markdown"], stdin = PIPE, stdout = PIPE)
+            pandoc = Popen(["pandoc", "--mathjax", "-t", "html", "-f", "markdown"], stdin = PIPE, stdout = PIPE)
         #pandoc = Popen(["pandoc.exe", "--mathjax"], stdin = PIPE, stdout = PIPE)
         except:
             sys.stderr.write("ERROR: Can't find pandoc")
@@ -572,7 +572,7 @@ class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
         if chunk.has_key("number") and chunk['number'] == 1:
             chunk = self.parsetitle(chunk)
         try:
-            pandoc = Popen(["pandoc.exe", "-t", "latex", "-f", "markdown"], stdin = PIPE, stdout = PIPE)
+            pandoc = Popen(["pandoc", "-t", "latex", "-f", "markdown"], stdin = PIPE, stdout = PIPE)
         except:
             sys.stderr.write("ERROR: Can't find pandoc")
             raise

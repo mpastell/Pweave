@@ -5,7 +5,6 @@
 from pweb import *
 import time
 import readers
-import markdown
 import templates
 import os
 from subprocess import Popen, PIPE

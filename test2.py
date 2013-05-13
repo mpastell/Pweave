@@ -9,16 +9,16 @@ sys.path.append('.')
 os.chdir('examples')
 
 
-doc = pweave.Pweb('ma-tex.texw')
-doc.documentationmode = True
-doc.parse()
-doc.run()
-doc.format()
-doc.cachedir
-doc.write()
-#doc.weave()
+#doc = pweave.Pweb('ma-tex.texw')
+#doc.documentationmode = True
+#doc.parse()
+#doc.run()
+#doc.format()
+#doc.cachedir
+#doc.write()
+##doc.weave()
     
-
+pweave.pweave("input-test.mdw", doctype ="md2html")
     
     
 os.chdir('..')
