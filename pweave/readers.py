@@ -5,83 +5,8 @@ import copy
 from subprocess import Popen, PIPE
 
 
-class PwebReaderOld(object):
-    """Reads and parses Pweb documents"""
-
-
-    def parse(self):
-        #Prepend "@\n" to code in order to
-        #ChunksToDict to work with the first text chunk
-        code = "@\n" + self.rawtext
-        #Split file to list at chunk separators
-        chunksep = re.compile('(^<<.*?>>=[\s]*$)|(@[\s]*?$)', re.M)
-        codelist = chunksep.split(code)
-        codelist = filter(lambda x : x != None, codelist)
-        codelist = filter(lambda x :  not x.isspace() and x != "", codelist)
-        #Make a tuple for parsing
-        codetuple = self._chunkstotuple(codelist)
-        #Parse code+options and text chunks from the tuple
-        parsedlist = map(self._chunkstodict, codetuple)
-        parsedlist = filter(lambda x: x != None, parsedlist)
-        #number chunks, start from 1
-        nc = 1
-        nd = 1
-        for chunk in parsedlist:
-            if chunk['type'] == 'code':
-                chunk['number'] = nc
-                nc += 1
-            if chunk['type'] == 'doc':
-                chunk['number'] = nd
-                nd += 1
-
-        #Remove extra line inserted during parsing
-        parsedlist[0]['content'] =  parsedlist[0]['content'].replace('\n', '', 1)
-
-        self.parsed = parsedlist
-        self.isparsed = True
-
-    def getparsed(self):
-        return(copy.deepcopy(self.parsed))
-
-    def _chunkstodict(self, chunk):
-        if (re.findall('@[\s]*?$', chunk[0])) and not (re.findall('^<<.*?>>=[\s]*$', chunk[1], re.M)):
-            return({'type' : 'doc', 'content':chunk[1]})
-        if (re.findall('^<<.*>>=[\s]*?$', chunk[0], re.M)):
-            opts = self._getoptions(chunk[0])
-            codedict = {'type' : 'code', 'content':chunk[1], 'options' : opts}
-            return(codedict)
-
-    def _chunkstotuple(self, code):
-        # Make a list of tuples from the list of chuncks
-        a = list()
-
-        for i in range(len(code)-1):
-            x = (code[i], code[i+1])
-            a.append(x)
-        return(a)
-
-    def _getoptions(self, opt):
-        # Aliases for False and True to conform with Sweave syntax
-        FALSE = False
-        TRUE = True
-
-        #Parse options from chunk to a dictionary
-        optstring = opt.replace('<<', '').replace('>>=', '').strip()
-        if not optstring:
-            return({})
-        #First option can be a name/label
-        if optstring.split(',')[0].find('=')==-1:
-            splitted = optstring.split(',')
-            splitted[0] = 'name = "%s"' % splitted[0]
-            optstring = ','.join(splitted)
-
-        exec("chunkoptions =  dict(" + optstring + ")")
-        if chunkoptions.has_key('label'):
-            chunkoptions['name'] = chunkoptions['label']
-
-        return(chunkoptions)
-
 class PwebReader(object):
+    """Reads and parses Pweb documents"""
     
     def __init__(self, file = None, string = None):    
         self.source = file

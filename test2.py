@@ -19,6 +19,6 @@ os.chdir('examples')
 ##doc.weave()
     
 pweave.pweave("input-test.mdw", doctype ="md2html")
-    
+pweave.pweave("continue-test.mdw", doctype ="md2html")    
     
 os.chdir('..')

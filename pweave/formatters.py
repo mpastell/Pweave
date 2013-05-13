@@ -135,7 +135,7 @@ class PwebFormatter(object):
 
 
         #Handle figures
-        if chunk['fig']:
+        if chunk['fig'] and chunk.has_key("figure"):
             if chunk['include']:
                 result += self.formatfigure(chunk)
             #Call figure formatting function
@@ -223,6 +223,9 @@ class PwebTexFormatter(PwebFormatter):
         result = ""        
         figstring = ""
 
+        if chunk["f_env"] != None:
+            result += "\\begin{%s}\n" % chunk["f_env"]
+
         for fig in fignames:
             figstring += ("\\includegraphics[width= %s]{%s}\n" % (width, fig)) 
 
@@ -238,6 +241,10 @@ class PwebTexFormatter(PwebFormatter):
 
         else:
             result += figstring
+
+        if chunk["f_env"] != None:
+            result += "\\end{%s}\n" % chunk["f_env"]
+
         return(result)
 
 class PwebMintedFormatter(PwebTexFormatter):
@@ -277,12 +284,12 @@ class PwebTexPygmentsFormatter(PwebTexFormatter):
         from pygments.lexers import PythonLexer, TextLexer
         from pygments.formatters import LatexFormatter
     
-        chunk['content'] = highlight(chunk['content'], PythonLexer(), LatexFormatter(verboptions="samepage=true,frame=single,fontsize=\small, xleftmargin=0.5em"))
+        chunk['content'] = highlight(chunk['content'], PythonLexer(), LatexFormatter(verboptions="frame=single,fontsize=\small, xleftmargin=0.5em"))
         if len(chunk['result'].strip()) > 0 and chunk['results'] == 'verbatim':
             if chunk['term']:
-                chunk['result'] = highlight(chunk['result'], PythonLexer(), LatexFormatter(verboptions="samepage=true,frame=single,fontsize=\small, xleftmargin=0.5em")) 
+                chunk['result'] = highlight(chunk['result'], PythonLexer(), LatexFormatter(verboptions="frame=single,fontsize=\small, xleftmargin=0.5em")) 
             else:
-                chunk['result'] = highlight(chunk['result'], TextLexer(), LatexFormatter(verboptions="samepage=true,frame=leftline,fontsize=\small, xleftmargin=0.5em")) 
+                chunk['result'] = highlight(chunk['result'], TextLexer(), LatexFormatter(verboptions="frame=leftline,fontsize=\small, xleftmargin=0.5em")) 
         return(PwebFormatter.format_codechunks(self, chunk))
 
 class PwebTexPweaveFormatter(PwebTexFormatter):

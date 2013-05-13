@@ -20,6 +20,7 @@ class PwebProcessor(object):
         self.documentationmode = mode
         self._stdout = sys.stdout
         self.formatdict = formatdict
+        self.pending_code = "" # Used for multichunk splits
 
     def _basename(self):
         return(re.split("\.+[^\.]+$", self.source)[0])
@@ -76,10 +77,11 @@ class PwebProcessor(object):
 
          #Read the content from file or object
         if chunk.has_key("source"):
-            if type(chunk["source"])== str:
-                chunk["content"] = open(chunk["source"], "r").read()
+            source = chunk["source"]
+            if os.path.isfile(source): 
+                chunk["content"] = open(source, "r").read()  + chunk['content']
             else:
-                chunk["content"] = inspect.getsource(chunk["source"])
+                chunk["content"] = self.loadstring("import inspect\nprint(inspect.getsource(%s))" % source) + chunk['content']
 
 
         #Make function to dispatch based on the type
@@ -119,6 +121,17 @@ class PwebProcessor(object):
         if chunk['type'] == 'code':
             sys.stdout.write("Processing chunk %(number)s named %(name)s\n" % chunk)
 
+            #Handle code split across several chunks
+            old_content = None
+            if not chunk["complete"]:
+                self.pending_code += chunk["content"]
+                chunk['result'] = ''
+                return(chunk)
+            elif self.pending_code != "":
+                old_content = chunk["content"]
+                chunk["content"] = self.pending_code + old_content # Code from all pending chunks for running the code
+                self.pending_code = ""
+
             if not chunk['evaluate']:
                 chunk['result'] = ''
                 return(chunk)
@@ -142,6 +155,10 @@ class PwebProcessor(object):
         #After executing the code save the figure
         if chunk['fig']:
             chunk['figure'] = self.savefigs(chunk)                
+        
+        if old_content != None:
+            chunk['content'] = old_content # The code from current chunk for display
+
         return(chunk)
 
 
@@ -414,7 +431,7 @@ class Pweb(object):
     #: Globals dictionary used when evaluating code
     globals = {}
 
-    
+    #: Default options for chunks
     defaultoptions = dict(echo = True,
                           results = 'verbatim',
                           fig = True,
@@ -426,7 +443,10 @@ class Pweb(object):
                           name = None,
                           wrap = True,
                           f_pos = "htpb",
-                          f_size = (8, 6))
+                          f_size = (8, 6),
+                          f_env = None,
+                          complete = True
+                          )
     
     #: Pweave figure directory
     figdir = 'figures'

@@ -6,7 +6,7 @@
     <ProjectGuid>{2eeb56a0-30e2-4333-bfd6-698a8e3fe999}</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>..\test2.py</StartupFile>
-    <SearchPath>E:\Dropbox\ohjelmat\pweave\;..\</SearchPath>
+    <SearchPath>E:\Dropbox\ohjelmat\pweave\;C:\Users\mpastell\Dropbox\ohjelmat\pweave\;..\</SearchPath>
     <WorkingDirectory>..\</WorkingDirectory>
     <AssemblyName>pweave</AssemblyName>
     <Name>pweave</Name>
@@ -45,6 +45,9 @@
     <Compile Include="__init__.py" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\CHANGELOG.txt">
+      <Link>CHANGELOG.txt</Link>
+    </Content>
     <Content Include="formatters.pyc" />
     <Content Include="pweb.pyc" />
     <Content Include="__init__.pyc" />
