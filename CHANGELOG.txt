@@ -1,0 +1,12 @@
+
+In 0.22
+
+* Publishing of scripts 
+* New input format "script"
+* Bugfix: setting figure format from command line fixed.
+* Ipython terminal
+* Source option for chunks
+* Multichunk blocks: complete option
+* New options for figures
+	- f_width
+	- f_env

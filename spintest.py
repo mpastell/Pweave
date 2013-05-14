@@ -37,6 +37,7 @@ os.chdir('examples')
 
 
 #publish("FIR_design.py")
+spin("FIR_design.py")
 publish("IPy_test.py")
 #publish('regression_whiteside.py')
 #publish("FIR_design_pandoc.py")

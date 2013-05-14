@@ -18,7 +18,8 @@ os.chdir('examples')
 #doc.write()
 ##doc.weave()
     
-pweave.pweave("input-test.mdw", doctype ="md2html")
-pweave.pweave("continue-test.mdw", doctype ="md2html")    
+#pweave.pweave("input-test.mdw", doctype ="md2html")
+#pweave.pweave("continue-test.mdw", doctype ="md2html")
+pweave.pweave("AR_yw.mdw", doctype ="md2html")    
     
 os.chdir('..')

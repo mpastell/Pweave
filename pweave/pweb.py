@@ -356,7 +356,7 @@ class PwebIPythonProcessor(PwebProcessor):
         #Write output to a StringIO object
         #loop trough the code lines
         statement = ""
-        prompt = "In[%i]: " % self.prompt_count
+        prompt = "In [%i]:" % self.prompt_count
         chunkresult = "\n"
         block = chunk.lstrip().splitlines()
 
@@ -371,7 +371,7 @@ class PwebIPythonProcessor(PwebProcessor):
                 prompt = "..."
                 continue
 
-            if not prompt.startswith('In['):
+            if not prompt.startswith('In ['):
                 chunkresult += ('%s \n' % (prompt))
 
             tmp = StringIO()
@@ -384,11 +384,11 @@ class PwebIPythonProcessor(PwebProcessor):
             tmp.close()
             sys.stdout = self._stdout
             if result:
-                chunkresult += ("\nOut[%i]: " % self.prompt_count) + result
+                chunkresult += ("Out[%i]: " % self.prompt_count) + result.rstrip()
 
             statement = ""
             self.prompt_count +=1
-            prompt = 'In[%i]: ' % self.prompt_count
+            prompt = 'In [%i]:' % self.prompt_count
 
         return(chunkresult)
 
@@ -529,8 +529,8 @@ class Pweb(object):
 
     def run(self):
         """Execute code in the document"""
-        #runner = PwebProcessor(copy.deepcopy(self.parsed), self.source, self.documentationmode, self.formatter.getformatdict())
-        runner = PwebIPythonProcessor(copy.deepcopy(self.parsed), self.source, self.documentationmode, self.formatter.getformatdict())
+        runner = PwebProcessor(copy.deepcopy(self.parsed), self.source, self.documentationmode, self.formatter.getformatdict())
+        #runner = PwebIPythonProcessor(copy.deepcopy(self.parsed), self.source, self.documentationmode, self.formatter.getformatdict())
         runner.run()
         self.executed = runner.getresults()
         self.isexecuted = True
