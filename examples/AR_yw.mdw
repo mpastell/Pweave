@@ -14,7 +14,7 @@ class YW(object):
         self.X = X - np.mean(X)
 @ 
         
-#Calculate autocorrelation
+# Calculate autocorrelation
 
 YW method requires that we compute the sample autocorrelation function:
 
@@ -30,7 +30,7 @@ $$r_k = \frac{1}{(n-k)\sigma^2}\sum_{t=1}^{n-k}(X_t - \mu)(X_{t+k} - \mu)$$
 @         
 
 
-#Fit
+# Fit
 
 Form the Yule-Walker equations $r = R \Phi$ based on sample
 autocorrelation $r_k$. Notice that the matrix R is a Toeplizt matrix
@@ -67,7 +67,7 @@ And solve simply using: $$\Phi = R^{-1}r$$
 @
 
 
-#Calculate and plot the spectrum 
+# Calculate and plot the spectrum 
 
 The spectrum of an AR process is given by:
 
