@@ -12,6 +12,7 @@ In 0.22
 	- Read from module
 	- Read from file
 * Multichunk blocks: complete option
+* rst format uses `.. codeblock::` python directive for code chunks.
 * New options for figures
 	- f_size ( (8,6) ) Saved figure size in inches a tuple (w, h) 
 	- f_env (None) Environment that goes around figure e.g. sidefigure
