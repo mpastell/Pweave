@@ -14,7 +14,8 @@ setup(name='Pweave',
           'console_scripts' :
               ['Pweave = pweave.scripts:weave',
                'Ptangle = pweave.scripts:tangle',
-               'pypublish = pweave.scripts:publish'
+               'pypublish = pweave.scripts:publish',
+               'Pweave-convert = pweave.scripts:convert'
                ]},
       version = pweave.__version__,
       description='Scientific reports with embedded python computations with reST, LaTeX or markdown',

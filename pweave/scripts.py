@@ -15,7 +15,7 @@ def weave():
     parser.add_option("-f", "--format", dest="format", default='rst',
                       help="The output format. Available formats: " + pweave.PwebFormats.shortformats() + " Use Pweave -l to list descriptions or see http://mpastell.com/pweave/formats.html")
     parser.add_option("-i", "--input-format", dest="informat", default='noweb',
-                      help="Input format: noweb or script")
+                      help="Input format: noweb, notebook or script")
     parser.add_option("-l","--list-formats", dest="listformats", action = "store_true" ,default=False,
                       help="List output formats")
     parser.add_option("-m", "--matplotlib", dest="mplotlib", default='true',
@@ -70,7 +70,6 @@ def publish():
 
     pweave.publish(infile, options.format)
 
-
 def tangle():
     if len(sys.argv)==1:
         print "This is Ptangle %s" % pweave.__version__
@@ -81,5 +80,22 @@ def tangle():
 
 def convert():
     if len(sys.argv)==1:
-	print("This is Pweave document converter")
+        print("This is Pweave document converter %s. Enter Pweave-convert -h for help " % pweave.__version__)
+        sys.exit()
+
+    parser = OptionParser(usage="Pweave-convert [options] sourcefile", version="Part of Pweave " + pweave.__version__)
+    parser.add_option("-i", "--input-format", dest="informat", default='noweb',
+                      help="Input format: noweb, notebook or script")
+    parser.add_option("-f", "--output-format", dest="outformat", default='html',
+                      help = "Output format script or noweb")
+    parser.add_option("-p", "--pandoc", dest="pandoc_args", default=None,
+                      help = "passed to pandoc for converting doc chunks")
+    
+    (options, args) = parser.parse_args()
+
+    infile = args[0]
+
+    print options
+    pweave.convert(infile, options.informat, options.outformat, options.pandoc_args)
+
     

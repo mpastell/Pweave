@@ -183,6 +183,38 @@ class PwebNBReader(object):
     def getparsed(self):
         return(copy.deepcopy(self.parsed))
 
+class PwebReaders(object):
+    """Lists available input formats"""
+    formats = {'noweb' : {'class' : PwebReader, 'description' :  'Noweb document'},
+               'script' : {'class' : PwebScriptReader, 'description' :  'Script format'},
+               'notebook' : {'class' : PwebNBReader, 'description' :  'IPython notebook'}
+               }
+    
+    @classmethod
+    def shortformats(cls):
+        fmtstring = ""
+        names = cls.formats.keys()
+        n = len(names)
+        for i in range(n):
+            fmtstring += (" %s") % (names[i])
+            if i < (n-1):
+                fmtstring += ","
+
+        return(fmtstring)
+
+    @classmethod
+    def getformats(cls):
+        fmtstring = "" 
+        for format in sorted(cls.formats):
+            fmtstring += ("* %s:\n   %s\n") % (format, cls.formats[format]['description'])
+        return(fmtstring)
+
+    @classmethod
+    def listformats(cls):
+        print("\nPweave supported input formats:\n")
+        print(cls.getformats())
+        print("More info: http://mpastell.com/pweave/ \n")    
+
 class PwebConvert(object):
     """Convert from one input format to another"""
 
@@ -258,39 +290,6 @@ class PwebConvert(object):
                 optstring += ", "
 
         return(optstring)
-
-class PwebReaders(object):
-    """Lists available input formats"""
-    formats = {'noweb' : {'class' : PwebReader, 'description' :  'Noweb document'},
-               'script' : {'class' : PwebScriptReader, 'description' :  'Script format'},
-               'notebook' : {'class' : PwebNBReader, 'description' :  'IPython notebook'}
-               }
-    
-    @classmethod
-    def shortformats(cls):
-        fmtstring = ""
-        names = cls.formats.keys()
-        n = len(names)
-        for i in range(n):
-            fmtstring += (" %s") % (names[i])
-            if i < (n-1):
-                fmtstring += ","
-
-        return(fmtstring)
-
-    @classmethod
-    def getformats(cls):
-        fmtstring = "" 
-        for format in sorted(cls.formats):
-            fmtstring += ("* %s:\n   %s\n") % (format, cls.formats[format]['description'])
-        return(fmtstring)
-
-    @classmethod
-    def listformats(cls):
-        print("\nPweave supported input formats:\n")
-        print(cls.getformats())
-        print("More info: http://mpastell.com/pweave/ \n")    
-
 
 #pweb is imported here to avoid import loop
 import pweb
