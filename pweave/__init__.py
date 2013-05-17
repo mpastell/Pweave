@@ -12,7 +12,7 @@ from subprocess import Popen, PIPE
 __version__ = '0.22rc'
 
 
-def pweave(file, doctype = 'rst', informat = "noweb", plot = True,
+def pweave(file, doctype = 'rst', informat = "noweb", shell="python", plot = True,
            docmode = False, cache = False,
            figdir = 'figures', cachedir = 'cache',
            figformat = None, returnglobals = True, listformats = False):
@@ -22,6 +22,7 @@ def pweave(file, doctype = 'rst', informat = "noweb", plot = True,
     :param file: ``string`` input file
     :param doctype: ``string`` output document format: call with listformats true to get list of supported formats.
     :param informat: ``string`` input format: "noweb" or "script"
+    :param shell: ``string`` shell used to run code: "python" or "ipython"
     :param plot: ``bool`` use matplotlib (or Sho with Ironpython) 
     :param docmode: ``bool`` use documentation mode, chunk code and results will be loaded from cache and inline code will be hidden
     :param cache: ``bool`` Cache results to disk for documentation mode
@@ -62,7 +63,7 @@ def pweave(file, doctype = 'rst', informat = "noweb", plot = True,
         
     #Returning globals
     try:
-        doc.weave()
+        doc.weave(shell)
         if returnglobals:
         #Get the calling scope and return results to its globals
         #this way you can modify the weaved variables from repl
