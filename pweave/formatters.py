@@ -312,14 +312,14 @@ class PwebTexPweaveFormatter(PwebTexFormatter):
 class PwebRstFormatter(PwebFormatter):
 
     def initformat(self):
-        self.formatdict = dict(codestart = '::\n',
+        self.formatdict = dict(codestart = '.. code:: python\n',
                 codeend = '\n\n',
-                outputstart = '::\n',
+                outputstart = '.. code::\n',
                 outputend = '\n\n',
                 #rst has specific format (doctest) for term blocks
-                termstart = '',
+                termstart = '.. code:: python\n',
                 termend = '\n\n',
-                termindent = '',
+                termindent = '    ',
                 indent = '    ',
                 figfmt = '.png',
                 extension = 'rst',
@@ -389,9 +389,9 @@ class PwebSphinxFormatter(PwebRstFormatter):
                 outputstart = '::\n',
                 outputend = '\n\n',
                 #rst has specific format (doctest) for term blocks
-                termstart = '',
+                termstart = '.. code-block:: python\n',
                 termend = '\n\n',
-                termindent = '',
+                termindent = '    ',
                 indent = '    ',
                 #Sphinx determines the figure format automatically
                 #for different output formats
@@ -418,8 +418,7 @@ class PwebSphinxFormatter(PwebRstFormatter):
         else:
             result += figstring
         return(result)   
-
-        
+       
 class PwebHTMLFormatter(PwebFormatter):
 
     def format_codechunks(self, chunk):
