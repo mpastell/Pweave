@@ -23,7 +23,7 @@ setup(name='Pweave',
       url='http://mpastell.com/pweave',
       packages=['pweave'],
       license=['GPL'],
-      long_description = read('README.txt'),
+      long_description = read('README.rst'),
       classifiers=[
         'Development Status :: 4 - Beta',
         'Topic :: Text Processing :: Markup',

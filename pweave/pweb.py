@@ -441,7 +441,7 @@ class Pweb(object):
                           caption = False,
                           term = False,
                           name = None,
-                          wrap = True,
+                          wrap = False,
                           f_pos = "htpb",
                           f_size = (8, 6),
                           f_env = None,

@@ -9,7 +9,7 @@ import templates
 import os
 from subprocess import Popen, PIPE
 
-__version__ = '0.22b'
+__version__ = '0.22rc'
 
 
 def pweave(file, doctype = 'rst', informat = "noweb", plot = True,
