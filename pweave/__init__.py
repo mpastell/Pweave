@@ -42,10 +42,8 @@ def pweave(file, doctype = 'rst', informat = "noweb", plot = True,
     doc = Pweb(file)
     doc.setformat(doctype)
     
-    if informat=="noweb":
-        doc.setreader(readers.PwebReader)
-    if informat=="script":
-        doc.setreader(readers.PwebScriptReader)
+    doc.setreader(readers.PwebReaders.formats[informat]['class'])
+    
 
 
     if sys.platform == 'cli':

@@ -2,6 +2,7 @@
 import re
 import sys
 import copy
+import json
 from subprocess import Popen, PIPE
 
 
@@ -107,8 +108,8 @@ class PwebReader(object):
 
         return(chunkoptions)
 
-
 class PwebScriptReader(PwebReader):
+    """Read scripts to Pweave"""
     
     def __init__(self, file = None, string = None):
         PwebReader.__init__(self, file, string)
@@ -157,6 +158,30 @@ class PwebScriptReader(PwebReader):
 
         return(chunkoptions)
 
+class PwebNBReader(object):
+    """Read IPython notebooks"""
+
+    def __init__(self, file = None, string = None):
+        self.source = file
+        self.NB = json.loads(open(file).read())
+
+    def parse(self):
+        doc = self.NB['worksheets'][0]['cells']
+
+        self.parsed = []
+        docN = 1
+        codeN = 1
+
+        for cell in doc:
+            if cell['cell_type'] == "code":
+                self.parsed.append({'type' : "code", "content" : "\n" + "".join(cell['input']), "options" : {}, "number" : codeN})
+                codeN += 1
+            else:
+                self.parsed.append({'type' : "doc", "content" : "\n" + "".join(cell['source']), "options" : {}, "number" : docN})
+                docN +=1
+
+    def getparsed(self):
+        return(copy.deepcopy(self.parsed))
 
 class PwebConvert(object):
     """Convert from one input format to another"""
@@ -164,10 +189,9 @@ class PwebConvert(object):
     def __init__(self, file = None, informat = "script", outformat = "noweb", pandoc_args= None):
         self.informat = informat
         self.outformat = outformat
-        if informat == "noweb":
-            self.doc = PwebReader(file)
-        if informat == "script":
-            self.doc = PwebScriptReader(file)
+        
+        self.doc = PwebReaders.formats[informat]['class'](file)
+        
         self.pandoc_args = pandoc_args
         if self.informat == self.outformat:
             self.basename =  re.split("\.+[^\.]+$", file)[0] + "_converted"
@@ -235,13 +259,37 @@ class PwebConvert(object):
 
         return(optstring)
 
-
-
-
-
-
+class PwebReaders(object):
+    """Lists available input formats"""
+    formats = {'noweb' : {'class' : PwebReader, 'description' :  'Noweb document'},
+               'script' : {'class' : PwebScriptReader, 'description' :  'Script format'},
+               'notebook' : {'class' : PwebNBReader, 'description' :  'IPython notebook'}
+               }
     
+    @classmethod
+    def shortformats(cls):
+        fmtstring = ""
+        names = cls.formats.keys()
+        n = len(names)
+        for i in range(n):
+            fmtstring += (" %s") % (names[i])
+            if i < (n-1):
+                fmtstring += ","
 
+        return(fmtstring)
+
+    @classmethod
+    def getformats(cls):
+        fmtstring = "" 
+        for format in sorted(cls.formats):
+            fmtstring += ("* %s:\n   %s\n") % (format, cls.formats[format]['description'])
+        return(fmtstring)
+
+    @classmethod
+    def listformats(cls):
+        print("\nPweave supported input formats:\n")
+        print(cls.getformats())
+        print("More info: http://mpastell.com/pweave/ \n")    
 
 
 #pweb is imported here to avoid import loop

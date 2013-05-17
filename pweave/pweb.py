@@ -501,12 +501,13 @@ class Pweb(object):
         except KeyError as e:
             raise Exception("Pweave: Unknown output format")
             
-
- 
     def setreader(self, Reader = readers.PwebReader):
         """Set class reading for reading documents, 
         readers can be used to implement different input markups""" 
-        self.Reader = Reader
+        if type(Reader) == str:
+            self.Reader = readers.PwebReaders.listformats[Reader]['class']
+        else:
+            self.Reader = Reader
 
     def getformat(self):
         """Get current format dictionary. See: http://mpastell.com/pweave/customizing.html"""
@@ -529,8 +530,8 @@ class Pweb(object):
 
     def run(self):
         """Execute code in the document"""
-        runner = PwebProcessor(copy.deepcopy(self.parsed), self.source, self.documentationmode, self.formatter.getformatdict())
-        #runner = PwebIPythonProcessor(copy.deepcopy(self.parsed), self.source, self.documentationmode, self.formatter.getformatdict())
+        #runner = PwebProcessor(copy.deepcopy(self.parsed), self.source, self.documentationmode, self.formatter.getformatdict())
+        runner = PwebIPythonProcessor(copy.deepcopy(self.parsed), self.source, self.documentationmode, self.formatter.getformatdict())
         runner.run()
         self.executed = runner.getresults()
         self.isexecuted = True
