@@ -91,7 +91,14 @@ def ptangle(file):
     doc.tangle()
 
 def publish(file, format = "html"):
-    """Publish python script and results to html or pdf"""
+    """Publish python script and results to html or pdf, expects that doc
+    chunks are  written in markdown.
+
+    ":param file: ``string`` input file"
+    ":param format: ``string`` output format "html" of "pdf", pdf output 
+    requires pandoc and pdflatex in your path. 
+    """
+
 
     if format == "html":
         pformat = "md2html"
@@ -124,7 +131,16 @@ def spin(file):
     doc = readers.PwebConvert(file)
     
 def convert(file, informat="noweb", outformat="script", pandoc_args=None):
-    """Convert input file from script to noweb or vice versa"""
+    """Convert input file from script to noweb or vice versa
+    
+    :param file: ``string`` input file
+    :param informat: ``string`` input format noweb, script or notebook
+    :param outformat: ``string`` input format noweb or script
+    :param pandoc_args: ``string`` arguments passed to pandoc to convert doc chunks.
+           e.g. to convert from markdown to latex use: `"-f markdown -t latex"` .
+           Note that each doc chunk is converted separately so you can't use pandocs -s option.
+    """
+
     doc = readers.PwebConvert(file, informat, outformat, pandoc_args)
     
 

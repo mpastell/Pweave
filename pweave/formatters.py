@@ -423,12 +423,16 @@ class PwebHTMLFormatter(PwebFormatter):
 
     def format_codechunks(self, chunk):
         from pygments import highlight
-        from pygments.lexers import PythonLexer
+        from pygments.lexers import PythonLexer, PythonConsoleLexer, TextLexer
         from pygments.formatters import HtmlFormatter
     
         chunk['content'] = highlight(chunk['content'], PythonLexer(), HtmlFormatter())
         if len(chunk['result'].strip()) > 0 and chunk['results'] == 'verbatim':
-            chunk['result'] = highlight(chunk['result'], PythonLexer(), HtmlFormatter()) 
+            if chunk['term']:
+                chunk['result'] = highlight(chunk['result'], PythonLexer(), HtmlFormatter()) 
+            else:
+                chunk['result'] = highlight(chunk['result'], TextLexer(), HtmlFormatter()) 
+
         return(PwebFormatter.format_codechunks(self, chunk))
     
     def initformat(self):
@@ -569,7 +573,7 @@ class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
                 self.header += "\n\\begin{document}\n\maketitle\n"
             #If there is no titleblock
             else:
-                self.header += ["\\begin{document}\n"] + lines
+                self.header += "\\begin{document}\n"
 
         chunk['content'] = ("\n").join(lines)
         return(chunk)
