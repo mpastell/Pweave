@@ -137,6 +137,9 @@ class PwebScriptReader(PwebReader):
 
 
     def getoptions(self, opt):
+        if not opt.startswith("#+ "):
+            return({})
+
         # Aliases for False and True to conform with Sweave syntax
         FALSE = False
         TRUE = True

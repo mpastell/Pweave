@@ -34,3 +34,12 @@ nosetests.xml
 *.sln
 *.suo
 *.pyproj
+
+#Example builds
+examples/figures/
+*.aux
+*.log
+*.out
+examples/*.html
+examples/*.pdf
+examples/*.tex
