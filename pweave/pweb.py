@@ -32,7 +32,7 @@ class Pweb(object):
                           caption = False,
                           term = False,
                           name = None,
-                          wrap = False,
+                          wrap = True,
                           f_pos = "htpb",
                           f_size = (8, 6),
                           f_env = None,

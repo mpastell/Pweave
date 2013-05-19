@@ -1,5 +1,6 @@
 import sys
 from subprocess import Popen, PIPE
+import textwrap
 # Pweave output formatters
 
 
@@ -11,6 +12,7 @@ class PwebFormatter(object):
         self.header = None
         self.footer = None
         self.source = source
+        self.wrapper = textwrap.TextWrapper(subsequent_indent = "", break_long_words = False)
 
     def setexecuted(self, executed):
         self.executed = executed
@@ -179,7 +181,7 @@ class PwebFormatter(object):
         splitted = content.split("\n")
         result = ""
         for line in splitted:
-            result += self._wrapper(line) + '\n'
+            result += self.wrapper.fill(line) + '\n'
         return(result)
 
     def _fillformatdict(self):
