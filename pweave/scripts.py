@@ -97,7 +97,7 @@ def convert():
 
     infile = args[0]
 
-    print options
+    #print options
     pweave.convert(infile, options.informat, options.outformat, options.pandoc_args)
 
     
