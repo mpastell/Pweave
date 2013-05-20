@@ -1,0 +1,143 @@
+\documentclass[a4paper,11pt,final]{article}
+\usepackage{fancyvrb, color, graphicx, hyperref, amsmath, url}
+\usepackage{palatino}
+\usepackage[a4paper,text={16.5cm,25.2cm},centering]{geometry}
+        
+\hypersetup  
+{   pdfauthor = {Matti Pastell},
+  pdftitle={FIR filter design with Python and SciPy},
+  colorlinks=TRUE,
+  linkcolor=black,
+  citecolor=blue,
+  urlcolor=blue
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1.2ex}
+
+
+        
+\title{FIR filter design with Python and SciPy}
+\author{Matti Pastell \\ \url{http://mpastell.com}}
+\date{15th April 2013}
+
+\begin{document}
+\maketitle
+
+
+\section{Introduction}
+
+This an example of a document that can be published using
+\href{http://mpastell.com/pweave}{Pweave}. Text is written
+using \LaTeX{} and code between \texttt{<<>>} and \texttt{@} is executed
+and results are included in the resulting document.
+
+You can define various options for code chunks to control code
+execution and formatting (see
+\href{http://mpastell.com/pweave/usage.html\#code-chunk-options}{Pweave
+docs}).
+
+\section{FIR Filter Design}
+
+We'll implement lowpass, highpass and ' bandpass FIR filters. If you
+want to read more about DSP I highly recommend
+\href{http://www.dspguide.com/}{The Scientist and Engineer's Guide to
+Digital Signal Processing} which is freely available online.
+
+\subsection{Functions for frequency, phase, impulse and step response}
+
+Let's first define functions to plot filter properties.
+
+
+<<>>=
+from pylab import *
+import scipy.signal as signal
+    
+#Plot frequency and phase response
+def mfreqz(b,a=1):
+    w,h = signal.freqz(b,a)
+    h_dB = 20 * log10 (abs(h))
+    subplot(211)
+    plot(w/max(w),h_dB)
+    ylim(-150, 5)
+    ylabel('Magnitude (db)')
+    xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
+    title(r'Frequency response')
+    subplot(212)
+    h_Phase = unwrap(arctan2(imag(h),real(h)))
+    plot(w/max(w),h_Phase)
+    ylabel('Phase (radians)')
+    xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
+    title(r'Phase response')
+    subplots_adjust(hspace=0.5)
+
+#Plot step and impulse response
+def impz(b,a=1):
+    l = len(b)
+    impulse = repeat(0.,l); impulse[0] =1.
+    x = arange(0,l)
+    response = signal.lfilter(b,a,impulse)
+    subplot(211)
+    stem(x, response)
+    ylabel('Amplitude')
+    xlabel(r'n (samples)')
+    title(r'Impulse response')
+    subplot(212)
+    step = cumsum(response)
+    stem(x, step)
+    ylabel('Amplitude')
+    xlabel(r'n (samples)')
+    title(r'Step response')
+    subplots_adjust(hspace=0.5)
+@
+
+\subsection{Lowpass FIR filter}
+
+Designing a lowpass FIR filter is very simple to do with SciPy, all you
+need to do is to define the window length, cut off frequency and the
+window.
+
+The Hamming window is defined as:
+$w(n) = \alpha - \beta\cos\frac{2\pi n}{N-1}$, where $\alpha=0.54$ and
+$\beta=0.46$
+
+The next code chunk is executed in term mode, see the source document
+for syntax. Notice also that Pweave can now catch multiple
+figures/code chunk.
+
+<<term=True>>=
+n = 61
+a = signal.firwin(n, cutoff = 0.3, window = "hamming")
+#Frequency and phase response
+mfreqz(a)
+show()
+#Impulse and step response
+figure(2)
+impz(a)
+show()
+@
+
+\subsection{Highpass FIR Filter}
+
+Let's define a highpass FIR filter:
+
+<<>>=
+n = 101
+a = signal.firwin(n, cutoff = 0.3, window = "hanning", pass_zero=False)
+mfreqz(a)
+show()
+@
+
+\subsection{Bandpass FIR filter}
+
+Notice that the plot has a caption defined in code chunk options.
+
+
+<<caption="Bandpass FIR filter.">>=
+n = 1001
+a = signal.firwin(n, cutoff = [0.2, 0.5], window = 'blackmanharris', pass_zero = False)
+mfreqz(a)
+show()
+@
+
+\end{document}

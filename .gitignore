@@ -45,3 +45,6 @@ examples/*.pdf
 examples/*.tex
 examples/*.rst
 examples/*.md
+
+#Testing
+test.py
