@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-#from distutils.core import setup
 from setuptools import setup
 import os
 import pweave
@@ -23,7 +22,7 @@ setup(name='Pweave',
       author_email='matti.pastell@helsinki.fi',
       url='http://mpastell.com/pweave',
       packages=['pweave'],
-      license=['GPL'],
+      license='LICENSE.txt',
       long_description = read('README.rst'),
       classifiers=[
         'Development Status :: 4 - Beta',
@@ -31,6 +30,6 @@ setup(name='Pweave',
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering',
         'Topic :: Software Development :: Documentation',
-        'License :: OSI Approved :: GNU General Public License (GPL)']
+        'License :: OSI Approved :: BSD License']
 
 )
