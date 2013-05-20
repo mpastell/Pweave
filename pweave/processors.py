@@ -100,7 +100,9 @@ class PwebProcessor(object):
 
         #Engines different from python, shell commands for now
         if chunk['engine'] == "shell":
+            sys.stdout.write("Processing chunk %(number)s named %(name)s\n" % chunk)
             chunk['result']  = self.load_shell(chunk)
+                 
             #chunk['term'] = True
             return(chunk)
 
@@ -259,18 +261,24 @@ class PwebProcessor(object):
 
     #Run shell commands from code chunks
     def load_shell(self, chunk):
-        lines = chunk['content'].lstrip().splitlines()
-        result = "\n"
-        for line in lines:
-            command = line.split()
-            cmd = Popen(command, stdout = PIPE)
-            content = cmd.communicate()[0].replace("\r", "") + "\n"
-            if chunk['term']:
-                result += "$ %s\n" % line
-            result += content
-
-            #result += self.loadstring("import os\nos.system('%s')" % line)
-
+        if chunk['evaluate']:
+            lines = chunk['content'].lstrip().splitlines()
+            result = "\n"
+            for line in lines:
+                command = line.split()
+                try:
+                    cmd = Popen(command, stdout = PIPE)
+                    content = cmd.communicate()[0].replace("\r", "") + "\n"
+                except Exception as e:
+                    content = "Pweave ERROR can't execute shell command:\n %s\n" % command
+                    content += str(e)
+                    sys.stdout.write("Pweave ERROR can't execute shell command:\n %s\n" % line)
+                    print e
+                if chunk['term']:
+                    result += "$ %s\n" % line
+                result += content
+        else:
+            result = ""
 
         return(result)
 

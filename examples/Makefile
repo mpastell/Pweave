@@ -1,6 +1,6 @@
 html:
-	pweave all-examples.rstw
-	rst2html.py all-examples.rst > all-examples.html
+	pweave run-examples.rstw
+	rst2html.py run-examples.rst > run-examples.html
 clean:
 	rm *.pdf
 	rm *.out

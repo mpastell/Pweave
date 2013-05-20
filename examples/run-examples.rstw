@@ -1,7 +1,7 @@
 
-========================
- Pweave examples gallery
-========================
+=====================
+ Run Pweave examples
+=====================
 
 <<echo=False>>=
 import pweave
@@ -14,7 +14,7 @@ different features and code chunk options. The page is an executable
 document that be run using Pweave using IPython shell to run all
 examples using::
 
-  pweave all-examples.rstw
+  pweave run-examples.rstw
 
 
 The latest version of the examples with any required extra files are
@@ -41,29 +41,33 @@ Latex
 
 Pweave has several options for LaTeX output, here is a demonstation of differences:
 
-* Latex with pygments syntax highlighting:
-   `<FIR_design_pygments.texw>`__, `<FIR_design_pygments.tex>`__ ,
-   `<FIR_design_pygments.pdf>`__ and with IPython shell `<FIR_design_pygments_ipy.pdf>`__.
+Latex with pygments syntax highlighting:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`<FIR_design_pygments.texw>`__, `<FIR_design_pygments.tex>`__ , `<FIR_design_pygments.pdf>`__ and with IPython shell `<FIR_design_pygments_ipy.pdf>`__.
    
 <<engine="shell">>=
 pweave -f texpygments FIR_design_pygments.texw
 pdflatex FIR_design_pygments.tex 
 pweave -s ipython -f texpygments FIR_design_pygments.texw
 cp FIR_design_pygments.tex FIR_design_pygments_ipy.tex
-pdflatex FIR_design_pygments_ipy.tex 
+pdflatex FIR_design_pygments_ipy.tex
 @
 
-* Latex with verbatim output:
-   `<FIR_design_verb.texw>`__, `<FIR_design_verb.tex>`__ , `<FIR_design_verb.pdf>`__ .
+Latex with verbatim output:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`<FIR_design_verb.texw>`__, `<FIR_design_verb.tex>`__ , `<FIR_design_verb.pdf>`__ .
 
 <<engine="shell">>=
 pweave -f tex FIR_design_verb.texw 
 pdflatex FIR_design_verb.tex 
 @ 
    
-   
-* Latex with Minted package for syntax highlighting:
-   `<FIR_design_minted.texw>`__, `<FIR_design_minted.tex>`__ , `<FIR_design_minted.pdf>`__ .
+Latex with Minted package for syntax highlighting:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`<FIR_design_minted.texw>`__, `<FIR_design_minted.tex>`__ , `<FIR_design_minted.pdf>`__ .
 
 <<engine="shell">>=
 pweave -f texminted FIR_design_minted.texw 
@@ -75,8 +79,77 @@ pdflatex -shell-escape FIR_design_minted.tex
   Using pygments directly from Pweave is much faster than
   using Minted separately.
    
+reStructuredText
+================
 
-  
+`<FIR_design.rstw>`__, `<FIR_design.rst>`__ , `<FIR_design_rst.html>`__ .
+
+<<rst, engine="shell">>=
+pweave FIR_design.rstw
+python c:/python27/scripts/rst2html.py FIR_design.rst FIR_design_rst.html
+@ 
 
 
+Published from script
+=====================
+
+You can publish documents directly using the `pypublish` command.
+
+`<FIR_design.py>`__, `<FIR_design.html>`__ , `<FIR_design.pdf>`__ .
+
+<<engine="shell">>=
+pypublish FIR_design.py
+pypublish -f pdf FIR_design.py
+@ 
+
+
+Markdown
+========
+
+Pandoc
+~~~~~~
+
+`<FIR_design.mdw>`__, `<FIR_design.md>`__ , `<FIR_design_pandoc.html>`__ .
+
+<<engine="shell">>=
+pweave -f pandoc FIR_design.mdw
+pandoc -s --mathjax FIR_design.md -o FIR_design_pandoc.html
+@ 
+
+Python-markdown
+~~~~~~~~~~~~~~~
+
+`md2html` and `pandoc2latex` formats produce output that is identical
+to pypublish command.
+
+`<FIR_design.mdw>`__, `<FIR_design.html>`__ 
+
+<<engine="shell">>=
+pweave -f md2html FIR_design.mdw
+@ 
+
+
+Splitting code to multiple chunks
+---------------------------------
+
+This example shows how to split code between multiple chunks to write
+documentation within a class using `complete` chunk option.
+
+`<AR_yw.mdw>`__ , `<AR_yw.html>`__ , `<AR_yw.pdf>`__ .
+ 
+<<engine="shell">>=
+pweave -f md2html AR_yw.mdw 
+pweave -f pandoc2latex AR_yw.mdw
+pdflatex AR_yw.tex
+@ 
+
+
+Miscellaneous
+-------------
+
+Linear regression with Statsmodels: `<linear_regression.py>`__ , `<linear_regression.html>`__ 
+
+<<engine="shell">>=
+pypublish linear_regression.py
+@ 
 
