@@ -44,3 +44,4 @@ examples/*.html
 examples/*.pdf
 examples/*.tex
 examples/*.rst
+examples/*.md
