@@ -1,5 +1,5 @@
 html:
-	pweave -s ipython all-examples.rstw
+	pweave all-examples.rstw
 	rst2html.py all-examples.rst > all-examples.html
 clean:
 	rm *.pdf

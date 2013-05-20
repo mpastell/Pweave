@@ -1,0 +1,82 @@
+
+========================
+ Pweave examples gallery
+========================
+
+<<echo=False>>=
+import pweave
+#pweave.Pweb.defaultoptions.update({'evaluate' : False})
+pweave.Pweb.defaultoptions.update({'results' : 'hidden'})
+@ 
+
+This is a gallery of Pweave example documents illustrating the
+different features and code chunk options. The page is an executable
+document that be run using Pweave using IPython shell to run all
+examples using::
+
+  pweave all-examples.rstw
+
+
+The latest version of the examples with any required extra files are
+available from the `Git <http://github.com/mpastell/pweave/>`__
+repository in examples directory.
+
+Check program version: 
+
+<<term=True, results="verbatim">>=
+import pweave
+pweave.__version__
+@ 
+
+
+Basic document: FIR filter design
+---------------------------------
+
+This example demonstrates most basic chunk options, output and
+capturing figures and it is available in several formats.
+
+
+Latex
+=====
+
+Pweave has several options for LaTeX output, here is a demonstation of differences:
+
+* Latex with pygments syntax highlighting:
+   `<FIR_design_pygments.texw>`__, `<FIR_design_pygments.tex>`__ ,
+   `<FIR_design_pygments.pdf>`__ and with IPython shell `<FIR_design_pygments_ipy.pdf>`__.
+   
+<<engine="shell">>=
+pweave -f texpygments FIR_design_pygments.texw
+pdflatex FIR_design_pygments.tex 
+pweave -s ipython -f texpygments FIR_design_pygments.texw
+cp FIR_design_pygments.tex FIR_design_pygments_ipy.tex
+pdflatex FIR_design_pygments_ipy.tex 
+@
+
+* Latex with verbatim output:
+   `<FIR_design_verb.texw>`__, `<FIR_design_verb.tex>`__ , `<FIR_design_verb.pdf>`__ .
+
+<<engine="shell">>=
+pweave -f tex FIR_design_verb.texw 
+pdflatex FIR_design_verb.tex 
+@ 
+   
+   
+* Latex with Minted package for syntax highlighting:
+   `<FIR_design_minted.texw>`__, `<FIR_design_minted.tex>`__ , `<FIR_design_minted.pdf>`__ .
+
+<<engine="shell">>=
+pweave -f texminted FIR_design_minted.texw 
+pdflatex -shell-escape FIR_design_minted.tex  
+@ 
+   
+.. note::
+
+  Using pygments directly from Pweave is much faster than
+  using Minted separately.
+   
+
+  
+
+
+

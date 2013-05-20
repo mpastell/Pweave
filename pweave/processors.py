@@ -7,6 +7,7 @@ from pweb import Pweb
 import copy
 import code
 import cPickle as pickle
+from subprocess import Popen, PIPE
 
 class PwebProcessor(object):
     """Runs code from parsed Pweave documents"""
@@ -80,6 +81,7 @@ class PwebProcessor(object):
             else:
                 chunk["content"] = self.loadstring("import inspect\nprint(inspect.getsource(%s))" % source) + chunk['content']
 
+        
 
         #Make function to dispatch based on the type
         #Execute a function from a list of functions
@@ -94,6 +96,12 @@ class PwebProcessor(object):
 
         if chunk['type'] == 'doc':
             chunk['content'] = self.loadinline(chunk['content'])
+            return(chunk)
+
+        #Engines different from python, shell commands for now
+        if chunk['engine'] == "shell":
+            chunk['result']  = self.load_shell(chunk)
+            #chunk['term'] = True
             return(chunk)
 
         #Settings for figures, matplotlib and sho
@@ -248,6 +256,24 @@ class PwebProcessor(object):
         self.executed = executed
         #pprint(self.executed)
         return(True)
+
+    #Run shell commands from code chunks
+    def load_shell(self, chunk):
+        lines = chunk['content'].lstrip().splitlines()
+        result = "\n"
+        for line in lines:
+            command = line.split()
+            cmd = Popen(command, stdout = PIPE)
+            content = cmd.communicate()[0].replace("\r", "") + "\n"
+            if chunk['term']:
+                result += "$ %s\n" % line
+            result += content
+
+            #result += self.loadstring("import os\nos.system('%s')" % line)
+
+
+        return(result)
+
 
     def loadstring(self, code):
         tmp = StringIO()

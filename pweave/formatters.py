@@ -290,7 +290,7 @@ class PwebTexPygmentsFormatter(PwebTexFormatter):
         chunk['content'] = highlight(chunk['content'], PythonLexer(), LatexFormatter(verboptions="frame=single,fontsize=\small, xleftmargin=0.5em"))
         if len(chunk['result'].strip()) > 0 and chunk['results'] == 'verbatim':
             if chunk['term']:
-                chunk['result'] = highlight(chunk['result'], PythonConsoleLexer(), LatexFormatter(verboptions="frame=single,fontsize=\small, xleftmargin=0.5em")) 
+                chunk['result'] = highlight(chunk['result'], PythonLexer(), LatexFormatter(verboptions="frame=single,fontsize=\small, xleftmargin=0.5em")) 
             else:
                 chunk['result'] = highlight(chunk['result'], TextLexer(), LatexFormatter(verboptions="frame=leftline,fontsize=\small, xleftmargin=0.5em")) 
         return(PwebFormatter.format_codechunks(self, chunk))

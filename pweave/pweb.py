@@ -36,7 +36,8 @@ class Pweb(object):
                           f_pos = "htpb",
                           f_size = (8, 6),
                           f_env = None,
-                          complete = True
+                          complete = True,
+                          engine = "python"
                           )
     
     #: Pweave figure directory

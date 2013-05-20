@@ -3,6 +3,7 @@ In 0.22
 
 * Publishing of scripts from command line : pypublish script
 * Conversion between input formats and markups: Pweave-convert script
+* Possibility to run shell code from Pweave. See `engine` chunk option.
 * New input formats:
 	- Script
 	- IPython notebook
@@ -17,4 +18,5 @@ In 0.22
 	- f_size ( (8,6) ) Saved figure size in inches a tuple (w, h) 
 	- f_env (None) Environment that goes around figure e.g. sidefigure
 	- complete (False)
-	- source: Read chunk source from file or python module or file 
+	- source: Read chunk source from file or python module or file
+	- engine: Choose engine running the code. "python" or "shell"
