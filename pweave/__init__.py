@@ -149,3 +149,5 @@ def convert(file, informat="noweb", outformat="script", pandoc_args=None,
     Converter = readers.PwebConverters.formats[outformat]['class']
     # pandoc_args = None skips the call to pandoc
     doc = Converter(file, informat, outformat, pandoc_args)
+    doc.convert()
+    doc.write()

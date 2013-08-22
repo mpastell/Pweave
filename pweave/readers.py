@@ -275,17 +275,15 @@ class PwebConvert(object):
     def __init__(self, file = None, informat = "script", outformat = "noweb", pandoc_args= None):
         self.informat = informat
         self.outformat = outformat
-        
+
         self.doc = PwebReaders.formats[informat]['class'](file)
-        
+
         self.pandoc_args = pandoc_args
         if self.informat == self.outformat:
             self.basename =  re.split("\.+[^\.]+$", file)[0] + "_converted"
         else:
             self.basename =  re.split("\.+[^\.]+$", file)[0]
         self.doc.parse()
-        self.convert()
-        self.write()
 
 
     def format_docchunk(self, content):
@@ -360,8 +358,6 @@ class PwebNBConvert(object):
         else:
             self.basename =  re.split("\.+[^\.]+$", file)[0]
         self.doc.parse()
-        self.convert()
-        self.write()
 
     def format_docchunk(self, content):
         """Format doc chunks for output.
