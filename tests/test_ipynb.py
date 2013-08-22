@@ -6,4 +6,4 @@ def test_nbformat():
     """
     infile = 'tests/simple.mdw'
     # pandoc_args = None skips the call to pandoc
-    pweave.convert(file=infile, informat="noweb", outformat="ipynb")
+    pweave.convert(file=infile, informat="noweb", outformat="notebook")
