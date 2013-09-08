@@ -455,9 +455,15 @@ class PwebHTMLFormatter(PwebFormatter):
 
         #Figure environment
         if chunk['caption']:
+            #Write labels as data-attribute for javascript etc.
+            if chunk['name']:
+                labelstring = 'data-label = "fig:%s"' % chunk["name"]
+            else:
+                labelstring = ""
+
             result += ("<figure>\n"\
                         "%s"     
-                        "<figcaption>%s</figcaption>\n</figure>" % (figstring, chunk['caption']))
+                        "<figcaption %s>%s</figcaption>\n</figure>" % (figstring, labelstring, chunk['caption']))
              
 
         else:

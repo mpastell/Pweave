@@ -46,7 +46,9 @@ examples/*.tex
 examples/*.rst
 examples/*.md
 examples/*.*#
+examples/cache
 
 
 #Testing
 test.py
+Plans.txt

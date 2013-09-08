@@ -1,13 +1,14 @@
 html:
-	pweave run-examples.rstw
-	rst2html.py run-examples.rst > run-examples.html
+	Pweave index.rstw
+	rst2html.py index.rst index.html
 clean:
-	rm *.pdf
-	rm *.out
-	rm *.aux
-	rm *.log
-	rm *.md
-	rm *.rst
-	rm *.tex
-	rm *.html
-	rm -r figures
+	rm -f *.pdf
+	rm -f *.out
+	rm -f *.aux
+	rm -f *.log
+	rm -f *.md
+	rm -f *.rst
+	rm -f *.tex
+	rm -f *.html
+	rm -rf figures
+	rm -rf cache
