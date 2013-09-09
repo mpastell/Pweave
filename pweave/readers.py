@@ -60,11 +60,17 @@ class PwebReader(object):
         for line in lines:
 
             (code_starts, skip) = self.codestart(line)
-            if code_starts  and self.state != "code":
-                self.state = "code"
+            if code_starts:  #and self.state != "code":
+                if self.state == "doc":
+                    docN +=1
+                    chunks.append({"type" : "doc", "content" : read, "number" : docN})
+                else:
+                    chunks.append( {"type" : "code", "content" : "\n" + read.rstrip(), 
+                                    "number" : codeN, "options" : opts})
+                    codeN +=1
+
                 opts = self.getoptions(line)
-                chunks.append({"type" : "doc", "content" : read, "number" : docN})
-                docN +=1
+                self.state = "code"                                
                 read = ""
                 if skip:
                     continue #Don't append options code
@@ -162,18 +168,24 @@ class PwebScriptReader(PwebReader):
             self.n_emptylines = 0
 
     def codestart(self, line):
-      starts = line.startswith("#+") or (not line.startswith("#' ") and self.n_emptylines > 0)
+      if line.startswith("#+"):
+          starts = True
+      elif self.state != "code" and (not line.startswith("#'") and self.n_emptylines > 0):
+          starts = True
+      else:
+          starts = False
       skip =  line.startswith("#+")
       return((starts, skip))
 
     def docstart(self, line):
-        return((line.startswith("#' "), False))
+        return((line.startswith("#'"), False))
 
     def strip_comments(self, line):
-        line = line.replace("#' ", "", 1) 
+        if line == "#'":
+            line = line.replace("#'", "")
+        else:
+            line = line.replace("#' ", "", 1) 
         return(line)
-
-
 
     def getoptions(self, opt):
         if not opt.startswith("#+ "):
