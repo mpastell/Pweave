@@ -1,3 +1,5 @@
+from __future__ import print_function, division
+
 import os
 import sys
 import re
@@ -6,11 +8,11 @@ import inspect
 from formatters import *
 from . import readers
 import copy
- 
+
 
 class Pweb(object):
     """Processes a complete document
-    
+
     :param file: ``string`` name of the input document.
     :param format: ``string`` output format from supported formats. See: http://mpastell.com/pweave/formats.html
     """
@@ -18,7 +20,7 @@ class Pweb(object):
     #Shared across class instances
     chunkformatters = []
     chunkprocessors = []
-    
+
     #: Globals dictionary used when evaluating code
     globals = {}
 
@@ -39,23 +41,23 @@ class Pweb(object):
                           complete = True,
                           engine = "python"
                           )
-    
+
     #: Pweave figure directory
     figdir = 'figures'
-    
+
     #: Pweave cache directory
     cachedir = 'cache'
-    
-    #: Use plots? 
+
+    #: Use plots?
     usematplotlib = True
-    
+
 
     usesho = False
     storeresults = False
     _mpl_imported = False
 
     def __init__(self, file = None, format = "tex"):
-        
+
         #The source document
         self.source = file
         self.sink = None
@@ -66,9 +68,9 @@ class Pweb(object):
         self.isparsed = False
         self.isexecuted = False
         self.isformatted = False
-        
+
         self.usesho = False
-        
+
         #: Use documentation mode?
         self.documentationmode = False
 
@@ -78,12 +80,12 @@ class Pweb(object):
 
     def setformat(self, doctype = 'tex', Formatter = None):
         """Set output format for the document
-        
+
         :param doctype: ``string`` output format from supported formats. See: http://mpastell.com/pweave/formats.html
         :param Formatter: Formatter class, can be used to specify custom formatters. See: http://mpastell.com/pweave/subclassing.html
-        
+
         """
-        #Formatters are needed  when the code is executed and formatted 
+        #Formatters are needed  when the code is executed and formatted
         if Formatter is not None:
             self.formatter = Formatter(self.source)
             return
@@ -92,10 +94,10 @@ class Pweb(object):
             self.formatter = PwebFormats.formats[doctype]['class'](self.source)
         except KeyError as e:
             raise Exception("Pweave: Unknown output format")
-            
+
     def setreader(self, Reader = readers.PwebReader):
-        """Set class reading for reading documents, 
-        readers can be used to implement different input markups""" 
+        """Set class reading for reading documents,
+        readers can be used to implement different input markups"""
         if type(Reader) == str:
             self.Reader = readers.PwebReaders.formats[Reader]['class']
         else:
@@ -104,13 +106,13 @@ class Pweb(object):
     def getformat(self):
         """Get current format dictionary. See: http://mpastell.com/pweave/customizing.html"""
         return(self.formatter.formatdict)
-              
+
     def updateformat(self, dict):
         """Update existing format, See: http://mpastell.com/pweave/customizing.html"""
         self.formatter.formatdict.update(dict)
-    
+
     def parse(self, string = None, basename = "string_input"):
-        """Parse document""" 
+        """Parse document"""
         if string is None:
             parser = self.Reader(file = self.source)
         else:
@@ -134,7 +136,7 @@ class Pweb(object):
         self.isexecuted = True
 
     def format(self):
-        """Format the code for writing""" 
+        """Format the code for writing"""
         if not self.isexecuted:
             self.run()
         self.formatter.setexecuted(copy.deepcopy(self.executed))
@@ -168,8 +170,8 @@ class Pweb(object):
         """Tangle the document"""
         self.parse()
         target = self._basename() + '.py'
-        code = filter(lambda x : x['type'] == 'code', self.parsed)
-        code = map(lambda x : x['content'], code)
+        code = [x for x in self.parsed if x['type'] == 'code']
+        code = [x['content'] for x in code]
         f = open(target, 'w')
         f.write('\n'.join(code))
         f.close()
@@ -180,7 +182,8 @@ class Pweb(object):
         allows overriding default options for doc and code chunks
         the function needs to return a string"""
         #Check if there are custom functions in Pweb.chunkformatter
-        f = filter(lambda x: x.func_name==('format%(type)schunk' % chunk), Pweb.chunkformatters)
+        f = [x for x in Pweb.chunkformatters if x.__name__==(
+            'format%(type)schunk' % chunk)]
         if f:
             return(f[0](chunk))
         #Check built-in formatters from pweave.formatters
@@ -192,5 +195,5 @@ class Pweb(object):
             return(chunk)
         sys.stderr.write('UNKNOWN CHUNK TYPE: %s \n' % chunk['type'])
         return(None)
- 
-from processors import * 
+
+from processors import *

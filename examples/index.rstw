@@ -82,7 +82,7 @@ reStructuredText
 
 <<rst, engine="shell">>=
 Pweave FIR_design.rstw
-python c:/python27/scripts/rst2html.py FIR_design.rst FIR_design_rst.html
+rst2html.py FIR_design.rst FIR_design_rst.html
 @ 
 
 

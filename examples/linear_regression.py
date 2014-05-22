@@ -3,8 +3,8 @@
 #' % 19.4.2013
 
 #' #Requirements
-#' This en example of doing linear regression analysis using Python 
-#' and [statsmodels](http://statsmodels.sourceforge.net/devel/). The 
+#' This en example of doing linear regression analysis using Python
+#' and [statsmodels](http://statsmodels.sourceforge.net/devel/). The
 #' example requires statsmodels > 0.5 and we'll use the new formula API
 #' which makes fitting the models very familiar for R users.
 #' You'll also need [Numpy](http://www.numpy.org/), [Pandas](http://pandas.pydata.org/)
@@ -36,7 +36,7 @@ whiteside = pd.read_csv(url)
 
 model = sm.ols(formula='Gas ~ Temp', data=whiteside, subset = whiteside['Insul']=="Before")
 fitted = model.fit()
-print fitted.summary()
+print(fitted.summary())
 
 #' # Plot the data and fit
 
@@ -64,7 +64,7 @@ plt.xlabel('Normalized residuals')
 #' ## Cooks distance
 
 #' [OLSInfluence](http://statsmodels.sourceforge.net/devel/generated/statsmodels.stats.outliers_influence.OLSInfluence.html)
-#'  objects contain more diagnostic information 
+#'  objects contain more diagnostic information
 
 influence = fitted.get_influence()
 #c is the distance and p is p-value

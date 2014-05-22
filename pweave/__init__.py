@@ -2,6 +2,8 @@
 # Matti Pastell 2010-2013
 # http://mpastell.com/pweave
 
+from __future__ import print_function, division
+
 from pweb import *
 import time
 import readers
@@ -23,7 +25,7 @@ def pweave(file, doctype = 'rst', informat = "noweb", shell="python", plot = Tru
     :param doctype: ``string`` output document format: call with listformats true to get list of supported formats.
     :param informat: ``string`` input format: "noweb" or "script"
     :param shell: ``string`` shell used to run code: "python" or "ipython"
-    :param plot: ``bool`` use matplotlib (or Sho with Ironpython) 
+    :param plot: ``bool`` use matplotlib (or Sho with Ironpython)
     :param docmode: ``bool`` use documentation mode, chunk code and results will be loaded from cache and inline code will be hidden
     :param cache: ``bool`` Cache results to disk for documentation mode
     :param figdir: ``string`` directory path for figures
@@ -42,9 +44,9 @@ def pweave(file, doctype = 'rst', informat = "noweb", shell="python", plot = Tru
 
     doc = Pweb(file)
     doc.setformat(doctype)
-    
+
     doc.setreader(readers.PwebReaders.formats[informat]['class'])
-    
+
 
 
     if sys.platform == 'cli':
@@ -52,7 +54,7 @@ def pweave(file, doctype = 'rst', informat = "noweb", shell="python", plot = Tru
         Pweb.usematplotlib = False
     else:
         Pweb.usematplotlib = plot
-    
+
     Pweb.figdir = figdir
     Pweb.cachedir = cachedir
     doc.documentationmode = docmode
@@ -60,7 +62,7 @@ def pweave(file, doctype = 'rst', informat = "noweb", shell="python", plot = Tru
 
     if figformat is not None:
         doc.updateformat({'figfmt' : figformat, 'savedformats' : [figformat]})
-        
+
     #Returning globals
     try:
         doc.weave(shell)
@@ -84,7 +86,7 @@ def _returnglobals():
 
 def ptangle(file):
     """Tangles a noweb file i.e. extracts code from code chunks to a .py file
-    
+
     :param file: ``string`` the pweave document containing the code
     """
     doc = Pweb(file)
@@ -95,8 +97,8 @@ def publish(file, format = "html"):
     chunks are  written in markdown.
 
     ":param file: ``string`` input file"
-    ":param format: ``string`` output format "html" of "pdf", pdf output 
-    requires pandoc and pdflatex in your path. 
+    ":param format: ``string`` output format "html" of "pdf", pdf output
+    requires pandoc and pdflatex in your path.
     """
 
 
@@ -106,9 +108,9 @@ def publish(file, format = "html"):
     elif format == "pdf":
         pformat = "pandoc2latex"
     else:
-        print "Unknown format, exiting"
+        print("Unknown format, exiting")
         return
-        
+
     doc = Pweb(file)
     doc.setformat(pformat)
     doc.setreader(readers.PwebScriptReader)
@@ -119,20 +121,20 @@ def publish(file, format = "html"):
     if format == "pdf":
         try:
             latex = Popen(["pdflatex", doc.sink], stdin = PIPE, stdout = PIPE)
-            print "Running pdflatex..."
+            print("Running pdflatex...")
         except:
-           print "Can't find pdflatex, no pdf produced!"
+           print("Can't find pdflatex, no pdf produced!")
            return
         x = latex.communicate()[0]
-        print ("\n").join(x.splitlines()[-2:])
+        print(("\n").join(x.splitlines()[-2:]))
 
 def spin(file):
     """Convert input file from script format to noweb format, similar to Knitr's spin."""
     doc = readers.PwebConvert(file)
-    
+
 def convert(file, informat="noweb", outformat="script", pandoc_args=None):
     """Convert input file from script to noweb or vice versa
-    
+
     :param file: ``string`` input file
     :param informat: ``string`` input format noweb, script or notebook
     :param outformat: ``string`` input format noweb or script
@@ -142,12 +144,12 @@ def convert(file, informat="noweb", outformat="script", pandoc_args=None):
     """
 
     doc = readers.PwebConvert(file, informat, outformat, pandoc_args)
-    
 
 
 
-    
- 
 
-    
-    
+
+
+
+
+

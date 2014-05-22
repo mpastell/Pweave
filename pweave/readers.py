@@ -1,4 +1,6 @@
 #Pweave readers
+from __future__ import print_function, division
+
 import re
 import sys
 import copy
@@ -12,9 +14,9 @@ class PwebReader(object):
     code_begin = r"^\s*<<(.*)>>=$"
     doc_begin = r"^@$"
 
-    def __init__(self, file = None, string = None):    
+    def __init__(self, file = None, string = None):
         self.source = file
-        #Get input from string or 
+        #Get input from string or
         if file != None:
             codefile = open(self.source, 'r')
             self.rawtext = codefile.read()
@@ -65,12 +67,12 @@ class PwebReader(object):
                     docN +=1
                     chunks.append({"type" : "doc", "content" : read, "number" : docN})
                 else:
-                    chunks.append( {"type" : "code", "content" : "\n" + read.rstrip(), 
+                    chunks.append( {"type" : "code", "content" : "\n" + read.rstrip(),
                                     "number" : codeN, "options" : opts})
                     codeN +=1
 
                 opts = self.getoptions(line)
-                self.state = "code"                                
+                self.state = "code"
                 read = ""
                 if skip:
                     continue #Don't append options code
@@ -78,8 +80,8 @@ class PwebReader(object):
             (doc_starts, skip) = self.docstart(line)
             if doc_starts and self.state =="code":
                 self.state = "doc"
-                if read.strip() != "" or opts.has_key("source"): #Don't parse empty chunks unless source is specified
-                    chunks.append( {"type" : "code", "content" : "\n" + read.rstrip(), 
+                if read.strip() != "" or 'source' in opts: #Don't parse empty chunks unless source is specified
+                    chunks.append( {"type" : "code", "content" : "\n" + read.rstrip(),
                                     "number" : codeN, "options" : opts})
                 codeN +=1
                 read = ""
@@ -96,7 +98,7 @@ class PwebReader(object):
 
         #Handle the last chunk
         if self.state == "code":
-            chunks.append( {"type" : "code", "content" : "\n" + read.rstrip(), 
+            chunks.append( {"type" : "code", "content" : "\n" + read.rstrip(),
                                     "number" : codeN, "options" : opts})
         if self.state == "doc":
             chunks.append({"type" : "doc", "content" : read, "number" : docN})
@@ -155,7 +157,7 @@ class PwebReader(object):
 
 class PwebScriptReader(PwebReader):
     """Read scripts to Pweave"""
-    
+
     def __init__(self, file = None, string = None):
         PwebReader.__init__(self, file, string)
         self.state = "code" #Initial state
@@ -184,7 +186,7 @@ class PwebScriptReader(PwebReader):
         if line == "#'":
             line = line.replace("#'", "")
         else:
-            line = line.replace("#' ", "", 1) 
+            line = line.replace("#' ", "", 1)
         return(line)
 
     def getoptions(self, opt):
@@ -206,8 +208,8 @@ class PwebScriptReader(PwebReader):
 
         exec("chunkoptions =  dict(" + optstring + ")")
         #Update the defaults
-        
-        if chunkoptions.has_key('label'):
+
+        if 'label' in chunkoptions:
             chunkoptions['name'] = chunkoptions['label']
 
         return(chunkoptions)
@@ -243,11 +245,11 @@ class PwebReaders(object):
                'script' : {'class' : PwebScriptReader, 'description' :  'Script format'},
                'notebook' : {'class' : PwebNBReader, 'description' :  'IPython notebook'}
                }
-    
+
     @classmethod
     def shortformats(cls):
         fmtstring = ""
-        names = cls.formats.keys()
+        names = list(cls.formats.keys())
         n = len(names)
         for i in range(n):
             fmtstring += (" %s") % (names[i])
@@ -258,7 +260,7 @@ class PwebReaders(object):
 
     @classmethod
     def getformats(cls):
-        fmtstring = "" 
+        fmtstring = ""
         for format in sorted(cls.formats):
             fmtstring += ("* %s:\n   %s\n") % (format, cls.formats[format]['description'])
         return(fmtstring)
@@ -267,7 +269,7 @@ class PwebReaders(object):
     def listformats(cls):
         print("\nPweave supported input formats:\n")
         print(cls.getformats())
-        print("More info: http://mpastell.com/pweave/ \n")    
+        print("More info: http://mpastell.com/pweave/ \n")
 
 class PwebConvert(object):
     """Convert from one input format to another"""
@@ -275,9 +277,9 @@ class PwebConvert(object):
     def __init__(self, file = None, informat = "script", outformat = "noweb", pandoc_args= None):
         self.informat = informat
         self.outformat = outformat
-        
+
         self.doc = PwebReaders.formats[informat]['class'](file)
-        
+
         self.pandoc_args = pandoc_args
         if self.informat == self.outformat:
             self.basename =  re.split("\.+[^\.]+$", file)[0] + "_converted"
@@ -311,8 +313,8 @@ class PwebConvert(object):
         f = open(file, "w")
         f.write(self.converted)
         f.close()
-        print "Output written to " + file
-        
+        print("Output written to " + file)
+
     def convert(self):
         output = []
 
