@@ -59,7 +59,7 @@ def weave():
 
 def publish():
     if len(sys.argv)==1:
-        print("Publish a python script. Part of Pweave %s, use -h for help" % pweave.__version__):74
+        print("Publish a python script. Part of Pweave %s, use -h for help" % pweave.__version__)
 
         sys.exit()
     parser = OptionParser(usage="pypublish [options] sourcefile", version="Part of Pweave " + pweave.__version__)
