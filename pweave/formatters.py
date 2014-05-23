@@ -478,7 +478,7 @@ class PwebHTMLFormatter(PwebFormatter):
 class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
 
     def __init__(self, source):
-        from templates import htmltemplate
+        from .templates import htmltemplate
         from . import __version__
         import time
         PwebHTMLFormatter.__init__(self, source)
