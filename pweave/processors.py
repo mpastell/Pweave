@@ -8,7 +8,6 @@ try:
     from cStringIO import StringIO
 except ImportError:
     from io import StringIO
-from pweb import Pweb
 import copy
 import code
 try:
@@ -20,12 +19,13 @@ from subprocess import Popen, PIPE
 class PwebProcessor(object):
     """Runs code from parsed Pweave documents"""
 
-    def __init__(self, parsed, source, mode, formatdict):
+    def __init__(self, parsed, source, mode, formatdict, callback):
         self.parsed = parsed
         self.source = source
         self.documentationmode = mode
         self._stdout = sys.stdout
         self.formatdict = formatdict
+        self.callback = callback
         self.pending_code = "" # Used for multichunk splits
 
     def _basename(self):
@@ -33,23 +33,23 @@ class PwebProcessor(object):
 
     def run(self):
         #Create directory for figures
-        if not os.path.isdir(Pweb.figdir):
-            os.mkdir(Pweb.figdir)
+        if not os.path.isdir(self.callback.figdir):
+            os.mkdir(self.callback.figdir)
 
         #Documentation mode uses results from previous  executions
         #so that compilation is fast if you only work on doc chunks
         if self.documentationmode:
            success = self._getoldresults()
            if success:
-               print "restoring"
+               print("restoring")
                return
            else:
                sys.stderr.write("DOCUMENTATION MODE ERROR:\nCan't find stored results, running the code and caching results for the next documentation mode run\n")
-               Pweb.storeresults = True
-        exec("import sys\nsys.path.append('.')", Pweb.globals)
+               self.callback.storeresults = True
+        exec("import sys\nsys.path.append('.')", self.callback.globals)
         self.executed = list(map(self._runcode, self.parsed))
         self.isexecuted = True
-        if Pweb.storeresults:
+        if self.callback.storeresults:
             self.store(self.executed)
 
     def getresults(self):
@@ -57,9 +57,9 @@ class PwebProcessor(object):
 
     def store(self, data):
         """A method used to pickle stuff for persistence"""
-        if not os.path.isdir(Pweb.cachedir):
-            os.mkdir(Pweb.cachedir)
-        name = Pweb.cachedir + '/' + self._basename() + '.pkl'
+        if not os.path.isdir(self.callback.cachedir):
+            os.mkdir(self.callback.cachedir)
+        name = self.callback.cachedir + '/' + self._basename() + '.pkl'
         f = open(name, 'wb')
         pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
         f.close()
@@ -76,7 +76,7 @@ class PwebProcessor(object):
 
         #Add defaultoptions to parsed options
         if chunk['type'] == 'code':
-           defaults = Pweb.defaultoptions.copy()
+           defaults = self.callback.defaultoptions.copy()
            defaults.update(chunk["options"])
            chunk.update(defaults)
            del chunk['options']
@@ -118,14 +118,14 @@ class PwebProcessor(object):
         #if chunk['width'] is None:
         #        chunk['width'] = self.formatdict['width']
 
-        if Pweb.usematplotlib:
-            if not Pweb._mpl_imported:
+        if self.callback.usematplotlib:
+            if not self.callback._mpl_imported:
                 import matplotlib
                 matplotlib.use('Agg')
                 #matplotlib.rcParams.update(self.rcParams)
             import matplotlib.pyplot as plt
             import matplotlib
-            Pweb._mpl_imported = True
+            self.callback._mpl_imported = True
 
             #['figure.figsize'] = (6, 4)
             #matplotlib.rcParams['figure.dpi'] = 200
@@ -185,7 +185,7 @@ class PwebProcessor(object):
 
         fignames = []
 
-        if Pweb.usematplotlib:
+        if self.callback.usematplotlib:
             import matplotlib.pyplot as plt
             #Iterate over figures
             figs = plt.get_fignums()
@@ -195,17 +195,17 @@ class PwebProcessor(object):
                 plt.figure(i).set_size_inches(chunk['f_size'])
                 #plt.figure(i).set_size_inches(4,4)
 
-                name = Pweb.figdir + '/' + prefix + "_" + str(i) + self.formatdict['figfmt']
+                name = self.callback.figdir + '/' + prefix + "_" + str(i) + self.formatdict['figfmt']
                 for format in self.formatdict['savedformats']:
-                    plt.savefig(Pweb.figdir + '/' + prefix + "_" + str(i) + format)
+                    plt.savefig(self.callback.figdir + '/' + prefix + "_" + str(i) + format)
                     plt.draw()
                 fignames.append(name)
                 #plt.clf()
                 plt.close()
 
-        if Pweb.usesho:
+        if self.callback.usesho:
             from sho import saveplot
-            figname = Pweb.figdir + '/' + prefix + self.formatdict['figfmt']
+            figname = self.callback.figdir + '/' + prefix + self.formatdict['figfmt']
             saveplot(figname)
             fignames = [figname]
 
@@ -213,7 +213,7 @@ class PwebProcessor(object):
 
     def restore(self):
         """A method used to unpickle stuff"""
-        name = Pweb.cachedir + '/' + self._basename() + '.pkl'
+        name = self.callback.cachedir + '/' + self._basename() + '.pkl'
         if os.path.exists(name):
             f = open(name, 'rb')
             self._oldresults = pickle.load(f)
@@ -295,7 +295,7 @@ class PwebProcessor(object):
         tmp = StringIO()
         sys.stdout = tmp
         compiled = compile(code, '<input>', 'exec')
-        exec(compiled, Pweb.globals)
+        exec(compiled, self.callback.globals)
         #exec compiled in Pweb.globals
         result = "\n" + tmp.getvalue()
         tmp.close()
@@ -326,7 +326,7 @@ class PwebProcessor(object):
 
             tmp = StringIO()
             sys.stdout = tmp
-            return_value = eval(compiled_statement, Pweb.globals)
+            return_value = eval(compiled_statement, self.callback.globals)
             result = tmp.getvalue()
             if return_value is not None:
                 result += repr(return_value)
@@ -374,8 +374,8 @@ class PwebProcessor(object):
 class PwebIPythonProcessor(PwebProcessor):
     """Runs code from parsed Pweave documents"""
 
-    def __init__(self, parsed, source, mode, formatdict):
-        PwebProcessor.__init__(self, parsed, source, mode, formatdict)
+    def __init__(self, parsed, source, mode, formatdict, callback):
+        PwebProcessor.__init__(self, parsed, source, mode, formatdict, callback)
         import IPython
         x = IPython.core.interactiveshell.InteractiveShell()
         self.IPy = x.get_ipython()

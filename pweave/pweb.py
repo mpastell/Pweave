@@ -130,7 +130,7 @@ class Pweb(object):
             Runner = shell
 
         #runner = PwebProcessor(copy.deepcopy(self.parsed), self.source, self.documentationmode, self.formatter.getformatdict())
-        runner = Runner(copy.deepcopy(self.parsed), self.source, self.documentationmode, self.formatter.getformatdict())
+        runner = Runner(copy.deepcopy(self.parsed), self.source, self.documentationmode, self.formatter.getformatdict(), self)
         runner.run()
         self.executed = runner.getresults()
         self.isexecuted = True
