@@ -2,14 +2,14 @@
 # Matti Pastell 2010-2013
 # http://mpastell.com/pweave
 
-from __future__ import print_function, division
+from __future__ import print_function, division, absolute_import
 
-from pweb import *
-import time
-import readers
-import templates
-import os
+import sys
+import inspect
 from subprocess import Popen, PIPE
+
+from .pweb import *
+from . import readers
 
 __version__ = '0.22rc'
 

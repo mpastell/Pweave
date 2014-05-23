@@ -1,8 +1,7 @@
 #Pweave readers
-from __future__ import print_function, division
+from __future__ import print_function, division, absolute_import
 
 import re
-import sys
 import copy
 import json
 from subprocess import Popen, PIPE
@@ -17,7 +16,7 @@ class PwebReader(object):
     def __init__(self, file = None, string = None):
         self.source = file
         #Get input from string or
-        if file != None:
+        if file is not None:
             codefile = open(self.source, 'r')
             self.rawtext = codefile.read()
             codefile.close()
@@ -347,6 +346,4 @@ class PwebConvert(object):
 
         return(optstring)
 
-#pweb is imported here to avoid import loop
-import pweb
 

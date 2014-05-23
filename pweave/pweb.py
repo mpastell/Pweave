@@ -1,13 +1,12 @@
 from __future__ import print_function, division
 
-import os
 import sys
 import re
-#import code
-import inspect
-from formatters import *
-from . import readers
 import copy
+
+from . import readers
+from . import formatters
+from .processors import PwebProcessors
 
 
 class Pweb(object):
@@ -91,7 +90,7 @@ class Pweb(object):
             return
         #Get formatter class from available formatters
         try:
-            self.formatter = PwebFormats.formats[doctype]['class'](self.source)
+            self.formatter = formatters.PwebFormats.formats[doctype]['class'](self.source)
         except KeyError as e:
             raise Exception("Pweave: Unknown output format")
 
@@ -195,5 +194,3 @@ class Pweb(object):
             return(chunk)
         sys.stderr.write('UNKNOWN CHUNK TYPE: %s \n' % chunk['type'])
         return(None)
-
-from processors import *
