@@ -1,4 +1,4 @@
-from __future__ import print_function, division, absolute_import
+from __future__ import print_function, division, absolute_import, unicode_literals
 
 import sys
 from subprocess import Popen, PIPE
@@ -51,8 +51,9 @@ class PwebFormatter(object):
 
         #Flatten to string, make conversion and headers etc.
 
-        for i in range(len(self.formatted)):
-            self.formatted[i] = self.formatted[i].decode('utf-8')
+        # chunks should already be unicode, so no need to decode
+        ###for i in range(len(self.formatted)):
+        ###    self.formatted[i] = self.formatted[i].decode('utf-8')
         self.formatted = "\n".join(self.formatted)
         self.convert() #Convert to e.g. markdown
         self.add_header()
@@ -164,7 +165,8 @@ class PwebFormatter(object):
         return(self.formatdict)
 
     def getformatted(self):
-        return(self.formatted.encode('utf-8'))
+        #return(self.formatted.encode('utf-8'))
+        return(self.formatted)
 
     def updateformatdict(self, dict):
         self.formatdict.update(dict)
@@ -547,12 +549,12 @@ class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
         PwebTexPygmentsFormatter.__init__(self, source)
         from pygments.formatters import LatexFormatter
         x = LatexFormatter()
-        self.header = (r"""\documentclass[a4paper,11pt,final]{article}
-        \usepackage{fancyvrb, color, graphicx, hyperref, ,amsmath, url}
-        \usepackage{palatino}
-        \usepackage[a4paper,text={16.5cm,25.2cm},centering]{geometry}
+        self.header = ("""\\documentclass[a4paper,11pt,final]{article}
+        \\usepackage{fancyvrb, color, graphicx, hyperref, ,amsmath, url}
+        \\usepackage{palatino}
+        \\usepackage[a4paper,text={16.5cm,25.2cm},centering]{geometry}
 
-        \hypersetup
+        \\hypersetup
         {   pdfauthor = {Pweave},
             pdftitle={Published from %s},
             colorlinks=TRUE,
@@ -560,8 +562,8 @@ class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
             citecolor=blue,
             urlcolor=blue
         }
-        \setlength{\parindent}{0pt}
-        \setlength{\parskip}{1.2ex}
+        \\setlength{\parindent}{0pt}
+        \\setlength{\parskip}{1.2ex}
         %s
         """) % (self.source, x.get_style_defs())
         self.footer = r"\end{document}"
@@ -590,7 +592,7 @@ class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
 
 
     def format_docchunk(self, chunk):
-        if chunk.has_key("number") and chunk['number'] == 1:
+        if 'number' in chunk and chunk['number'] == 1:
             chunk = self.parsetitle(chunk)
         try:
             pandoc = Popen(["pandoc", "-t", "latex", "-f", "markdown"], stdin = PIPE, stdout = PIPE)

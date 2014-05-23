@@ -4,6 +4,7 @@ from __future__ import print_function, division, absolute_import
 import sys
 import os
 import re
+import os
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -85,7 +86,7 @@ class PwebProcessor(object):
         if 'source' in chunk:
             source = chunk["source"]
             if os.path.isfile(source):
-                chunk["content"] = open(source, "r").read()  + chunk['content']
+                chunk["content"] = io.open(source, "r", encoding='utf-8').read()  + chunk['content']
             else:
                 chunk["content"] = self.loadstring("import inspect\nprint(inspect.getsource(%s))" % source) + chunk['content']
 

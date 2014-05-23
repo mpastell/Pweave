@@ -1,9 +1,10 @@
 #Pweave readers
-from __future__ import print_function, division, absolute_import
+from __future__ import print_function, division, absolute_import, unicode_literals
 
 import re
 import copy
 import json
+import io
 from subprocess import Popen, PIPE
 
 
@@ -17,7 +18,7 @@ class PwebReader(object):
         self.source = file
         #Get input from string or
         if file is not None:
-            codefile = open(self.source, 'r')
+            codefile = io.open(self.source, 'r', encoding='utf-8')
             self.rawtext = codefile.read()
             codefile.close()
         else:
@@ -218,7 +219,7 @@ class PwebNBReader(object):
 
     def __init__(self, file = None, string = None):
         self.source = file
-        self.NB = json.loads(open(file).read())
+        self.NB = json.loads(io.open(file, encoding='utf-8').read())
 
     def parse(self):
         doc = self.NB['worksheets'][0]['cells']

@@ -2,7 +2,7 @@
 # Matti Pastell 2010-2013
 # http://mpastell.com/pweave
 
-from __future__ import print_function, division, absolute_import
+from __future__ import print_function, division, absolute_import, unicode_literals
 
 import sys
 import inspect

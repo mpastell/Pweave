@@ -1,4 +1,4 @@
-from __future__ import print_function, division
+from __future__ import print_function, division, absolute_import, unicode_literals
 
 import sys
 import re
@@ -7,6 +7,12 @@ import copy
 from . import readers
 from . import formatters
 from .processors import PwebProcessors
+
+# unicode string type (from the six library)
+if sys.version_info[0] == 2:
+    text_type = unicode
+else:
+    text_type = str
 
 
 class Pweb(object):
@@ -97,7 +103,7 @@ class Pweb(object):
     def setreader(self, Reader = readers.PwebReader):
         """Set class reading for reading documents,
         readers can be used to implement different input markups"""
-        if type(Reader) == str:
+        if type(Reader) == str or type(Reader) == text_type:
             self.Reader = readers.PwebReaders.formats[Reader]['class']
         else:
             self.Reader = Reader
@@ -123,7 +129,7 @@ class Pweb(object):
 
     def run(self, shell="python"):
         """Execute code in the document"""
-        if type(shell) == str:
+        if type(shell) == str or type(shell) == text_type:
             Runner = PwebProcessors.formats[shell]['class']
         else:
             Runner = shell
