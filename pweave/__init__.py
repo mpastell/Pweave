@@ -8,8 +8,11 @@ import sys
 import inspect
 from subprocess import Popen, PIPE
 
-from .pweb import *
 from . import readers
+from .pweb import *
+from .formatters import *
+from .readers import *
+from .processors import *
 
 __version__ = '0.22rc'
 
