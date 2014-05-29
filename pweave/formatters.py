@@ -218,7 +218,7 @@ class PwebTexFormatter(PwebFormatter):
                 outputend = '\end{verbatim}\n',
                 figfmt = '.pdf',
                 extension = 'tex',
-                width = '\\textwidth',
+                width = '\\linewidth',
                 doctype = 'tex')
 
     def formatfigure(self, chunk):
@@ -266,7 +266,7 @@ class PwebMintedFormatter(PwebTexFormatter):
              termend = '\end{minted}\n',
              figfmt = '.pdf',
              extension = 'tex',
-             width = '\\textwidth',
+             width = '\\linewidth',
              doctype = 'tex')
 
 class PwebTexPygmentsFormatter(PwebTexFormatter):
@@ -282,7 +282,7 @@ class PwebTexPygmentsFormatter(PwebTexFormatter):
              termend = "",
              figfmt = '.pdf',
              extension = 'tex',
-             width = '\\textwidth',
+             width = '\\linewidth',
              doctype = 'tex')
 
      def format_codechunks(self, chunk):
@@ -312,7 +312,7 @@ class PwebTexPweaveFormatter(PwebTexFormatter):
              termend = '\end{pweaveterm}\n',
              figfmt = '.pdf',
              extension = 'tex',
-             width = '\\textwidth',
+             width = '\\linewidth',
              doctype = 'tex')
 
 class PwebRstFormatter(PwebFormatter):
