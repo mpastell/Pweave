@@ -389,7 +389,7 @@ class PwebLeanpubFormatter(PwebFormatter):
     def initformat(self):
         self.formatdict = dict(codestart = '{line-numbers=off}\n~~~~~~~~',
                                codeend = '~~~~~~~~\n\n',
-                               outputstart = 'line-numbers=off}\n~~~~~~~~',
+                               outputstart = '{line-numbers=off}\n~~~~~~~~',
                                outputend = '~~~~~~~~\n\n',
                                indent = '',
                                termindent = '',
