@@ -383,6 +383,37 @@ class PwebPandocFormatter(PwebFormatter):
             result += figstring 
         return(result)
 
+
+class PwebLeanpubFormatter(PwebFormatter):
+
+    def initformat(self):
+        self.formatdict = dict(codestart = '{line-numbers=off}\n~~~~~~~~',
+                               codeend = '~~~~~~~~\n\n',
+                               outputstart = 'line-numbers=off}\n~~~~~~~~',
+                               outputend = '~~~~~~~~\n\n',
+                               indent = '',
+                               termindent = '',
+                               figfmt = '.png',
+                               extension = 'md',
+                               width = '15 cm',
+                               doctype = 'leanpub')
+
+    def formatfigure(self, chunk):
+        fignames = chunk['figure']
+        caption = chunk['caption']
+        width = chunk['width']
+        result = ""
+        figstring = ""
+
+        for fig in fignames:
+            figstring += '![](%s)\\\n' % (fig)
+
+        if chunk['caption']:
+            result += '![%s](%s)\n' % (caption, fignames[0])
+        else:
+            result += figstring
+        return(result)
+
 class PwebSphinxFormatter(PwebRstFormatter):
 
     def initformat(self):
@@ -483,9 +514,6 @@ class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
         self.header = htmltemplate["header"]
         self.footer = (htmltemplate["footer"] % 
                       {"source" : self.source, "version" : __version__, "time" : time.strftime("%d-%m-%Y", time.localtime())}) 
-
-    
-       
 
     def parsetitle(self, chunk):
         """Parse titleblock from first doc chunk, like Pandoc"""
@@ -610,7 +638,8 @@ class PwebFormats(object):
                'texpweave' : {'class' : PwebTexPweaveFormatter, 'description' :  'Latex output with user defined formatting using named environments (in latex header)'},
                'texpygments' : {'class' : PwebTexPygmentsFormatter, 'description' :  'Latex output with pygments highlighted output'},
                'rst' : {'class' : PwebRstFormatter, 'description' :  'reStructuredText'}, 
-               'pandoc' :  {'class' : PwebPandocFormatter, 'description' :  'Pandoc markdown'}, 
+               'pandoc' :  {'class' : PwebPandocFormatter, 'description' :  'Pandoc markdown'},
+               'leanpub' :  {'class' : PwebLeanpubFormatter, 'description' :  'Leanpub markdown'},
                'sphinx' : {'class' : PwebSphinxFormatter, 'description' :  'reStructuredText for Sphinx'}, 
                'html' : {'class' : PwebHTMLFormatter, 'description' :  'HTML with pygments highlighting'},
                'md2html' : {'class' : PwebMDtoHTMLFormatter, 'description' :  'Markdown to HTML using Python-Markdown'},
