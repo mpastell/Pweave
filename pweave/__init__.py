@@ -129,25 +129,25 @@ def publish(file, format = "html"):
 def spin(file):
     """Convert input file from script format to noweb format, similar to Knitr's spin."""
     doc = readers.PwebConvert(file)
-    
-def convert(file, informat="noweb", outformat="script", pandoc_args=None):
+
+def convert(file, informat="noweb", outformat="script", pandoc_args=None,
+            listformats=False):
     """Convert input file from script to noweb or vice versa
-    
+
     :param file: ``string`` input file
     :param informat: ``string`` input format noweb, script or notebook
     :param outformat: ``string`` input format noweb or script
     :param pandoc_args: ``string`` arguments passed to pandoc to convert doc chunks.
            e.g. to convert from markdown to latex use: `"-f markdown -t latex"` .
            Note that each doc chunk is converted separately so you can't use pandocs -s option.
+    :param listformats: ``bool`` List available formats and exit
     """
+    if listformats:
+        readers.PwebConverters.listformats()
+        return
 
-    doc = readers.PwebConvert(file, informat, outformat, pandoc_args)
-    
-
-
-
-    
- 
-
-    
-    
+    Converter = readers.PwebConverters.formats[outformat]['class']
+    # pandoc_args = None skips the call to pandoc
+    doc = Converter(file, informat, outformat, pandoc_args)
+    doc.convert()
+    doc.write()

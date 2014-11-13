@@ -36,13 +36,13 @@ def weave():
                       help="Figure format for matplotlib graphics: Defaults to 'png' for rst and Sphinx html documents and 'pdf' for tex")
 
     (options, args) = parser.parse_args()
-    
+
     try:
         infile = args[0]
-    except:
+    except IndexError:
         infile = ""
-    
-   
+
+
 
     mplotlib = (options.mplotlib.lower() == 'true')
 
@@ -62,12 +62,12 @@ def publish():
     parser = OptionParser(usage="pypublish [options] sourcefile", version="Part of Pweave " + pweave.__version__)
     parser.add_option("-f", "--format", dest="format", default='html',
                       help = "Output format html or pdf, pdf output requires pandoc and pdflatex")
-    
+
     (options, args) = parser.parse_args()
 
     try:
         infile = args[0]
-    except:
+    except IndexError:
         infile = ""
 
     pweave.publish(infile, options.format)
@@ -89,15 +89,21 @@ def convert():
     parser.add_option("-i", "--input-format", dest="informat", default='noweb',
                       help="Input format: noweb, notebook or script")
     parser.add_option("-f", "--output-format", dest="outformat", default='html',
-                      help = "Output format script or noweb")
+                      help = "Output format script, noweb or notebook")
+    parser.add_option("-l","--list-formats", dest="listformats", action = "store_true" ,default=False,
+                      help="List input / output formats")
     parser.add_option("-p", "--pandoc", dest="pandoc_args", default=None,
                       help = "passed to pandoc for converting doc chunks")
-    
+
     (options, args) = parser.parse_args()
 
-    infile = args[0]
+    try:
+        infile = args[0]
+    except IndexError:
+        infile = ""
 
-    #print options
-    pweave.convert(infile, options.informat, options.outformat, options.pandoc_args)
-
-    
+    pweave.convert(file=infile,
+                   informat=options.informat,
+                   outformat=options.outformat,
+                   pandoc_args=options.pandoc_args,
+                   listformats=options.listformats)

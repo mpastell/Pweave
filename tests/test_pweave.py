@@ -35,3 +35,18 @@ def test_pweave():
     out = open(outfile)
     ref = open(REF)
     assert(out.read() == ref.read())
+
+
+def test_nbformat():
+    """Test whether we can write an IPython Notebook.
+    """
+    REF = 'tests/simple_REF.ipynb'
+    infile = 'tests/simple.mdw'
+    outfile = 'tests/simple.ipynb'
+    # pandoc_args = None skips the call to pandoc
+    pweave.convert(file=infile, informat="noweb", outformat="notebook")
+
+    # Compare the outfile and the ref
+    out = open(outfile)
+    ref = open(REF)
+    assert(out.read() == ref.read())

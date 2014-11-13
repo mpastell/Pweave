@@ -246,17 +246,15 @@ class PwebConvert(object):
     def __init__(self, file = None, informat = "script", outformat = "noweb", pandoc_args= None):
         self.informat = informat
         self.outformat = outformat
-        
+
         self.doc = PwebReaders.formats[informat]['class'](file)
-        
+
         self.pandoc_args = pandoc_args
         if self.informat == self.outformat:
             self.basename =  re.split("\.+[^\.]+$", file)[0] + "_converted"
         else:
             self.basename =  re.split("\.+[^\.]+$", file)[0]
         self.doc.parse()
-        self.convert()
-        self.write()
 
 
     def format_docchunk(self, content):
@@ -315,6 +313,100 @@ class PwebConvert(object):
                 optstring += ", "
 
         return(optstring)
+
+class PwebNBConvert(object):
+    """Convert to IPython Notebook"""
+    def __init__(self, file = None, informat = "script", outformat = "noweb", pandoc_args= None):
+        self.informat = informat
+        self.outformat = outformat
+        self.ext = '.ipynb'
+
+        self.doc = PwebReaders.formats[informat]['class'](file)
+
+        self.pandoc_args = pandoc_args
+        if self.informat == self.outformat:
+            self.basename =  re.split("\.+[^\.]+$", file)[0] + "_converted"
+        else:
+            self.basename =  re.split("\.+[^\.]+$", file)[0]
+        self.doc.parse()
+
+    def format_docchunk(self, content):
+        """Format doc chunks for output.
+
+        If self.pandoc_args is None, the docchunk will not be converted.
+        """
+        if self.pandoc_args is not None:
+            pandoc = Popen(["pandoc"] + self.pandoc_args.split(),
+                           stdin=PIPE,
+                           stdout=PIPE)
+            pandoc.stdin.write(content)
+            content = (pandoc.communicate()[0]).replace("\r", "") + "\n"
+        return content
+
+    def write(self):
+        file = self.basename + self.ext
+        f = open(file, "w")
+        f.write(self.converted)
+        f.close()
+        print "Output written to " + file
+
+    def convert(self):
+        from IPython.nbformat.v3 import (new_notebook, new_worksheet,
+                                         new_code_cell, new_text_cell,
+                                         writes_json)
+
+        ws = new_worksheet()
+
+        for chunk in self.doc.parsed:
+                if chunk["type"] == "doc":
+                    # TODO: this relies on pandoc converting into
+                    # markdown
+                    fmt = u'markdown'
+                    doc = self.format_docchunk(chunk['content'])
+                    ws.cells.append(new_text_cell(fmt, source=doc))
+                if chunk["type"] == "code":
+                    lang = u'python'
+                    code = chunk['content']
+                    ws.cells.append(new_code_cell(input=code, language=lang))
+
+        NB = new_notebook(name='Pweaved ipython notebook',
+                          worksheets=[ws])
+
+        self.converted = writes_json(NB)
+
+class PwebConverters(object):
+    """Lists available input / output formats"""
+    formats = {'noweb': {'class': PwebConvert,
+                         'description': 'Noweb document'},
+               'script': {'class': PwebConvert,
+                          'description':  'Script format'},
+               'notebook': {'class': PwebNBConvert,
+                            'description':  'IPython notebook'}
+               }
+
+    @classmethod
+    def shortformats(cls):
+        fmtstring = ""
+        names = cls.formats.keys()
+        n = len(names)
+        for i in range(n):
+            fmtstring += (" %s") % (names[i])
+            if i < (n-1):
+                fmtstring += ","
+
+        return(fmtstring)
+
+    @classmethod
+    def getformats(cls):
+        fmtstring = ""
+        for format in sorted(cls.formats):
+            fmtstring += ("* %s:\n   %s\n") % (format, cls.formats[format]['description'])
+        return(fmtstring)
+
+    @classmethod
+    def listformats(cls):
+        print("\nPweave supported conversion formats:\n")
+        print(cls.getformats())
 
 #pweb is imported here to avoid import loop
 import pweb
