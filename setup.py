@@ -30,6 +30,10 @@ setup(name='Pweave',
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering',
         'Topic :: Software Development :: Documentation',
-        'License :: OSI Approved :: BSD License']
+        'License :: OSI Approved :: BSD License',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.4'
+        ]
 
 )
+

@@ -53,33 +53,34 @@ Release Notes
 -------------
 
 **Release 0.22**
-* Package global options moved to pweave.rcParams. This is a breaking change if you have used
-  Pweb class to modify Pweave options. Should not affect commandline usage.
+
+* Package global options moved to pweave.rcParams. This is a breaking
+  change if you have used Pweb class to modify Pweave options. Should not affect commandline usage.
 * Renamed pweave.pweave to pweave.weave, pweave.ptangle to pweave.tangle
 * Python 3 compatibilty, Thanks to Grant Goodyear https://github.com/g2boojum
 * Publishing of scripts from command line : pypublish script
 * Conversion between input formats and markups: Pweave-convert script
-    - Convert to IPython notebooks by Aaron O'Leary https://github.com/aaren
+  - Convert to IPython notebooks by Aaron O'Leary https://github.com/aaren
 * Possibility to run shell code from Pweave. See `engine` chunk option.
 * New input formats:
-	- Script
-	- IPython notebook
+  - Script
+  - IPython notebook
 * Bugfix: setting figure format from command line fixed.
 * Ipython terminal
 * Source option for chunks
-	- Read from module
-	- Read from file
+  - Read from module
+  - Read from file
 * Multichunk blocks: complete option
 * rst format uses `.. codeblock::` python directive for code chunks.
 * Output formats:
-    - Leanpub markdown
+  - Leanpub markdown
 * New options for figures
-	- f_size ( (8,6) ) Saved figure size in inches a tuple (w, h) 
-	- f_env (None) Environment that goes around figure e.g. sidefigure
-	- f_spines (True) removes spines from figure right and top if False.
-	- complete (False)
-	- source: Read chunk source from file or python module or file
-	- engine: Choose engine running the code. "python" or "shell"
+  - f_size ( (8,6) ) Saved figure size in inches a tuple (w, h) 
+  - f_env (None) Environment that goes around figure e.g. sidefigure
+  - f_spines (True) removes spines from figure right and top if False.
+  - complete (False)
+  - source: Read chunk source from file or python module or file
+  - engine: Choose engine running the code. "python" or "shell"
 
 
 Release notes for previous versions are in: http://mpastell.com/pweave/release.html 
