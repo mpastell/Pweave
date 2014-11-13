@@ -62,17 +62,11 @@ class PwebReader(object):
         for line in lines:
 
             (code_starts, skip) = self.codestart(line)
-            if code_starts:  #and self.state != "code":
-                if self.state == "doc":
-                    docN +=1
-                    chunks.append({"type" : "doc", "content" : read, "number" : docN})
-                else:
-                    chunks.append( {"type" : "code", "content" : "\n" + read.rstrip(),
-                                    "number" : codeN, "options" : opts})
-                    codeN +=1
-
-                opts = self.getoptions(line)
+            if code_starts  and self.state != "code":
                 self.state = "code"
+                opts = self.getoptions(line)
+                chunks.append({"type" : "doc", "content" : read, "number" : docN})
+                docN +=1
                 read = ""
                 if skip:
                     continue #Don't append options code
