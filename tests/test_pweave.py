@@ -17,7 +17,7 @@ def mkdir_p(path):
 mkdir_p('tests/figures/tests')
 
 
-def test_pweave():
+def test_pandoc():
     """Integration test pweave by comparing output to a known good
     reference.
 
@@ -29,12 +29,25 @@ def test_pweave():
     REF = 'tests/simple_REF.md'
     infile = 'tests/simple.mdw'
     outfile = 'tests/simple.md'
-    pweave.weave(file=infile, doctype="pandoc", figdir='tests/figures')
+    pweave.weave(file=infile, doctype="pandoc")
 
     # Compare the outfile and the ref
     out = open(outfile)
     ref = open(REF)
     assert(out.read() == ref.read())
+
+def test_continue_option():
+    """Test documenting a class in multiple chunks using continue option"""
+    REF = 'tests/ar_yw_ref.md'
+    infile = 'tests/ar_yw.mdw'
+    outfile = 'tests/ar_yw.md'
+    pweave.weave(file=infile, doctype="pandoc")
+
+    # Compare the outfile and the ref
+    out = open(outfile)
+    ref = open(REF)
+    assert(out.read() == ref.read())
+
 
 
 def test_nbformat():

@@ -23,7 +23,7 @@ class PwebFormatter(object):
             #Fill in options for code chunks
             if chunk['type'] == "code":
                 for key in self.formatdict.keys():
-                    if not chunk.has_key(key):
+                    if not key in chunk:
                         chunk[key] = self.formatdict[key]
 
             #Wrap text if option is set
@@ -50,8 +50,8 @@ class PwebFormatter(object):
         #Flatten to string, make conversion and headers etc.
 
         # chunks should already be unicode, so no need to decode
-        ##for i in range(len(self.formatted)):
-        ##    self.formatted[i] = self.formatted[i].decode('utf-8')
+        #for i in range(len(self.formatted)):
+        #    self.formatted[i] = self.formatted[i].decode('utf-8')
         self.formatted = "\n".join(self.formatted)
         self.convert() #Convert to e.g. markdown
         self.add_header()
@@ -163,7 +163,7 @@ class PwebFormatter(object):
         return(self.formatdict)
 
     def getformatted(self):
-        return(self.formatted.encode('utf-8'))
+        return(self.formatted)
 
     def updateformatdict(self, dict):
         self.formatdict.update(dict)

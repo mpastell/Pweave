@@ -120,8 +120,11 @@ class PwebReader(object):
             splitted[0] = 'name = "%s"' % splitted[0]
             optstring = ','.join(splitted)
 
-        exec("chunkoptions =  dict(" + optstring + ")")
-        if chunkoptions.has_key('label'):
+        opt_scope = {}
+        exec("chunkoptions =  dict(" + optstring + ")", opt_scope)
+        chunkoptions = opt_scope["chunkoptions"]
+
+        if 'label' in chunkoptions:
             chunkoptions['name'] = chunkoptions['label']
 
         return(chunkoptions)

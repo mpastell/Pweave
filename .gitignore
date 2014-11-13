@@ -3,6 +3,9 @@
 .idea/
 tmp/
 
+*.png
+koe.py
+
 tests/*/*.png
 
 # C extensions

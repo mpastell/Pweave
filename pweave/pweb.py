@@ -2,6 +2,7 @@ from __future__ import print_function, division, unicode_literals, absolute_impo
 import sys
 import re
 import copy
+import io
 
 from . import readers
 from . import formatters
@@ -124,8 +125,9 @@ class Pweb(object):
             self.format()
         if self.sink is None:
             self.sink = self._basename() + '.' + self.formatter.getformatdict()['extension']
-        f = open(self.sink, 'w')
-        f.write(self.formatted.replace("\r", ""))
+        f = io.open(self.sink, 'wt', encoding = 'utf-8')
+        data = self.formatted.replace("\r", "")
+        f.write(data)
         f.close()
         sys.stdout.write('%s %s to %s\n' % (action, self.source, self.sink))
 

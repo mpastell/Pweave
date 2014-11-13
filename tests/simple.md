@@ -72,5 +72,5 @@ Notice also that Pweave can now catch multiple figures/code chunk.
 
 
 
-![Bandpass FIR filter.](tests/figures/tests/simple_figure2_1.png)
+![Bandpass FIR filter.](figures/tests/simple_figure2_1.png)
 
