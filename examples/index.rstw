@@ -25,8 +25,8 @@ capturing figures and it is available in several formats.
 
 <<echo=False>>=
 import pweave
-#pweave.Pweb.defaultoptions.update({'evaluate' : False})
-pweave.Pweb.defaultoptions.update({'results' : 'hidden'})
+#pweave.rcParams["chunk"]["defaultoptions"].update({'evaluate' : False})
+pweave.rcParams["chunk"]["defaultoptions"].update({'results' : 'hidden'})
 @ 
 
 Below are the commands used to process the examples from command line.
@@ -82,7 +82,7 @@ reStructuredText
 
 <<rst, engine="shell">>=
 Pweave FIR_design.rstw
-python c:/python27/scripts/rst2html.py FIR_design.rst FIR_design_rst.html
+rst2html.py FIR_design.rst FIR_design_rst.html
 @ 
 
 

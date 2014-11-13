@@ -29,7 +29,7 @@ def test_pweave():
     REF = 'tests/simple_REF.md'
     infile = 'tests/simple.mdw'
     outfile = 'tests/simple.md'
-    pweave.pweave(file=infile, doctype="pandoc", figdir='tests/figures')
+    pweave.weave(file=infile, doctype="pandoc", figdir='tests/figures')
 
     # Compare the outfile and the ref
     out = open(outfile)

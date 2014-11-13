@@ -1,3 +1,5 @@
+from __future__ import print_function, division, absolute_import, unicode_literals
+
 import sys
 from optparse import OptionParser
 import os
@@ -7,7 +9,7 @@ import pweave
 def weave():
 
     if len(sys.argv)==1:
-        print "This is Pweave %s, enter Pweave -h for help" % pweave.__version__
+        print("This is Pweave %s, enter Pweave -h for help" % pweave.__version__)
         sys.exit()
 
 # Command line options
@@ -21,7 +23,7 @@ def weave():
     parser.add_option("-l","--list-formats", dest="listformats", action = "store_true" ,default=False,
                       help="List output formats")
     parser.add_option("-m", "--matplotlib", dest="mplotlib", default='true',
-                      help="Do you want to use matplotlib (or Sho with Ironpython) True (default) or False")
+                      help="Do you want to use matplotlib. True (default) or False")
     parser.add_option("-d","--documentation-mode", dest="docmode",
                   action = "store_true" ,default=False,
                       help="Use documentation mode, chunk code and results will be loaded from cache and inline code will be hidden")
@@ -51,13 +53,14 @@ def weave():
     else:
         figfmt = None
 
-    pweave.pweave(infile, doctype = options.format, informat=options.informat, shell=options.shell, plot = mplotlib,
+    pweave.weave(infile, doctype = options.format, informat=options.informat, shell=options.shell, plot = mplotlib,
            docmode = options.docmode, cache = options.cache, figdir = options.figdir,
            cachedir = options.cachedir, figformat = figfmt, listformats = options.listformats)
 
 def publish():
     if len(sys.argv)==1:
-        print "Publish a python script. Part of Pweave %s, use -h for help" % pweave.__version__
+        print("Publish a python script. Part of Pweave %s, use -h for help" % pweave.__version__)
+
         sys.exit()
     parser = OptionParser(usage="pypublish [options] sourcefile", version="Part of Pweave " + pweave.__version__)
     parser.add_option("-f", "--format", dest="format", default='html',
@@ -74,11 +77,11 @@ def publish():
 
 def tangle():
     if len(sys.argv)==1:
-        print "This is Ptangle %s" % pweave.__version__
-        print "Usage: Ptangle file"
+        print("This is Ptangle %s" % pweave.__version__)
+        print("Usage: Ptangle file")
         sys.exit()
 
-    pweave.ptangle(sys.argv[1])
+    pweave.tangle(sys.argv[1])
 
 def convert():
     if len(sys.argv)==1:

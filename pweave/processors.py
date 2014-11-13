@@ -1,13 +1,23 @@
 #Processors that execute code from code chunks
+from __future__ import print_function, division, absolute_import
+
 import sys
 import os
 import re
-from cStringIO import StringIO
-from pweb import Pweb
+import os
+import io
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
 import copy
 import code
-import cPickle as pickle
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 from subprocess import Popen, PIPE
+from .config import *
 
 class PwebProcessor(object):
     """Runs code from parsed Pweave documents"""
@@ -19,29 +29,30 @@ class PwebProcessor(object):
         self._stdout = sys.stdout
         self.formatdict = formatdict
         self.pending_code = "" # Used for multichunk splits
+        self._mpl_imported = False
 
     def _basename(self):
         return(re.split("\.+[^\.]+$", self.source)[0])
-        
+
     def run(self):
         #Create directory for figures
-        if not os.path.isdir(Pweb.figdir):
-            os.mkdir(Pweb.figdir)
+        if not os.path.isdir(rcParams["figdir"]):
+            os.mkdir(rcParams["figdir"])
 
         #Documentation mode uses results from previous  executions
         #so that compilation is fast if you only work on doc chunks
         if self.documentationmode:
            success = self._getoldresults()
            if success:
-               print "restoring" 
+               print("restoring")
                return
            else:
                sys.stderr.write("DOCUMENTATION MODE ERROR:\nCan't find stored results, running the code and caching results for the next documentation mode run\n")
-               Pweb.storeresults = True
-        exec("import sys\nsys.path.append('.')", Pweb.globals)
-        self.executed = map(self._runcode, self.parsed)
+               rcParams["storeresults"] = True
+        exec("import sys\nsys.path.append('.')", PwebProcessorGlobals.globals)
+        self.executed = list(map(self._runcode, self.parsed))
         self.isexecuted = True
-        if Pweb.storeresults:
+        if rcParams["storeresults"]:
             self.store(self.executed)
 
     def getresults(self):
@@ -49,9 +60,9 @@ class PwebProcessor(object):
 
     def store(self, data):
         """A method used to pickle stuff for persistence"""
-        if not os.path.isdir(Pweb.cachedir):
-            os.mkdir(Pweb.cachedir)
-        name = Pweb.cachedir + '/' + self._basename() + '.pkl'
+        if not os.path.isdir(rcParams["cachedir"]):
+            os.mkdir(rcParams["cachedir"])
+        name = rcParams["cachedir"] + '/' + self._basename() + '.pkl'
         f = open(name, 'wb')
         pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
         f.close()
@@ -68,16 +79,16 @@ class PwebProcessor(object):
 
         #Add defaultoptions to parsed options
         if chunk['type'] == 'code':
-           defaults = Pweb.defaultoptions.copy()
+           defaults = rcParams["chunk"]["defaultoptions"].copy()
            defaults.update(chunk["options"])
            chunk.update(defaults)
            del chunk['options']
 
          #Read the content from file or object
-        if chunk.has_key("source"):
+        if 'source' in chunk:
             source = chunk["source"]
-            if os.path.isfile(source): 
-                chunk["content"] = "\n" + open(source, "r").read().rstrip() + "\n" + chunk['content']
+            if os.path.isfile(source):
+                chunk["content"] = io.open(source, "r", encoding='utf-8').read().rstrip() + "\n"  + chunk['content']
             else:
                 chunk_text = chunk["content"] #Get the text from chunk
                 module_text = self.loadstring("import inspect\nprint(inspect.getsource(%s))" % source)  #Get the module source using inspect
@@ -85,7 +96,7 @@ class PwebProcessor(object):
                 if chunk_text.strip() != "":
                     chunk["content"] += "\n" + chunk_text
 
-        
+
 
         #Make function to dispatch based on the type
         #Execute a function from a list of functions
@@ -106,22 +117,22 @@ class PwebProcessor(object):
         if chunk['engine'] == "shell":
             sys.stdout.write("Processing chunk %(number)s named %(name)s\n" % chunk)
             chunk['result']  = self.load_shell(chunk)
-                 
+
             #chunk['term'] = True
             return(chunk)
 
         #Settings for figures, matplotlib and sho
         #if chunk['width'] is None:
         #        chunk['width'] = self.formatdict['width']
-        
-        if Pweb.usematplotlib:
-            if not Pweb._mpl_imported:
+
+        if rcParams["usematplotlib"]:
+            if not self._mpl_imported:
                 import matplotlib
                 matplotlib.use('Agg')
                 #matplotlib.rcParams.update(self.rcParams)
             import matplotlib.pyplot as plt
             import matplotlib
-            Pweb._mpl_imported = True
+            self._mpl_imported = True
 
             #['figure.figsize'] = (6, 4)
             #matplotlib.rcParams['figure.dpi'] = 200
@@ -165,8 +176,8 @@ class PwebProcessor(object):
                     chunk['result'] = self.loadstring(chunk['content'])
         #After executing the code save the figure
         if chunk['fig']:
-            chunk['figure'] = self.savefigs(chunk)                
-        
+            chunk['figure'] = self.savefigs(chunk)
+
         if old_content != None:
             chunk['content'] = old_content # The code from current chunk for display
 
@@ -178,10 +189,10 @@ class PwebProcessor(object):
             prefix = self._basename() + '_figure' + str(chunk['number'])
         else:
             prefix = self._basename() + '_' + chunk['name']
-        
+
         fignames = []
 
-        if Pweb.usematplotlib:
+        if rcParams["usematplotlib"]:
             import matplotlib.pyplot as plt
             #Iterate over figures
             figs = plt.get_fignums()
@@ -198,26 +209,19 @@ class PwebProcessor(object):
                         ax.xaxis.set_ticks_position('bottom')
 
 
-                name = Pweb.figdir + '/' + prefix + "_" + str(i) + self.formatdict['figfmt']
+                name = rcParams["figdir"] + '/' + prefix + "_" + str(i) + self.formatdict['figfmt']
                 for format in self.formatdict['savedformats']:
-                    plt.savefig(Pweb.figdir + '/' + prefix + "_" + str(i) + format)
+                    plt.savefig(rcParams["figdir"] + '/' + prefix + "_" + str(i) + format)
 
                     plt.draw()
                 fignames.append(name)
-                #plt.clf()
                 plt.close()
-
-        if Pweb.usesho:
-            from sho import saveplot
-            figname = Pweb.figdir + '/' + prefix + self.formatdict['figfmt']
-            saveplot(figname)
-            fignames = [figname]
 
         return(fignames)
 
     def restore(self):
         """A method used to unpickle stuff"""
-        name = Pweb.cachedir + '/' + self._basename() + '.pkl'
+        name = rcParams["cachedir"] + '/' + self._basename() + '.pkl'
         if os.path.exists(name):
             f = open(name, 'rb')
             self._oldresults = pickle.load(f)
@@ -266,7 +270,7 @@ class PwebProcessor(object):
         #        sys.stderr.write('WARNING: contents of chunk number %(number)s (name = %(name)s) have changed\n' % chunk)
         #    print stored
         #    chunk.update(stored)
-            
+
         self.executed = executed
         #pprint(self.executed)
         return(True)
@@ -285,7 +289,7 @@ class PwebProcessor(object):
                     content = "Pweave ERROR can't execute shell command:\n %s\n" % command
                     content += str(e)
                     sys.stdout.write("Pweave ERROR can't execute shell command:\n %s\n" % line)
-                    print e
+                    print(e)
                 if chunk['term']:
                     result += "$ %s\n" % line
                 result += content
@@ -299,7 +303,7 @@ class PwebProcessor(object):
         tmp = StringIO()
         sys.stdout = tmp
         compiled = compile(code, '<input>', 'exec')
-        exec compiled in Pweb.globals
+        exec(compiled, PwebProcessorGlobals.globals)
         result = "\n" + tmp.getvalue()
         tmp.close()
         sys.stdout = self._stdout
@@ -329,7 +333,7 @@ class PwebProcessor(object):
 
             tmp = StringIO()
             sys.stdout = tmp
-            return_value = eval(compiled_statement, Pweb.globals)
+            return_value = eval(compiled_statement, PwebProcessorGlobals.globals)
             result = tmp.getvalue()
             if return_value is not None:
                 result += repr(return_value)
@@ -388,7 +392,7 @@ class PwebIPythonProcessor(PwebProcessor):
         tmp = StringIO()
         sys.stdout = tmp
         #compiled = compile(code, '<input>', 'exec')
-        #exec compiled in Pweb.globals
+        #exec compiled in PwebProcessorGlobals.globals
         self.IPy.run_cell(code)
         result = "\n" + tmp.getvalue()
         tmp.close()
@@ -419,7 +423,7 @@ class PwebIPythonProcessor(PwebProcessor):
 
             tmp = StringIO()
             sys.stdout = tmp
-            #return_value = eval(compiled_statement, Pweb.globals)
+            #return_value = eval(compiled_statement, PwebProcessorGlobals.globals)
             self.IPy.run_code(compiled_statement)
             result = tmp.getvalue()
             #if return_value is not None:
@@ -465,11 +469,11 @@ class PwebProcessors(object):
     formats = {'python' : {'class' : PwebProcessor, 'description' :  'Python shell'},
                'ipython' : {'class' : PwebIPythonProcessor, 'description' :  'IPython shell'}
                }
-    
+
     @classmethod
     def shortformats(cls):
         fmtstring = ""
-        names = cls.formats.keys()
+        names = list(cls.formats.keys())
         n = len(names)
         for i in range(n):
             fmtstring += (" %s") % (names[i])
@@ -480,7 +484,7 @@ class PwebProcessors(object):
 
     @classmethod
     def getformats(cls):
-        fmtstring = "" 
+        fmtstring = ""
         for format in sorted(cls.formats):
             fmtstring += ("* %s:\n   %s\n") % (format, cls.formats[format]['description'])
         return(fmtstring)
@@ -489,7 +493,7 @@ class PwebProcessors(object):
     def listformats(cls):
         print("\nPweave supported shells:\n")
         print(cls.getformats())
-        print("More info: http://mpastell.com/pweave/ \n") 
+        print("More info: http://mpastell.com/pweave/ \n")
 
 
 
