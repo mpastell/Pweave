@@ -77,9 +77,13 @@ class PwebProcessor(object):
         if chunk.has_key("source"):
             source = chunk["source"]
             if os.path.isfile(source): 
-                chunk["content"] = open(source, "r").read()  + chunk['content']
+                chunk["content"] = "\n" + open(source, "r").read().rstrip() + "\n" + chunk['content']
             else:
-                chunk["content"] = self.loadstring("import inspect\nprint(inspect.getsource(%s))" % source) + chunk['content']
+                chunk_text = chunk["content"] #Get the text from chunk
+                module_text = self.loadstring("import inspect\nprint(inspect.getsource(%s))" % source)  #Get the module source using inspect
+                chunk["content"] = module_text.rstrip()
+                if chunk_text.strip() != "":
+                    chunk["content"] += "\n" + chunk_text
 
         
 
@@ -185,11 +189,19 @@ class PwebProcessor(object):
             for i in figs:
                 plt.figure(i)
                 plt.figure(i).set_size_inches(chunk['f_size'])
-                #plt.figure(i).set_size_inches(4,4)
+                if not chunk["f_spines"]:
+                    axes = plt.figure(i).axes
+                    for ax in axes:
+                        ax.spines['right'].set_visible(False)
+                        ax.spines['top'].set_visible(False)
+                        ax.yaxis.set_ticks_position('left')
+                        ax.xaxis.set_ticks_position('bottom')
+
 
                 name = Pweb.figdir + '/' + prefix + "_" + str(i) + self.formatdict['figfmt']
                 for format in self.formatdict['savedformats']:
                     plt.savefig(Pweb.figdir + '/' + prefix + "_" + str(i) + format)
+
                     plt.draw()
                 fignames.append(name)
                 #plt.clf()

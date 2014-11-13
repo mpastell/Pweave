@@ -394,7 +394,7 @@ class PwebLeanpubFormatter(PwebFormatter):
                                indent = '',
                                termindent = '',
                                figfmt = '.png',
-                               extension = 'md',
+                               extension = 'txt',
                                width = '15 cm',
                                doctype = 'leanpub')
 
@@ -405,12 +405,18 @@ class PwebLeanpubFormatter(PwebFormatter):
         result = ""
         figstring = ""
 
-        for fig in fignames:
-            figstring += '![](%s)\\\n' % (fig)
+        #print chunk["name"]
 
         if chunk['caption']:
-            result += '![%s](%s)\n' % (caption, fignames[0])
+            if fignames:
+                result += '![%s](%s)\n' % (caption, fignames[0])
+                if (len(fignames) > 1):
+                    for fig in fignames[1:]:
+                        figstring += '![](%s)\n' % (fig)
+                        sys.stderr.write("Warning, only the first figure gets a caption\n")
         else:
+            for fig in fignames:
+                figstring += '![](%s)\n' % (fig)
             result += figstring
         return(result)
 
@@ -502,7 +508,6 @@ class PwebHTMLFormatter(PwebFormatter):
         return(result)
         
             
-        return(figstring)
 
 class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
 
@@ -630,6 +635,9 @@ class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
         #pandoc.stdin.write(self.formatted)
         #self.formatted = pandoc.communicate()[0]
         #self.formatted
+
+
+
 
 class PwebFormats(object):
     """Contains a dictionary of available output formats"""

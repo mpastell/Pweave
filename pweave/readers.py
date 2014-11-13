@@ -102,53 +102,24 @@ class PwebReader(object):
             chunks.append({"type" : "doc", "content" : read, "number" : docN})
         self.parsed = chunks
 
-    def getoptions(self, opt):
-        """Option format is "label, a = 1, b=2, c=3"
-        'label' does not have to exist."""
-        # what separates options?
-        opt_separate = ","
-        # how are options assigned?
-        opt_assign = "="
 
-        rel = re.match(self.code_begin, opt)
-        if not rel:
-            return({})
-        optstring = rel.groups()[0]
+    def getoptions(self, opt):
+        # Aliases for False and True to conform with Sweave syntax
+        FALSE = False
+        TRUE = True
+
+        #Parse options from chunk to a dictionary
+        optstring = opt.replace('<<', '').replace('>>=', '').strip()
         if not optstring:
             return({})
-        # separate out options without splitting up quoted strings
-        # that may contain more quoting characters
-        # copes with e.g. "what's up o'brien?"
-        # http://stackoverflow.com/a/2787064/1157089
-        opts_regex = r'''((?:[^{}"']|"[^"]*"|'[^']*')+)'''.format(opt_separate)
-        # split on this regex and strip whitespace
-        opts = re.split(opts_regex, optstring)[1::2]
-        opts = [o.strip() for o in opts]
+        #First option can be a name/label
+        if optstring.split(',')[0].find('=')==-1:
+            splitted = optstring.split(',')
+            splitted[0] = 'name = "%s"' % splitted[0]
+            optstring = ','.join(splitted)
 
-        # First option can be a name/label without an =
-        if opt_assign not in opts[0]:
-            opts[0] = 'name=%s' % opts[0]
-
-        # split on first occurence of =
-        chunkoptions = dict(o.split(opt_assign, 1) for o in opts)
-        for key in chunkoptions:
-            # strip outer whitespace
-            chunkoptions[key] = chunkoptions[key].strip()
-            # strip outer quotes if matched
-            chunkoptions[key] = re.sub(r'^"(.*)"$', r'\1', chunkoptions[key])
-            chunkoptions[key] = re.sub(r"^'(.*)'$", r'\1', chunkoptions[key])
-            # replace boolean strings with boolean values
-            # all caps is sweave syntax. could use .lower() here to
-            # accept arbitrary capitalisation
-            value = chunkoptions[key]
-            if str(value) in ('True', 'TRUE'):
-                chunkoptions[key] = True
-            elif str(value) in ('False', 'FALSE'):
-                chunkoptions[key] = False
-            else:
-                pass
-
-        if 'label' in chunkoptions:
+        exec("chunkoptions =  dict(" + optstring + ")")
+        if chunkoptions.has_key('label'):
             chunkoptions['name'] = chunkoptions['label']
 
         return(chunkoptions)

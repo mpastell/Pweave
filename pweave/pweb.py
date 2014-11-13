@@ -36,6 +36,7 @@ class Pweb(object):
                           f_pos = "htpb",
                           f_size = (8, 6),
                           f_env = None,
+                          f_spines = True,
                           complete = True,
                           engine = "python"
                           )
