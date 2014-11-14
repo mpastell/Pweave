@@ -53,6 +53,7 @@ Release Notes
 -------------
 
 **Release 0.22.2**
+
 * Figure and cache directory are now handled relative to weaved document
 * Fixed caching
 * Improved error reporting and exception handling
