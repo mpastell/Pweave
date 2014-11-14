@@ -36,9 +36,14 @@ Features:
 Install:
 --------
 
-With easy_install:::
+::
 
-  easy_install -U Pweave
+  pip install --upgrade Pweave
+
+If you use conda:::
+
+  conda install -c https://conda.binstar.org/mpastell pweave
+
 
 Or download the source package and run:::
 
