@@ -48,6 +48,17 @@ def test_continue_option():
     ref = open(REF)
     assert(out.read() == ref.read())
 
+def test_convert():
+    """Test pweave-convert"""
+    REF = 'tests/convert_test_ref.pnw'
+    infile = 'tests/convert_test.txt'
+    outfile = 'tests/convert_test.Pnw'
+    pweave.convert(infile, informat="script", outformat="noweb")
+    out = open(outfile)
+    ref = open(REF)
+    assert(out.read() == ref.read())
+
+
 
 
 def test_nbformat():

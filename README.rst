@@ -52,6 +52,11 @@ Pweave documentation can be found from the website http://mpastell.com/pweave
 Release Notes
 -------------
 
+**Release 0.22.2**
+* Figure and cache directory are now handled relative to weaved document
+* Fixed caching
+* Improved error reporting and exception handling
+
 **Release 0.22.1**
 
 * Fixed a bug with inline code chunks.
@@ -64,21 +69,30 @@ Release Notes
 * Python 3 compatibilty, Thanks to Grant Goodyear https://github.com/g2boojum
 * Publishing of scripts from command line : pypublish script
 * Conversion between input formats and markups: Pweave-convert script
+
   - Convert to IPython notebooks by Aaron O'Leary https://github.com/aaren
+
 * Possibility to run shell code from Pweave. See `engine` chunk option.
 * New input formats:
+
   - Script
   - IPython notebook
+
 * Bugfix: setting figure format from command line fixed.
 * Ipython terminal
 * Source option for chunks
+
   - Read from module
   - Read from file
+
 * Multichunk blocks: complete option
 * rst format uses `.. codeblock::` python directive for code chunks.
 * Output formats:
+
   - Leanpub markdown
+
 * New options for figures
+
   - f_size ( (8,6) ) Saved figure size in inches a tuple (w, h) 
   - f_env (None) Environment that goes around figure e.g. sidefigure
   - f_spines (True) removes spines from figure right and top if False.
