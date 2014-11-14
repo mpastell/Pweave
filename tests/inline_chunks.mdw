@@ -8,14 +8,15 @@ Change properties of a matplotlib plot with inline chunk
 import matplotlib
 matplotlib.rcParams.update({'figure.figsize' : (6, 4),
                         'savefig.dpi': 100,
-                        'font.size' : 10,
-						'pweave_test' : True})
+                        'font.size' : 10,})
+pweave_test = True
 %>	
 
 
 <<>>=
 print(matplotlib.rcParams["figure.figsize"])
-print(matplotlib.rcParams["pweave_test"])
+print(matplotlib.rcParams["savefig.dpi"])
+print(pweave_test)
 @
 
 Now do some calculation 2+2= <%= 2+2 %> 

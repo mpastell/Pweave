@@ -568,8 +568,8 @@ class PwebPandocMDtoHTMLFormatter(PwebMDtoHTMLFormatter):
         except:
             sys.stderr.write("ERROR: Can't find pandoc")
             raise
-        pandoc.stdin.write(self.formatted)
-        self.formatted = pandoc.communicate()[0]
+        pandoc.stdin.write(self.formatted.encode('utf-8'))
+        self.formatted = pandoc.communicate()[0].decode('utf-8')
         #return(chunk['content'])
 
 
@@ -620,7 +620,6 @@ class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
         chunk['content'] = ("\n").join(lines)
         return(chunk)
 
-
     def format_docchunk(self, chunk):
         if 'number' in chunk and chunk['number'] == 1:
             chunk = self.parsetitle(chunk)
@@ -632,13 +631,6 @@ class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
         pandoc.stdin.write(chunk['content'].encode('utf-8'))
         chunk['content'] = pandoc.communicate()[0].decode('utf-8')
         return(chunk['content'])
-
-        #pandoc.stdin.write(self.formatted)
-        #self.formatted = pandoc.communicate()[0]
-        #self.formatted
-
-
-
 
 class PwebFormats(object):
     """Contains a dictionary of available output formats"""
