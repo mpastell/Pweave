@@ -52,6 +52,10 @@ Pweave documentation can be found from the website http://mpastell.com/pweave
 Release Notes
 -------------
 
+**Release 0.22.1**
+
+* Fixed a bug with inline code chunks.
+
 **Release 0.22**
 
 * Package global options moved to pweave.rcParams. This is a breaking
