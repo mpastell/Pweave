@@ -60,8 +60,8 @@ def weave():
 def publish():
     if len(sys.argv)==1:
         print("Publish a python script. Part of Pweave %s, use -h for help" % pweave.__version__)
-
         sys.exit()
+
     parser = OptionParser(usage="pypublish [options] sourcefile", version="Part of Pweave " + pweave.__version__)
     parser.add_option("-f", "--format", dest="format", default='html',
                       help = "Output format html or pdf, pdf output requires pandoc and pdflatex")
@@ -77,11 +77,19 @@ def publish():
 
 def tangle():
     if len(sys.argv)==1:
-        print("This is Ptangle %s" % pweave.__version__)
-        print("Usage: Ptangle file")
+        print("This is Ptangle %s, enter Ptangle -h for help" % pweave.__version__)
         sys.exit()
 
-    pweave.tangle(sys.argv[1])
+    parser = OptionParser(usage="Ptangle sourcefile", version="Pweave " + pweave.__version__)
+
+    (options, args) = parser.parse_args()
+
+    try:
+        infile = args[0]
+    except IndexError:
+        infile = ""
+
+    pweave.tangle(infile)
 
 def convert():
     if len(sys.argv)==1:
