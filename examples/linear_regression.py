@@ -10,7 +10,7 @@
 #' You'll also need [Numpy](http://www.numpy.org/), [Pandas](http://pandas.pydata.org/)
 #' and [matplolib](http://matplotlib.org/).
 
-#' The analysis can be published using the current [Pweave development version](https://bitbucket.org/mpastell/pweave/src).
+#' The analysis can be published using  Pweave 0.22 and later.
 
 #' Import libraries
 
@@ -24,9 +24,9 @@ import matplotlib.pyplot as plt
 #' >*The weekly gas consumption and average external temperature at a house in south-east England for two
 #' heating seasons, one of 26 weeks before, and one of 30 weeks after cavity-wall insulation was installed.*
 
-#' Read the data from [pydatasets repo](https://github.com/cpcloud/pydatasets) using Pandas:
+#' Load dataset using Pandas:
 
-url = 'https://raw.github.com/cpcloud/pydatasets/master/datasets/MASS/whiteside.csv'
+url = 'https://raw.githubusercontent.com/mpastell/Rdatasets/master/csv/MASS/whiteside.csv'
 whiteside = pd.read_csv(url)
 
 #' # Fitting the model

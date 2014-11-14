@@ -26,13 +26,13 @@ class PwebProcessor(object):
         self.parsed = parsed
         self.source = source
         self.documentationmode = mode
+        self.cwd = os.path.dirname(os.path.abspath(source))
+        self.basename = os.path.basename(os.path.abspath(source)).split(".")[0]
         self._stdout = sys.stdout
         self.formatdict = formatdict
         self.pending_code = "" # Used for multichunk splits
         self._mpl_imported = False
 
-    def _basename(self):
-        return(re.split("\.+[^\.]+$", self.source)[0])
 
     def run(self):
         #Create directory for figures
@@ -60,9 +60,11 @@ class PwebProcessor(object):
 
     def store(self, data):
         """A method used to pickle stuff for persistence"""
-        if not os.path.isdir(rcParams["cachedir"]):
-            os.mkdir(rcParams["cachedir"])
-        name = rcParams["cachedir"] + '/' + self._basename() + '.pkl'
+        cachedir = os.path.join(self.cwd, rcParams["cachedir"])
+        if not os.path.isdir(cachedir):
+            os.mkdir(cachedir)
+
+        name = cachedir + self.basename + ".pkl"
         f = open(name, 'wb')
         pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
         f.close()
@@ -70,6 +72,22 @@ class PwebProcessor(object):
         #f = open(name, 'w')
         #f.write(json.dumps(data, indent=4, separators=(',', ': ')))
         #f.close()
+    def restore(self):
+        """A method used to unpickle stuff"""
+        cachedir = os.path.join(self.cwd, rcParams["cachedir"])
+        name = cachedir + self.basename + ".pkl"
+
+        if os.path.exists(name):
+            f = open(name, 'rb')
+            self._oldresults = pickle.load(f)
+            f.close()
+            #f = open(name, 'r')
+            #self._oldresults= json.loads(f.read())
+            #print(len(self._oldresults))
+            #f.close()
+            return(True)
+        else:
+            return(False)
 
 
     def _runcode(self, chunk):
@@ -186,9 +204,9 @@ class PwebProcessor(object):
 
     def savefigs(self, chunk):
         if chunk['name'] is None:
-            prefix = self._basename() + '_figure' + str(chunk['number'])
+            prefix = self.basename + '_figure' + str(chunk['number'])
         else:
-            prefix = self._basename() + '_' + chunk['name']
+            prefix = self.basename + '_' + chunk['name']
 
         fignames = []
 
@@ -211,7 +229,9 @@ class PwebProcessor(object):
 
                 name = rcParams["figdir"] + '/' + prefix + "_" + str(i) + self.formatdict['figfmt']
                 for format in self.formatdict['savedformats']:
-                    plt.savefig(rcParams["figdir"] + '/' + prefix + "_" + str(i) + format)
+                    f_name = os.path.join(self.cwd, rcParams["figdir"], prefix + "_" + str(i) + self.formatdict['figfmt'])
+                    #print(f_name)
+                    #plt.savefig(rcParams["figdir"] + '/' + prefix + "_" + str(i) + format)
 
                     plt.draw()
                 fignames.append(name)
@@ -219,23 +239,7 @@ class PwebProcessor(object):
 
         return(fignames)
 
-    def restore(self):
-        """A method used to unpickle stuff"""
-        name = rcParams["cachedir"] + '/' + self._basename() + '.pkl'
-        if os.path.exists(name):
-            f = open(name, 'rb')
-            self._oldresults = pickle.load(f)
-            f.close()
-            #f = open(name, 'r')
-            #self._oldresults= json.loads(f.read())
-            #print(len(self._oldresults))
-            #f.close()
-            return(True)
-        else:
-            return(False)
 
-    def _basename(self):
-        return(re.split("\.+[^\.]+$", self.source)[0])
 
     def _getoldresults(self):
         """Get the results of previous run for documentation mode"""
