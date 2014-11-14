@@ -20,9 +20,11 @@ rcParams = {"figdir" : "figures",
                 "f_env" : None,
                 "f_spines" : True,
                 "complete" : True,
-                "engine" : "python"}
+                "engine" : "python",
+                "option_string" : ""
+                }
             }
-}
+    }
 
 class PwebProcessorGlobals(object):
     """A class to hold the globals used in processors"""

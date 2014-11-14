@@ -185,7 +185,7 @@ class PwebProcessor(object):
                     sys.stderr.write("  Exception:\n")
                     sys.stderr.write("  " + str(e) + "\n")
                     sys.stderr.write("  Error messages will be included in output document\n" % chunk)
-                    chunk["result"] = "\n%sn\%s" % (type(e), e)
+                    chunk["result"] = "%s\n\n%s\n%s" % (chunk["content"], type(e), e)
             else:
                 try:
                     chunk['result'] = self.loadstring(chunk['content'])

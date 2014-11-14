@@ -93,7 +93,7 @@ class PwebReader(object):
         #Handle the last chunk
         if self.state == "code":
             chunks.append( {"type" : "code", "content" : "\n" + read.rstrip(),
-                                    "number" : codeN, "options" : opts})
+                                    "number" : codeN, "options" : opts, "start_line" : self.lineNo})
         if self.state == "doc":
             chunks.append({"type" : "doc", "content" : read, "number" : docN})
         self.parsed = chunks
@@ -107,7 +107,7 @@ class PwebReader(object):
         #Parse options from chunk to a dictionary
         optstring = opt.replace('<<', '').replace('>>=', '').strip()
         if not optstring:
-            return({})
+            return({"option_string" : ""})
         #First option can be a name/label
         if optstring.split(',')[0].find('=')==-1:
             splitted = optstring.split(',')
@@ -117,6 +117,7 @@ class PwebReader(object):
         opt_scope = {}
         exec("chunkoptions =  dict(" + optstring + ")", opt_scope)
         chunkoptions = opt_scope["chunkoptions"]
+        chunkoptions["option_string"] = optstring
 
         if 'label' in chunkoptions:
             chunkoptions['name'] = chunkoptions['label']
@@ -159,15 +160,15 @@ class PwebScriptReader(PwebReader):
 
     def getoptions(self, opt):
         if not opt.startswith("#+ "):
-            return({})
+            return({"option_string" : ""})
 
         # Aliases for False and True to conform with Sweave syntax
         FALSE = False
         TRUE = True
         #Parse options from chunk to a dictionary
         optstring = opt.replace('#+', '', 1).strip()
-        if not optstring:
-            return({})
+        if optstring == "":
+            return({"option_string" : ""})
         #First option can be a name/label
         if optstring.split(',')[0].find('=')==-1:
             splitted = optstring.split(',')
@@ -175,6 +176,7 @@ class PwebScriptReader(PwebReader):
             optstring = ','.join(splitted)
 
         exec("chunkoptions =  dict(" + optstring + ")")
+        chunkoptions["option_string"] = optstring
         #Update the defaults
 
         if 'label' in chunkoptions:
@@ -260,8 +262,8 @@ class PwebConvert(object):
         """Format doc chunks for output"""
         if self.pandoc_args is not None:
             pandoc = Popen(["pandoc"] + self.pandoc_args.split(), stdin = PIPE, stdout = PIPE)
-            pandoc.stdin.write(content)
-            content = (pandoc.communicate()[0]).replace("\r", "") + "\n"
+            pandoc.stdin.write(content.encode("utf-8"))
+            content = (pandoc.communicate()[0]).decode("utf-8").replace("\r", "") + "\n"
 
         if self.outformat == "noweb":
             return(content)
@@ -293,25 +295,11 @@ class PwebConvert(object):
                 if chunk["type"] == "doc":
                     output.append(self.format_docchunk(chunk["content"]))
                 if chunk["type"] == "code":
-                    optstring = self.get_optstring(chunk)
+                    optstring = chunk["options"]["option_string"]
                     output.append(code % (optstring, chunk["content"]))
 
         self.converted = "\n".join(output)
 
-    def get_optstring(self, chunk):
-        optstring = ""
-        n = len(chunk["options"].keys())
-        i = 0
-        for key in chunk["options"].keys():
-            i +=1
-            if type(chunk["options"][key]) == bool:
-                optstring += key + '=' + str(chunk["options"][key])
-            else:
-                optstring += key + '="' + str(chunk["options"][key]) + '"'
-            if (i < n):
-                optstring += ", "
-
-        return(optstring)
 
 class PwebNBConvert(object):
     """Convert to IPython Notebook"""
