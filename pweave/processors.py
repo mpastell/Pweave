@@ -363,7 +363,7 @@ class PwebProcessor(object):
                 continue
             if elem.startswith('<%='):
                 code = elem.replace('<%=', '').replace('%>', '').lstrip()
-                result = self.loadstring('print %s,' % code).replace('\n','', 1)
+                result = self.loadstring('print(%s),' % code).replace('\n','', 1)
                 splitted[i] = result
                 continue
             if elem.startswith('<%'):

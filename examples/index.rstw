@@ -157,7 +157,7 @@ About the gallery
 This page is an executable document that be run using Pweave using
 IPython shell to run all examples using::
 
-  Pweave run-examples.rstw
+  Pweave index.rstw
 
 
 The latest version of the examples with any required extra files are

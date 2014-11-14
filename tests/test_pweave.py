@@ -63,3 +63,15 @@ def test_nbformat():
     out = open(outfile)
     ref = open(REF)
     assert(out.read() == ref.read())
+
+def test_inline_chunks():
+    """Test inline code"""
+    REF = 'tests/inline_chunks_ref.md'
+    infile = 'tests/inline_chunks.mdw'
+    outfile = 'tests/inline_chunks.md'
+    pweave.weave(file=infile, doctype="pandoc")
+
+    # Compare the outfile and the ref
+    out = open(outfile)
+    ref = open(REF)
+    assert(out.read() == ref.read())

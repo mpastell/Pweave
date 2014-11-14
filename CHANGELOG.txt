@@ -1,5 +1,6 @@
 
-
+In 0.22.1
+* Fixed a bug with inline code chunks.
 
 In 0.22
 * Package global options moved to pweave.rcParams. This is a breaking change if you have used

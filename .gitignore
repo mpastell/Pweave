@@ -4,6 +4,7 @@
 tmp/
 
 *.png
+*.pdf
 koe.py
 
 tests/*/*.png
