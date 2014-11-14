@@ -57,7 +57,7 @@ class PwebReader(object):
         docN = 1
         opts = self.getoptions("")
         self.n_emptylines = 0
-        self.lineNo = 0
+        self.lineNo = 1
 
         for line in lines:
 
@@ -65,7 +65,7 @@ class PwebReader(object):
             if code_starts  and self.state != "code":
                 self.state = "code"
                 opts = self.getoptions(line)
-                chunks.append({"type" : "doc", "content" : read, "number" : docN})
+                chunks.append({"type" : "doc", "content" : read, "number" : docN, "start_line" : self.lineNo})
                 docN +=1
                 read = ""
                 if skip:
@@ -76,7 +76,7 @@ class PwebReader(object):
                 self.state = "doc"
                 if read.strip() != "" or 'source' in opts: #Don't parse empty chunks unless source is specified
                     chunks.append( {"type" : "code", "content" : "\n" + read.rstrip(),
-                                    "number" : codeN, "options" : opts})
+                                    "number" : codeN, "options" : opts, "start_line" : self.lineNo})
                 codeN +=1
                 read = ""
                 if skip:

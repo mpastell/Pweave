@@ -131,7 +131,7 @@ class PwebProcessor(object):
 
         #Engines different from python, shell commands for now
         if chunk['engine'] == "shell":
-            sys.stdout.write("Processing chunk %(number)s named %(name)s\n" % chunk)
+            sys.stdout.write("Processing chunk %(number)s named %(name)s from line %(start_line)s\n" % chunk)
             chunk['result']  = self.load_shell(chunk)
 
             #chunk['term'] = True
@@ -157,7 +157,8 @@ class PwebProcessor(object):
         #    sys.path.append("C:\Program Files (x86)\Sho 2.0 for .NET 4\Sho")
         #    from sho import *
         if chunk['type'] == 'code':
-            sys.stdout.write("Processing chunk %(number)s named %(name)s\n" % chunk)
+            sys.stdout.write("Processing chunk %(number)s named %(name)s from line %(start_line)s\n" % chunk)
+
 
             #Handle code split across several chunks
             old_content = None
@@ -179,22 +180,31 @@ class PwebProcessor(object):
                 stdold = sys.stdout
                 try:
                     chunk['result'] = self.loadterm(chunk['content'])
-                except Exception as inst:
+                except Exception as e:
                     sys.stdout = stdold
-                    sys.stderr.write('Failed to execute chunk in term mode executing with term = False instead\nThis can sometimes happen at least with function definitions even if there is no syntax error\nEXCEPTION :')
-                    try:
-                        sys.stderr.write('Executing in term mode:')
-                        chunk['result'] = self.loadstring(chunk['content'])
-                        chunk['term'] = False
-                    except:
-                        raise
+                    sys.stderr.write("  Exception:\n")
+                    sys.stderr.write("  " + str(e) + "\n")
+                    sys.stderr.write("  Error messages will be included in output document\n" % chunk)
+                    chunk["result"] = "\n%sn\%s" % (type(e), e)
             else:
+                try:
                     chunk['result'] = self.loadstring(chunk['content'])
-        #After executing the code save the figure
+                except Exception as e:
+                    sys.stderr.write("  Exception:\n")
+                    sys.stderr.write("  " + str(e) + "\n")
+                    sys.stderr.write("  Error messages will be included in output document\n" % chunk)
+                    chunk["result"] = "\n%s\n%s" % (type(e), e)
+
+
+
+
+
+
+    #After executing the code save the figure
         if chunk['fig']:
             chunk['figure'] = self.savefigs(chunk)
 
-        if old_content != None:
+        if old_content is not None:
             chunk['content'] = old_content # The code from current chunk for display
 
         return(chunk)
@@ -289,12 +299,12 @@ class PwebProcessor(object):
                 command = line.split()
                 try:
                     cmd = Popen(command, stdout = PIPE)
-                    content = cmd.communicate()[0].replace("\r", "") + "\n"
+                    content = cmd.communicate()[0].replace("\r", "").encode('utf-8') + "\n"
                 except Exception as e:
                     content = "Pweave ERROR can't execute shell command:\n %s\n" % command
                     content += str(e)
-                    sys.stdout.write("Pweave ERROR can't execute shell command:\n %s\n" % line)
-                    print(e)
+                    sys.stdout.write("  Pweave ERROR can't execute shell command:\n %s\n" % line)
+                    print(str(e))
                 if chunk['term']:
                     result += "$ %s\n" % line
                 result += content
@@ -304,11 +314,11 @@ class PwebProcessor(object):
         return(result)
 
 
-    def loadstring(self, code):
+    def loadstring(self, code, scope=PwebProcessorGlobals.globals):
         tmp = StringIO()
         sys.stdout = tmp
-        compiled = compile(code, '<input>', 'exec')
-        exec(compiled, PwebProcessorGlobals.globals)
+        compiled = compile(code, "chunk", 'exec')
+        exec(compiled, scope)
         result = "\n" + tmp.getvalue()
         tmp.close()
         sys.stdout = self._stdout
@@ -327,7 +337,7 @@ class PwebProcessor(object):
             statement += x + '\n'
 
             # Is the statement complete?
-            compiled_statement = code.compile_command(statement)
+            compiled_statement = code.compile_command(statement, self.source)
             if compiled_statement is None:
                 # No, not yet.
                 prompt = "..."
