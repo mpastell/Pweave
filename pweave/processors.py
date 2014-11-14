@@ -44,7 +44,7 @@ class PwebProcessor(object):
         if self.documentationmode:
            success = self._getoldresults()
            if success:
-               print("restoring")
+               print("Restoring cached results")
                return
            else:
                sys.stderr.write("DOCUMENTATION MODE ERROR:\nCan't find stored results, running the code and caching results for the next documentation mode run\n")
@@ -64,18 +64,16 @@ class PwebProcessor(object):
         if not os.path.isdir(cachedir):
             os.mkdir(cachedir)
 
-        name = cachedir + self.basename + ".pkl"
+        name = cachedir + "/" + self.basename + ".pkl"
         f = open(name, 'wb')
         pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
         f.close()
-        #print (len(data))
-        #f = open(name, 'w')
-        #f.write(json.dumps(data, indent=4, separators=(',', ': ')))
-        #f.close()
+
+
     def restore(self):
         """A method used to unpickle stuff"""
         cachedir = os.path.join(self.cwd, rcParams["cachedir"])
-        name = cachedir + self.basename + ".pkl"
+        name = cachedir + "/" + self.basename + ".pkl"
 
         if os.path.exists(name):
             f = open(name, 'rb')
@@ -208,6 +206,10 @@ class PwebProcessor(object):
         else:
             prefix = self.basename + '_' + chunk['name']
 
+        figdir = os.path.join(self.cwd, rcParams["figdir"])
+        if not os.path.isdir(figdir):
+            os.mkdir(figdir)
+
         fignames = []
 
         if rcParams["usematplotlib"]:
@@ -226,12 +228,11 @@ class PwebProcessor(object):
                         ax.yaxis.set_ticks_position('left')
                         ax.xaxis.set_ticks_position('bottom')
 
+                name = rcParams["figdir"] + "/" + prefix + "_" + str(i) + self.formatdict['figfmt']
 
-                name = rcParams["figdir"] + '/' + prefix + "_" + str(i) + self.formatdict['figfmt']
                 for format in self.formatdict['savedformats']:
-                    f_name = os.path.join(self.cwd, rcParams["figdir"], prefix + "_" + str(i) + self.formatdict['figfmt'])
-                    #print(f_name)
-                    #plt.savefig(rcParams["figdir"] + '/' + prefix + "_" + str(i) + format)
+                    f_name = os.path.join(self.cwd, rcParams["figdir"], prefix + "_" + str(i)) + format
+                    plt.savefig(f_name)
 
                     plt.draw()
                 fignames.append(name)
@@ -254,7 +255,7 @@ class PwebProcessor(object):
 
         for i in range(n):
             chunk = self.parsed[i]
-            if chunk['type'] is not "code":
+            if chunk['type'] != "code":
                 executed.append(self._hideinline(chunk.copy()))
             else:
                 executed.append(self._oldresults[i].copy())

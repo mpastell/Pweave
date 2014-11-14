@@ -59,7 +59,7 @@ def weave(file, doctype = 'rst', informat = "noweb", shell="python", plot = True
     rcParams["figdir"] = figdir
     rcParams["cachedir"] = cachedir
     doc.documentationmode = docmode
-    doc.storeresults = cache
+    rcParams["storeresults"] = cache
 
     if figformat is not None:
         doc.updateformat({'figfmt' : figformat, 'savedformats' : [figformat]})

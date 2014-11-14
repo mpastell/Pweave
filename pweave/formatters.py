@@ -625,12 +625,12 @@ class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
         if 'number' in chunk and chunk['number'] == 1:
             chunk = self.parsetitle(chunk)
         try:
-            pandoc = Popen(["pandoc", "-t", "latex", "-f", "markdown"], stdin = PIPE, stdout = PIPE)
+            pandoc = Popen(["pandoc", "-R" , "-t", "latex", "-f", "markdown"], stdin = PIPE, stdout = PIPE)
         except:
             sys.stderr.write("ERROR: Can't find pandoc")
             raise
-        pandoc.stdin.write(chunk['content'])
-        chunk['content'] = pandoc.communicate()[0]
+        pandoc.stdin.write(chunk['content'].encode('utf-8'))
+        chunk['content'] = pandoc.communicate()[0].decode('utf-8')
         return(chunk['content'])
 
         #pandoc.stdin.write(self.formatted)

@@ -113,5 +113,5 @@ array([ 1.19379795, -0.21810471, -0.12747881, -0.06257484,
 
 ~~~~~~~~~~~~~
 
-![](figures/tests/ar_yw_figure5_1.png)\
+![](figures/ar_yw_figure5_1.png)\
 
