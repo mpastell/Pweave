@@ -1,0 +1,70 @@
+package:
+  name: pweave
+  version: !!str 0.22.2
+
+source:
+  fn: Pweave-0.22.2.tar.gz
+  url: https://pypi.python.org/packages/source/P/Pweave/Pweave-0.22.2.tar.gz
+  md5: 21e512138045f6d8d2f54a9bd9c1b0a4
+#  patches:
+   # List any patch files here
+   # - fix.patch
+
+build:
+  # preserve_egg_dir: True
+  entry_points:
+    # Put any entry points (scripts to be generated automatically) here. The
+    # syntax is module:function.  For example
+    #
+    # - pweave = pweave:main
+    #
+    # Would create an entry point called pweave that calls pweave.main()
+
+    - Pweave = pweave.scripts:weave
+    - Ptangle = pweave.scripts:tangle
+    - pypublish = pweave.scripts:publish
+    - Pweave-convert = pweave.scripts:convert
+
+
+  # If this is a new build for the same version, increment the build
+  # number. If you do not include this key, it defaults to 0.
+  # number: 1
+
+requirements:
+  build:
+    - python
+    - setuptools
+
+  run:
+    - python
+
+test:
+  # Python imports
+  imports:
+    - pweave
+
+  commands:
+    # You can put test commands to be run here.  Use this to test that the
+    # entry points work.
+
+    - Pweave --help
+    - Ptangle
+    - pypublish --help
+    - Pweave-convert --help
+
+
+  # You can also put a file called run_test.py in the recipe that will be run
+  # at test time.
+
+  # requires:
+    # Put any additional test requirements here.  For example
+    #- nose
+
+about:
+  home: http://mpastell.com/pweave
+  license: GNU General Public License (GPL)
+  summary: 'Scientific reports with embedded python computations with reST, LaTeX or markdown'
+
+# See
+# http://docs.continuum.io/conda/build.html for
+# more information about meta.yaml
