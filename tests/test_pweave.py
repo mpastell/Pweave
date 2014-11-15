@@ -1,20 +1,5 @@
-import os
-import errno
-
 import pweave
 
-
-def mkdir_p(path):
-    try:
-        os.makedirs(path)
-    except OSError as exc:  # Python >2.5
-        if exc.errno == errno.EEXIST and os.path.isdir(path):
-            pass
-        else:
-            raise
-
-# make a figure dir if it doesn't exist
-mkdir_p('tests/figures/tests')
 
 
 def test_pandoc():
@@ -54,11 +39,7 @@ def test_convert():
     infile = 'tests/convert_test.txt'
     outfile = 'tests/convert_test.Pnw'
     pweave.convert(infile, informat="script", outformat="noweb")
-    out = open(outfile)
-    ref = open(REF)
-    assert(out.read() == ref.read())
-
-
+    assert(open(outfile).read() == open(REF).read())
 
 
 def test_nbformat():
@@ -86,3 +67,11 @@ def test_inline_chunks():
     out = open(outfile)
     ref = open(REF)
     assert(out.read() == ref.read())
+
+def test_publish():
+    """Test pweave.publish"""
+    REF = 'tests/publish_test_ref.html'
+    infile = 'tests/publish_test.txt'
+    outfile = 'tests/publish_test.html'
+    pweave.publish("tests/publish_test.txt")
+    assert(open(outfile).read() == open(REF).read())

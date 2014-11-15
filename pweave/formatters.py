@@ -1,7 +1,11 @@
 import sys
 from subprocess import Popen, PIPE
 import textwrap
+
+
+
 # Pweave output formatters
+
 
 
 class PwebFormatter(object):
@@ -507,7 +511,9 @@ class PwebHTMLFormatter(PwebFormatter):
             result += figstring
         return(result)
 
-            
+
+
+
 
 class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
 
@@ -539,24 +545,14 @@ class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
             chunk = self.parsetitle(chunk)
 
         try:
-            from markdown import markdown
-        except:
-            try:
-                from markdown2 import markdown
-            except:
-                raise
+            import markdown
+        except ImportError:
+            print("You'll need to install python markdown in order to use markdown to html formatter\nrun 'pip install markdown' to install")
+            return
+        from .markdownmath import MathExtension
 
-        #Use Mathjax if it is available
-        try:
-            import markdown2Mathjax as MJ
-            tmp = MJ.sanitizeInput(chunk['content'])
-            markedDownText = markdown(tmp[0])
-            finalOutput = MJ.reconstructMath(markedDownText,tmp[1], inline_delims=["\\(","\\)"])
-            chunk['content'] = finalOutput
-        except:
-            sys.stderr.write("WARNING: Can't import markdown2Mathjax, expect problems with math formatting.\n")
-            chunk['content'] = markdown(chunk['content'])
-        return(chunk['content'])
+        chunk["content"] = markdown.markdown(chunk["content"], extensions=[MathExtension()])
+        return chunk['content']
 
 class PwebPandocMDtoHTMLFormatter(PwebMDtoHTMLFormatter):
 

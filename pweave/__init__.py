@@ -124,7 +124,7 @@ def publish(file, format = "html"):
         except:
            print("Can't find pdflatex, no pdf produced!")
            return
-        x = latex.communicate()[0]
+        x = latex.communicate()[0].decode('utf-8')
         print(("\n").join(x.splitlines()[-2:]))
 
 def spin(file):
