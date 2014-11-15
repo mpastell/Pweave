@@ -4,10 +4,8 @@
 
 from __future__ import print_function, division, unicode_literals, absolute_import
 
-import sys
-import inspect
-from subprocess import Popen, PIPE
 
+import inspect
 from . import readers
 from .pweb import *
 from .formatters import *

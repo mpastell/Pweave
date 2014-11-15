@@ -12,9 +12,11 @@ setup(name='Pweave',
       entry_points = {
           'console_scripts' :
               ['Pweave = pweave.scripts:weave',
+               'pweave = pweave.scripts:weave',
                'Ptangle = pweave.scripts:tangle',
+               'ptangle = pweave.scripts:tangle',
                'pypublish = pweave.scripts:publish',
-               'Pweave-convert = pweave.scripts:convert'
+               'pweave-convert = pweave.scripts:convert'
                ]},
       version = pweave.__version__,
       description='Scientific reports with embedded python computations with reST, LaTeX or markdown',

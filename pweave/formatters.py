@@ -285,7 +285,6 @@ class PwebTexPygmentsFormatter(PwebTexFormatter):
      def format_codechunks(self, chunk):
         from pygments import highlight
         from pygments.lexers import PythonLexer, TextLexer, PythonConsoleLexer
-        #from IPythonLexer import IPythonLexer
         from pygments.formatters import LatexFormatter
 
         chunk['content'] = highlight(chunk['content'], PythonLexer(), LatexFormatter(verboptions="frame=single,fontsize=\small, xleftmargin=0.5em"))

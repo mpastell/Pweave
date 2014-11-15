@@ -175,7 +175,9 @@ class PwebScriptReader(PwebReader):
             splitted[0] = 'name = "%s"' % splitted[0]
             optstring = ','.join(splitted)
 
-        exec("chunkoptions =  dict(" + optstring + ")")
+        opt_scope = {}
+        exec("chunkoptions =  dict(" + optstring + ")", opt_scope)
+        chunkoptions = opt_scope["chunkoptions"]
         chunkoptions["option_string"] = optstring
         #Update the defaults
 
