@@ -1,11 +1,11 @@
 package:
   name: pweave
-  version: !!str 0.22.2
+  version: !!str 0.22.3
 
 source:
-  fn: Pweave-0.22.2.tar.gz
-  url: https://pypi.python.org/packages/source/P/Pweave/Pweave-0.22.2.tar.gz
-  md5: 21e512138045f6d8d2f54a9bd9c1b0a4
+  fn: Pweave-0.22.3.zip
+  url: https://pypi.python.org/packages/source/P/Pweave/Pweave-0.22.3.zip
+  md5: 4221a593b092b387d598ccdba17ca867
 #  patches:
    # List any patch files here
    # - fix.patch
