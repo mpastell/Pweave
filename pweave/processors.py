@@ -307,7 +307,7 @@ class PwebProcessor(object):
                 command = line.split()
                 try:
                     cmd = Popen(command, stdout=PIPE)
-                    content = cmd.communicate()[0].replace("\r", "").encode('utf-8') + "\n"
+                    content = cmd.communicate()[0].decode('utf-8').replace("\r", "") + "\n"
                 except Exception as e:
                     content = "Pweave ERROR can't execute shell command:\n %s\n" % command
                     content += str(e)
