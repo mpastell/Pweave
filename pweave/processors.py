@@ -6,6 +6,9 @@ import os
 import re
 import os
 import io
+import inspect
+from subprocess import Popen, PIPE
+
 
 try:
     from cStringIO import StringIO
@@ -34,7 +37,8 @@ class PwebProcessor(object):
         self._stdout = sys.stdout
         self.formatdict = formatdict
         self.pending_code = ""  # Used for multichunk splits
-        self._mpl_imported = False
+        self.init_matplotlib()
+
 
 
     def run(self):
@@ -147,28 +151,12 @@ class PwebProcessor(object):
         #if chunk['width'] is None:
         #        chunk['width'] = self.formatdict['width']
 
-        if rcParams["usematplotlib"]:
-            if not self._mpl_imported:
-                import matplotlib
 
-                matplotlib.use('Agg')
-                #matplotlib.rcParams.update(self.rcParams)
-            import matplotlib.pyplot as plt
-            import matplotlib
 
-            self._mpl_imported = True
-
-            #['figure.figsize'] = (6, 4)
-            #matplotlib.rcParams['figure.dpi'] = 200
-        #Sho should be added in users code if it is used
-        #if self.usesho:
-        #    sys.path.append("C:\Program Files (x86)\Sho 2.0 for .NET 4\Sho")
-        #    from sho import *
         if chunk['type'] == 'code':
             sys.stdout.write("Processing chunk %(number)s named %(name)s from line %(start_line)s\n" % chunk)
 
 
-            #Handle code split across several chunks
             old_content = None
             if not chunk["complete"]:
                 self.pending_code += chunk["content"]
@@ -187,7 +175,7 @@ class PwebProcessor(object):
                 #term seems to fail on function definitions
                 stdold = sys.stdout
                 try:
-                    chunk['result'] = self.loadterm(chunk['content'])
+                    chunk['result'] = self.loadterm(chunk['content'], chunk=chunk)
                 except Exception as e:
                     sys.stdout = stdold
                     sys.stderr.write("  Exception:\n")
@@ -196,19 +184,14 @@ class PwebProcessor(object):
                     chunk["result"] = "%s\n\n%s\n%s" % (chunk["content"], type(e), e)
             else:
                 try:
-                    chunk['result'] = self.loadstring(chunk['content'])
+                    chunk['result'] = self.loadstring(chunk['content'], chunk=chunk)
                 except Exception as e:
                     sys.stderr.write("  Exception:\n")
                     sys.stderr.write("  " + str(e) + "\n")
                     sys.stderr.write("  Error messages will be included in output document\n" % chunk)
                     chunk["result"] = "\n%s\n%s" % (type(e), e)
 
-
-
-
-
-
-                    #After executing the code save the figure
+        #After executing the code save the figure
         if chunk['fig']:
             chunk['figure'] = self.savefigs(chunk)
 
@@ -217,6 +200,11 @@ class PwebProcessor(object):
 
         return (chunk)
 
+    def init_matplotlib(self):
+        if rcParams["usematplotlib"]:
+            import matplotlib
+            import matplotlib.pyplot as plt
+            matplotlib.use('Agg')
 
     def savefigs(self, chunk):
         if chunk['name'] is None:
@@ -278,24 +266,7 @@ class PwebProcessor(object):
             else:
                 executed.append(self._oldresults[i].copy())
 
-        #old = filter(lambda x: x['type']=='code', self._oldresults)
-        #executed = self.parsed
-        #for chunk in executed:
-        #    if chunk['type']!='code' and chunk['type']!='doc':
-        #        continue
-        #    #No caching for inline code yet, just hide it
-        #    if chunk['type'] is 'doc':
-        #        chunk.update(self._hideinline(chunk))
-        #        continue
-        #    nbr = chunk['number']
-        #    stored = filter(lambda x : x['number'] == nbr,  old)[0]
-        #    if chunk['content'] != stored['content']:
-        #        sys.stderr.write('WARNING: contents of chunk number %(number)s (name = %(name)s) have changed\n' % chunk)
-        #    print stored
-        #    chunk.update(stored)
-
         self.executed = executed
-        #pprint(self.executed)
         return (True)
 
     #Run shell commands from code chunks
@@ -322,7 +293,7 @@ class PwebProcessor(object):
         return (result)
 
 
-    def loadstring(self, code, scope=PwebProcessorGlobals.globals):
+    def loadstring(self, code, chunk=None, scope=PwebProcessorGlobals.globals):
         tmp = StringIO()
         sys.stdout = tmp
         compiled = compile(code, "chunk", 'exec')
@@ -332,13 +303,13 @@ class PwebProcessor(object):
         sys.stdout = self._stdout
         return (result)
 
-    def loadterm(self, chunk):
+    def loadterm(self, code_string, chunk=None):
         #Write output to a StringIO object
         #loop trough the code lines
         statement = ""
         prompt = ">>>"
         chunkresult = "\n"
-        block = chunk.lstrip().splitlines()
+        block = code_string.lstrip().splitlines()
 
         for x in block:
             chunkresult += ('%s %s\n' % (prompt, x))
@@ -400,6 +371,121 @@ class PwebProcessor(object):
         splitted = re.split('<%[\w\s\W]*?%>', chunk['content'])
         chunk['content'] = ''.join(splitted)
         return (chunk)
+
+
+class PwebSubProcessor(PwebProcessor):
+
+    def __init__(self, parsed, source, mode, formatdict):
+        f = open("tmp.txt", "wt")
+        self.python = Popen(["python", "-i", "-u"], stdin = PIPE, stdout = PIPE, stderr = f)
+        PwebProcessor.__init__(self, parsed, source, mode, formatdict)
+
+    #TODO implement loadinline
+
+
+    def getresults(self):
+
+        results, errors = self.python.communicate()
+        print(results.decode('utf-8'))
+        #print(errors)
+        return (copy.deepcopy(self.executed))
+
+    def insert_start_tag(self, id=0, type="term"):
+        self.run_string("""print('<chunk id="%i" type="%s">')""" % (id, type))
+
+    def insert_close_tag(self):
+        self.run_string('print("</chunk>")')
+
+
+    def run_string(self, code_string):
+        self.python.stdin.write(("\n" + code_string + "\n").encode('utf-8'))
+
+    def loadstring(self, code, chunk=None, scope=None):
+        self.insert_start_tag(type="block", id=chunk["number"])
+        self.run_string(code + "\n")
+        self.insert_close_tag()
+        return
+
+    def loadterm(self, code, chunk=None):
+        code = code.replace("\r\n", "\n") + "\n"
+        lines = code.lstrip().split("\n")
+
+        n = len(lines) - 1
+        block = ""
+
+        self.insert_start_tag(type="term", id=chunk["number"])
+        for i in range(n):
+            if lines[i+1].startswith(' '):
+                block += '%s\n' % lines[i]
+            elif block != "":
+                block += '%s\n' % lines[i]
+                self.run_string('print(""">>> %s""")' % self.terminalize(block))
+                self.run_string('%s' % block)
+                block = ""
+            else:
+                self.run_string('print(""">>> %s""")' % lines[i])
+                self.run_string('%s' % lines[i])
+
+        self.insert_close_tag()
+
+    def terminalize(self, code):
+        lines = code.split('\n')
+        for i in range(len(lines)):
+            if lines[i].startswith(' ') or lines[i] == '':
+                lines[i] = '... ' + lines[i]
+
+        return '\n'.join(lines)
+
+        def init_matplotlib(self):
+            if rcParams["usematplotlib"]:
+                import matplotlib
+                import matplotlib.pyplot as plt
+                matplotlib.use('Agg')
+
+
+    def var_to_string(self, var_dict):
+        tmp = StringIO()
+        sys.stdout = tmp
+        scope = var_dict
+        compiled = compile('print(%(var)s)' % var_dict, "chunk", 'exec')
+        exec(compiled, scope)
+        result = "\n" + tmp.getvalue()
+        tmp.close()
+        sys.stdout = self._stdout
+        return (result)
+
+    def savefigs(self, chunk):
+        if chunk['name'] is None:
+            prefix = self.basename + '_figure' + str(chunk['number'])
+        else:
+            prefix = self.basename + '_' + chunk['name']
+
+        figdir = os.path.join(self.cwd, rcParams["figdir"])
+        if not os.path.isdir(figdir):
+            os.mkdir(figdir)
+
+        send_dict = {"var" : {"figdir" : figdir,
+                              "prefix" : prefix, "chunk" : chunk,
+                              "rcParams" : rcParams,
+                              "formatdict" : self.formatdict,
+                              "cwd" : self.cwd
+                        }
+                    }
+        send_dict_str = self.var_to_string(send_dict)
+        self.run_string("__pweave_data__ = " + send_dict_str.lstrip() + "\n")
+
+        from .import subsnippets
+
+        savefigs_cmd = subsnippets.savefigs
+        self.run_string(savefigs_cmd)
+
+
+        #self.run_string(savefigs_cmd)
+
+    def init_matplotlib(self):
+        if rcParams["usematplotlib"]:
+            self.run_string("\nimport matplotlib\nmatplotlib.use('Agg')\nimport matplotlib.pyplot as plt\n")
+
 
 
 class PwebIPythonProcessor(PwebProcessor):
@@ -493,7 +579,8 @@ class PwebIPythonProcessor(PwebProcessor):
 class PwebProcessors(object):
     """Lists available input formats"""
     formats = {'python': {'class': PwebProcessor, 'description': 'Python shell'},
-               'ipython': {'class': PwebIPythonProcessor, 'description': 'IPython shell'}
+               'ipython': {'class': PwebIPythonProcessor, 'description': 'IPython shell'},
+               'pythonsub': {'class': PwebSubProcessor, 'description': 'Python as separate process'}
     }
 
     @classmethod
