@@ -206,8 +206,9 @@ class PwebProcessor(object):
     def init_matplotlib(self):
         if rcParams["usematplotlib"]:
             import matplotlib
-            import matplotlib.pyplot as plt
             matplotlib.use('Agg')
+            import matplotlib.pyplot as plt
+
 
     def savefigs(self, chunk):
         if chunk['name'] is None:
