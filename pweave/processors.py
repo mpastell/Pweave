@@ -1,5 +1,6 @@
 # Processors that execute code from code chunks
 from __future__ import print_function, division, absolute_import
+import json
 
 import sys
 import os
@@ -177,6 +178,7 @@ class PwebProcessor(object):
                 try:
                     chunk['result'] = self.loadterm(chunk['content'], chunk=chunk)
                 except Exception as e:
+                    #raise e
                     sys.stdout = stdold
                     sys.stderr.write("  Exception:\n")
                     sys.stderr.write("  " + str(e) + "\n")
@@ -186,6 +188,7 @@ class PwebProcessor(object):
                 try:
                     chunk['result'] = self.loadstring(chunk['content'], chunk=chunk)
                 except Exception as e:
+                    #raise e
                     sys.stderr.write("  Exception:\n")
                     sys.stderr.write("  " + str(e) + "\n")
                     sys.stderr.write("  Error messages will be included in output document\n" % chunk)
@@ -244,7 +247,7 @@ class PwebProcessor(object):
                 fignames.append(name)
                 plt.close()
 
-        return (fignames)
+        return fignames
 
 
     def _getoldresults(self):
@@ -253,7 +256,7 @@ class PwebProcessor(object):
 
         success = self.restore()
         if not success:
-            return (False)
+            return False
 
         executed = []
 
@@ -267,7 +270,7 @@ class PwebProcessor(object):
                 executed.append(self._oldresults[i].copy())
 
         self.executed = executed
-        return (True)
+        return True
 
     #Run shell commands from code chunks
     def load_shell(self, chunk):
@@ -301,7 +304,7 @@ class PwebProcessor(object):
         result = "\n" + tmp.getvalue()
         tmp.close()
         sys.stdout = self._stdout
-        return (result)
+        return result
 
     def loadterm(self, code_string, chunk=None):
         #Write output to a StringIO object
@@ -384,14 +387,32 @@ class PwebSubProcessor(PwebProcessor):
 
 
     def getresults(self):
-
         results, errors = self.python.communicate()
         print(results.decode('utf-8'))
-        #print(errors)
-        return (copy.deepcopy(self.executed))
+        import bs4
+        doc = bs4.BeautifulSoup(results.decode("utf-8"))
 
-    def insert_start_tag(self, id=0, type="term"):
-        self.run_string("""print('<chunk id="%i" type="%s">')""" % (id, type))
+        for chunk in self.executed:
+            if chunk["type"] == "doc":
+                pass #TODO implement inline code
+            elif chunk["type"] == "code":
+                r = doc.find(id="results%i" % chunk["number"])
+                chunk["result"] = r.text
+                figs = doc.find(id="figs%i" % chunk["number"])
+                if figs:
+                    chunk["figure"] =  json.loads(figs.text)
+                else:
+                    chunk["figure"] = []
+            else:
+                pass #Other possible chunks like shell
+
+
+
+        #print(errors)
+        return copy.deepcopy(self.executed)
+
+    def insert_start_tag(self, chunk_id=0, chunk_type="term"):
+        self.run_string("""print('<chunk id="results%i" type="%s">')""" % (chunk_id, chunk_type))
 
     def insert_close_tag(self):
         self.run_string('print("</chunk>")')
@@ -400,20 +421,24 @@ class PwebSubProcessor(PwebProcessor):
     def run_string(self, code_string):
         self.python.stdin.write(("\n" + code_string + "\n").encode('utf-8'))
 
-    def loadstring(self, code, chunk=None, scope=None):
-        self.insert_start_tag(type="block", id=chunk["number"])
-        self.run_string(code + "\n")
+    def loadstring(self, code_str, chunk=None, scope=None):
+        self.insert_start_tag(chunk_type="block", chunk_id=chunk["number"])
+        code_esc = code_str.replace('"', '\\"')
+        self.run_string('__pweave_cmd__ = """%s"""' % code_esc)
+
+        cmd = 'exec(__pweave_cmd__, globals(), locals())'
+        self.run_string(cmd)
         self.insert_close_tag()
         return
 
-    def loadterm(self, code, chunk=None):
-        code = code.replace("\r\n", "\n") + "\n"
-        lines = code.lstrip().split("\n")
+    def loadterm(self, code_str, chunk=None):
+        code_str = code_str.replace("\r\n", "\n") + "\n"
+        lines = code_str.lstrip().split("\n")
 
         n = len(lines) - 1
         block = ""
 
-        self.insert_start_tag(type="term", id=chunk["number"])
+        self.insert_start_tag(chunk_type="term", chunk_id=chunk["number"])
         for i in range(n):
             if lines[i+1].startswith(' '):
                 block += '%s\n' % lines[i]
@@ -464,7 +489,7 @@ class PwebSubProcessor(PwebProcessor):
         if not os.path.isdir(figdir):
             os.mkdir(figdir)
 
-        send_dict = {"var" : {"figdir" : figdir,
+        send_dict = {"var": {"figdir" : figdir,
                               "prefix" : prefix, "chunk" : chunk,
                               "rcParams" : rcParams,
                               "formatdict" : self.formatdict,

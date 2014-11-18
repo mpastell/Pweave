@@ -32,9 +32,7 @@ for i in figs:
 
 
 if len(fignames):
-    print('<chunkfigs id="%s">%s</chunkfigs>' % (chunk["number"], json.dumps(fignames)))
-
-
+    print('<chunkfigs id="figs%s">%s</chunkfigs>' % (chunk["number"], json.dumps(fignames)))
 """
 
 
