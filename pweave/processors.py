@@ -382,6 +382,10 @@ class PwebSubProcessor(PwebProcessor):
         f = open("tmp.txt", "wt")
         self.python = Popen(["python", "-i", "-u"], stdin = PIPE, stdout = PIPE, stderr = f)
         PwebProcessor.__init__(self, parsed, source, mode, formatdict)
+        send_dict = {"var": {"rcParams" : rcParams,
+                             "cwd" : self.cwd,
+                             "formatdict" : self.formatdict}}
+        self.run_string("__pweave_data__ = %s\n" % self.var_to_string(send_dict))
 
     #TODO implement loadinline
 
@@ -423,11 +427,14 @@ class PwebSubProcessor(PwebProcessor):
 
     def loadstring(self, code_str, chunk=None, scope=None):
         self.insert_start_tag(chunk_type="block", chunk_id=chunk["number"])
-        code_esc = code_str.replace('"', '\\"')
-        self.run_string('__pweave_cmd__ = """%s"""' % code_esc)
+        send_dict = {"var": {"chunk" : chunk}}
+        self.run_string("__pweave_data__.update(%s)\n" % self.var_to_string(send_dict))
+        self.run_string('exec(__pweave_data__["chunk"]["content"], globals(), locals())')
 
-        cmd = 'exec(__pweave_cmd__, globals(), locals())'
-        self.run_string(cmd)
+        #code_esc = code_str.replace('"', '\\"')
+        #self.run_string('__pweave_cmd__ = """%s"""' % code_esc)
+        #cmd = 'exec(__pweave_cmd__, globals(), locals())'
+        #self.run_string(cmd)
         self.insert_close_tag()
         return
 
@@ -474,10 +481,10 @@ class PwebSubProcessor(PwebProcessor):
         scope = var_dict
         compiled = compile('print(%(var)s)' % var_dict, "chunk", 'exec')
         exec(compiled, scope)
-        result = "\n" + tmp.getvalue()
+        result = tmp.getvalue()
         tmp.close()
         sys.stdout = self._stdout
-        return (result)
+        return  result
 
     def savefigs(self, chunk):
         if chunk['name'] is None:
@@ -489,15 +496,8 @@ class PwebSubProcessor(PwebProcessor):
         if not os.path.isdir(figdir):
             os.mkdir(figdir)
 
-        send_dict = {"var": {"figdir" : figdir,
-                              "prefix" : prefix, "chunk" : chunk,
-                              "rcParams" : rcParams,
-                              "formatdict" : self.formatdict,
-                              "cwd" : self.cwd
-                        }
-                    }
-        send_dict_str = self.var_to_string(send_dict)
-        self.run_string("__pweave_data__ = " + send_dict_str.lstrip() + "\n")
+        send_dict = {"var": {"figdir" : figdir, "prefix" : prefix}}
+        self.run_string("__pweave_data__.update(%s)\n" % self.var_to_string(send_dict))
 
         from .import subsnippets
 
