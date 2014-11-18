@@ -377,32 +377,38 @@ class PwebProcessor(object):
 
 
 class PwebSubProcessor(PwebProcessor):
+    """Runs code in external Python shell using subprocess.Popen"""
 
     def __init__(self, parsed, source, mode, formatdict):
         f = open("tmp.txt", "wt")
         self.python = Popen(["python", "-i", "-u"], stdin = PIPE, stdout = PIPE, stderr = f)
         PwebProcessor.__init__(self, parsed, source, mode, formatdict)
-        send_dict = {"var": {"rcParams" : rcParams,
-                             "cwd" : self.cwd,
-                             "formatdict" : self.formatdict}}
-        self.run_string("__pweave_data__ = %s\n" % self.var_to_string(send_dict))
-
-    #TODO implement loadinline
-
+        self.run_string("__pweave_data__ = {}\n")
+        self.send_data({"rcParams": rcParams, "cwd": self.cwd, "formatdict": self.formatdict})
+        self.inline_count = 1 #Count inline code blocks
 
     def getresults(self):
         results, errors = self.python.communicate()
         print(results.decode('utf-8'))
         import bs4
-        doc = bs4.BeautifulSoup(results.decode("utf-8"))
+        result_soup = bs4.BeautifulSoup(results.decode("utf-8"))
 
         for chunk in self.executed:
             if chunk["type"] == "doc":
-                pass #TODO implement inline code
+                chunk_soup = bs4.BeautifulSoup(chunk["content"])
+                inline_results = chunk_soup.find_all("inlineresult")
+                if inline_results:
+                    for inline_result in inline_results:
+                        #First and last character are extra newlines
+                        inline_result.string = result_soup.find(id = inline_result["id"]).text.replace("\r", "")[1:-1]
+                        inline_result.unwrap()
+                        chunk["content"] = chunk_soup.text
+                        print("jotain")
+
             elif chunk["type"] == "code":
-                r = doc.find(id="results%i" % chunk["number"])
+                r = result_soup.find(id="results%i" % chunk["number"])
                 chunk["result"] = r.text
-                figs = doc.find(id="figs%i" % chunk["number"])
+                figs = result_soup.find(id="figs%i" % chunk["number"])
                 if figs:
                     chunk["figure"] =  json.loads(figs.text)
                 else:
@@ -410,13 +416,12 @@ class PwebSubProcessor(PwebProcessor):
             else:
                 pass #Other possible chunks like shell
 
-
-
-        #print(errors)
         return copy.deepcopy(self.executed)
 
-    def insert_start_tag(self, chunk_id=0, chunk_type="term"):
-        self.run_string("""print('<chunk id="results%i" type="%s">')""" % (chunk_id, chunk_type))
+
+    def insert_start_tag(self, chunk_id=0, chunk_type="term", id_prefix="results"):
+        self.run_string("""print('<chunk id="%s%i" type="%s">')""" % (id_prefix, chunk_id, chunk_type))
+
 
     def insert_close_tag(self):
         self.run_string('print("</chunk>")')
@@ -427,16 +432,9 @@ class PwebSubProcessor(PwebProcessor):
 
     def loadstring(self, code_str, chunk=None, scope=None):
         self.insert_start_tag(chunk_type="block", chunk_id=chunk["number"])
-        send_dict = {"var": {"chunk" : chunk}}
-        self.run_string("__pweave_data__.update(%s)\n" % self.var_to_string(send_dict))
+        self.send_data({"chunk": chunk})
         self.run_string('exec(__pweave_data__["chunk"]["content"], globals(), locals())')
-
-        #code_esc = code_str.replace('"', '\\"')
-        #self.run_string('__pweave_cmd__ = """%s"""' % code_esc)
-        #cmd = 'exec(__pweave_cmd__, globals(), locals())'
-        #self.run_string(cmd)
         self.insert_close_tag()
-        return
 
     def loadterm(self, code_str, chunk=None):
         code_str = code_str.replace("\r\n", "\n") + "\n"
@@ -468,11 +466,53 @@ class PwebSubProcessor(PwebProcessor):
 
         return '\n'.join(lines)
 
-        def init_matplotlib(self):
-            if rcParams["usematplotlib"]:
-                import matplotlib
-                import matplotlib.pyplot as plt
-                matplotlib.use('Agg')
+    def loadinline(self, content):
+        """Evaluate code from doc chunks using ERB markup"""
+        #Flags don't work with ironpython
+        splitted = re.split('(<%[\w\s\W]*?%>)', content)  #, flags = re.S)
+        #No inline code
+        if len(splitted) < 2:
+            return content
+
+        n = len(splitted)
+
+        for i in range(n):
+            elem = splitted[i]
+
+            if not elem.startswith("<%"):
+                continue
+            if elem.startswith('<%='):
+                code_str = elem.replace('<%=', '').replace('%>', '').lstrip()
+
+                result = '<inlineresult id="inlineresult%i" class="eval"></inlineresult>' % self.inline_count
+            elif elem.startswith('<%'):
+                code_str = elem.replace('<%', '').replace('%>', '').lstrip()
+                self.send_data({"inlinechunk": code_str})
+                self.run_string("exec(__pweave_data__['inlinechunk'])")
+
+                result = '<inlineresult id="inlineresult%i" class="exec"></inlineresult>' % self.inline_count
+
+            splitted[i] = result
+            self.insert_start_tag(self.inline_count, "inline", id_prefix="inlineresult")
+            self.run_string(code_str)
+            self.insert_close_tag()
+            self.inline_count +=1
+
+        return (''.join(splitted))
+
+
+
+
+
+    def send_data(self, var_dict):
+        """Send data to Python subprocess, contents of dictionary var_dict will be added to
+         `__pweave_data__` dictionary in the subprocess"""
+
+        send_data = StringIO(str(var_dict)).getvalue()
+        self.run_string("__pweave_data__.update(%s)" % send_data)
+
+
+
 
 
     def var_to_string(self, var_dict):
@@ -496,16 +536,11 @@ class PwebSubProcessor(PwebProcessor):
         if not os.path.isdir(figdir):
             os.mkdir(figdir)
 
-        send_dict = {"var": {"figdir" : figdir, "prefix" : prefix}}
-        self.run_string("__pweave_data__.update(%s)\n" % self.var_to_string(send_dict))
+        self.send_data({"figdir": figdir, "prefix": prefix})
 
         from .import subsnippets
+        self.run_string(subsnippets.savefigs)
 
-        savefigs_cmd = subsnippets.savefigs
-        self.run_string(savefigs_cmd)
-
-
-        #self.run_string(savefigs_cmd)
 
     def init_matplotlib(self):
         if rcParams["usematplotlib"]:
