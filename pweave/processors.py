@@ -20,6 +20,10 @@ try:
 except ImportError:
     import pickle
 from subprocess import Popen, PIPE
+try:
+    from subprocess import TimeoutExpired
+except ImportError:
+    pass
 from .config import *
 
 
@@ -264,14 +268,23 @@ class PwebProcessor(object):
             result = "\n"
             for line in lines:
                 command = line.split()
-                try:
-                    cmd = Popen(command, stdout=PIPE)
-                    content = cmd.communicate(timeout=10)[0].decode('utf-8').replace("\r", "") + "\n"
-                except Exception as e:
-                    content = "Pweave ERROR can't execute shell command:\n %s\n" % command
-                    content += str(e)
-                    sys.stdout.write("  Pweave ERROR can't execute shell command:\n %s\n" % line)
-                    print(str(e))
+                major, minor = sys.version_info[:2]
+                cmd = Popen(command, stdout=PIPE)
+                if major == 2 or minor < 3: # Python 2 doesn't have timeout for subprocess
+                    try:
+                        content = cmd.communicate()[0].decode('utf-8').replace("\r", "") + "\n"
+                    except Exception as e:
+                        content = "Pweave ERROR can't execute shell command:\n %s\n" % command
+                        content += str(e)
+                        sys.stdout.write("  Pweave ERROR can't execute shell command:\n %s\n" % line)
+                        print(str(e))
+                else:
+                    try:
+                        content = cmd.communicate(timeout=10)[0].decode('utf-8').replace("\r", "") + "\n"
+                    except TimeoutExpired:
+                        cmd.kill()
+                        content, errs = cmd.communicate()
+
                 if chunk['term']:
                     result += "$ %s\n" % line
                 result += content

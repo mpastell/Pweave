@@ -121,7 +121,7 @@ to pypublish command.
 `<FIR_design.mdw>`__, `<FIR_design.html>`__ 
 
 <<engine="shell">>=
-Pweave -f md2html FIR_design.mdw
+Pweave -f md2html FIR_design_noweb.mdw
 @ 
 
 
