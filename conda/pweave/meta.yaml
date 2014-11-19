@@ -21,9 +21,11 @@ build:
     # Would create an entry point called pweave that calls pweave.main()
 
     - Pweave = pweave.scripts:weave
+    - pweave = pweave.scripts:weave
     - Ptangle = pweave.scripts:tangle
+    - ptangle = pweave.scripts:tangle
     - pypublish = pweave.scripts:publish
-    - Pweave-convert = pweave.scripts:convert
+    - pweave-convert = pweave.scripts:convert
 
 
   # If this is a new build for the same version, increment the build
@@ -62,9 +64,5 @@ test:
 
 about:
   home: http://mpastell.com/pweave
-  license: GNU General Public License (GPL)
+  license: BSD
   summary: 'Scientific reports with embedded python computations with reST, LaTeX or markdown'
-
-# See
-# http://docs.continuum.io/conda/build.html for
-# more information about meta.yaml

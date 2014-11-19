@@ -12,17 +12,19 @@ from .formatters import *
 from .readers import *
 from .processors import *
 from .config import *
+import copy
 
-__version__ = '0.22.3'
+__version__ = '0.23'
 
+def weave(file, doctype='rst', informat="noweb", shell="python", shell_path=None, plot=True,
+           docmode=False, cache=False,
+           figdir='figures', cachedir='cache',
+           figformat=None, returnglobals=True, listformats=False):
 
-
-
-
-def weave(file, doctype = 'rst', informat = "noweb", shell="python", plot = True,
-           docmode = False, cache = False,
-           figdir = 'figures', cachedir = 'cache',
-           figformat = None, returnglobals = True, listformats = False):
+#def weave(file, doctype='rst', informat="noweb", shell="python", shell_path=None, plot=True,
+#           docmode=False, cache=False,
+#           figdir='figures', cachedir='cache',
+#           figformat=None, returnglobals=True, listformats=False):
     """
     Processes a Pweave document and writes output to a file
 
@@ -30,6 +32,7 @@ def weave(file, doctype = 'rst', informat = "noweb", shell="python", plot = True
     :param doctype: ``string`` output document format: call with listformats true to get list of supported formats.
     :param informat: ``string`` input format: "noweb" or "script"
     :param shell: ``string`` shell used to run code: "python" or "ipython"
+    :param shell_path: ``string`` Set the path of shell to run code, only affects "epython" shell
     :param plot: ``bool`` use matplotlib
     :param docmode: ``bool`` use documentation mode, chunk code and results will be loaded from cache and inline code will be hidden
     :param cache: ``bool`` Cache results to disk for documentation mode
@@ -46,21 +49,20 @@ def weave(file, doctype = 'rst', informat = "noweb", shell="python", plot = True
 
     assert file != "" is not None, "No input specified"
 
-
     doc = Pweb(file)
     doc.setformat(doctype)
-
     doc.setreader(readers.PwebReaders.formats[informat]['class'])
 
     rcParams["usematplotlib"] = plot
-
     rcParams["figdir"] = figdir
     rcParams["cachedir"] = cachedir
     doc.documentationmode = docmode
     rcParams["storeresults"] = cache
+    if shell_path is not None:
+        rcParams["shell_path"] = shell_path
 
     if figformat is not None:
-        doc.updateformat({'figfmt' : figformat, 'savedformats' : [figformat]})
+        doc.updateformat({'figfmt': figformat, 'savedformats': [figformat]})
 
     #Returning globals
     try:

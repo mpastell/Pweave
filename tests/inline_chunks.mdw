@@ -17,4 +17,4 @@ pweave_test = True
 print(pweave_test)
 @
 
-Now do some calculation 2+2= <%= 2+2 %> 
+Now do some calculation 2+2= <%= 2+2 %> and continue with text...
