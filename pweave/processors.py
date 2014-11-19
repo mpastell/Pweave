@@ -40,8 +40,6 @@ class PwebProcessor(object):
         self.pending_code = ""  # Used for multichunk splits
         self.init_matplotlib()
 
-
-
     def run(self):
         #Create directory for figures
         if not os.path.isdir(rcParams["figdir"]):
@@ -78,7 +76,6 @@ class PwebProcessor(object):
         pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
         f.close()
 
-
     def restore(self):
         """A method used to unpickle stuff"""
         cachedir = os.path.join(self.cwd, rcParams["cachedir"])
@@ -95,7 +92,6 @@ class PwebProcessor(object):
             return (True)
         else:
             return (False)
-
 
     def _runcode(self, chunk):
         """Execute code from a code chunk based on options"""
@@ -123,8 +119,6 @@ class PwebProcessor(object):
                 if chunk_text.strip() != "":
                     chunk["content"] += "\n" + chunk_text
 
-
-
                     #Make function to dispatch based on the type
                     #Execute a function from a list of functions
                     #Store builtin functions in a class and add them to a list
@@ -151,8 +145,6 @@ class PwebProcessor(object):
         #Settings for figures, matplotlib and sho
         #if chunk['width'] is None:
         #        chunk['width'] = self.formatdict['width']
-
-
 
         if chunk['type'] == 'code':
             sys.stdout.write("Processing chunk %(number)s named %(name)s from line %(start_line)s\n" % chunk)
@@ -201,14 +193,13 @@ class PwebProcessor(object):
         if old_content is not None:
             chunk['content'] = old_content  # The code from current chunk for display
 
-        return (chunk)
+        return chunk
 
     def init_matplotlib(self):
         if rcParams["usematplotlib"]:
             import matplotlib
             matplotlib.use('Agg')
             import matplotlib.pyplot as plt
-
 
     def savefigs(self, chunk):
         if chunk['name'] is None:
@@ -250,7 +241,6 @@ class PwebProcessor(object):
 
         return fignames
 
-
     def _getoldresults(self):
         """Get the results of previous run for documentation mode"""
         from pprint import pprint
@@ -273,8 +263,8 @@ class PwebProcessor(object):
         self.executed = executed
         return True
 
-    #Run shell commands from code chunks
     def load_shell(self, chunk):
+        """Run shell commands from code chunks"""
         if chunk['evaluate']:
             lines = chunk['content'].lstrip().splitlines()
             result = "\n"
@@ -294,7 +284,7 @@ class PwebProcessor(object):
         else:
             result = ""
 
-        return (result)
+        return result
 
 
     def loadstring(self, code, chunk=None, scope=PwebProcessorGlobals.globals):
@@ -381,8 +371,9 @@ class PwebSubProcessor(PwebProcessor):
     """Runs code in external Python shell using subprocess.Popen"""
 
     def __init__(self, parsed, source, mode, formatdict):
-        f = open("tmp.txt", "wt")
-        self.python = Popen(["python", "-i", "-u"], stdin = PIPE, stdout = PIPE, stderr = f)
+        err_file = open(os.path.dirname(os.path.abspath(source)) + "/epython_stderr.log", "wt")
+        shell = rcParams["shell_path"]
+        self.python = Popen([shell, "-i", "-u"], stdin=PIPE, stdout=PIPE, stderr=err_file)
         PwebProcessor.__init__(self, parsed, source, mode, formatdict)
         self.run_string("__pweave_data__ = {}\n")
         self.send_data({"rcParams": rcParams, "cwd": self.cwd, "formatdict": self.formatdict})
@@ -641,7 +632,7 @@ class PwebProcessors(object):
     """Lists available input formats"""
     formats = {'python': {'class': PwebProcessor, 'description': 'Python shell'},
                'ipython': {'class': PwebIPythonProcessor, 'description': 'IPython shell'},
-               'pythonsub': {'class': PwebSubProcessor, 'description': 'Python as separate process'}
+               'epython': {'class': PwebSubProcessor, 'description': 'Python as separate process'}
     }
 
     @classmethod
