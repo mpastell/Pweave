@@ -2,8 +2,7 @@ from __future__ import print_function, division, absolute_import, unicode_litera
 
 from pygments.formatters import HtmlFormatter
 
-htmltemplate =  {}
-
+htmltemplate = {}
 
 htmltemplate["header"] = ("""
 <HTML>
@@ -74,12 +73,12 @@ htmltemplate["header"] = ("""
   <BODY>
 """ % HtmlFormatter().get_style_defs())
 
-htmltemplate["footer"] = """
+htmltemplate["footer"]="""
     <HR/>
-    <div class="footer">\
-      <p>Published from <a href="%(source)s">%(source)s</a> \
-	using <a href="http://mpastell.com/pweave">Pweave</a> %(version)s\
-	on %(time)s.<p></div>
+    <div class="footer">
+      <p>Published from <a href="%(source)s">%(source)s</a>
+    using <a href="http://mpastell.com/pweave">Pweave</a> %(version)s
+    on %(time)s.<p></div>
   </BODY>
 </HTML>
 """

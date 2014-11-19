@@ -20,7 +20,7 @@ and tutorials. It can also be used to make websites together with
 Sphinx or rest2web.
 
 Features:
-----------
+---------
 
 * Supports Python 2 and Python 3. Tested with 2.7 and 3.4. as of release 0.22.
 * **Execute python code** in the chunks and **capture** input and output to a report.

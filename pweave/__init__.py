@@ -4,7 +4,6 @@
 
 from __future__ import print_function, division, unicode_literals, absolute_import
 
-
 import inspect
 from . import readers
 from .pweb import *
@@ -16,15 +15,15 @@ import copy
 
 __version__ = '0.23'
 
-def weave(file, doctype='rst', informat="noweb", shell="python", shell_path=None, plot=True,
-           docmode=False, cache=False,
-           figdir='figures', cachedir='cache',
-           figformat=None, returnglobals=True, listformats=False):
 
-#def weave(file, doctype='rst', informat="noweb", shell="python", shell_path=None, plot=True,
-#           docmode=False, cache=False,
-#           figdir='figures', cachedir='cache',
-#           figformat=None, returnglobals=True, listformats=False):
+def weave(file, doctype='rst', informat="noweb", shell="python", shell_path=None, plot=True,
+          docmode=False, cache=False,
+          figdir='figures', cachedir='cache',
+          figformat=None, returnglobals=True, listformats=False):
+    # def weave(file, doctype='rst', informat="noweb", shell="python", shell_path=None, plot=True,
+    # docmode=False, cache=False,
+    # figdir='figures', cachedir='cache',
+    # figformat=None, returnglobals=True, listformats=False):
     """
     Processes a Pweave document and writes output to a file
 
@@ -64,26 +63,28 @@ def weave(file, doctype='rst', informat="noweb", shell="python", shell_path=None
     if figformat is not None:
         doc.updateformat({'figfmt': figformat, 'savedformats': [figformat]})
 
-    #Returning globals
+    # Returning globals
     try:
         doc.weave(shell)
         if returnglobals:
-        #Get the calling scope and return results to its globals
-        #this way you can modify the weaved variables from repl
+            # Get the calling scope and return results to its globals
+            #this way you can modify the weaved variables from repl
             _returnglobals()
     except Exception as inst:
-        #Return varibles used this far if there is an exception
+        # Return varibles used this far if there is an exception
         if returnglobals:
-           _returnglobals()
+            _returnglobals()
         raise
+
 
 def _returnglobals():
     """Inspect stack to get the scope of the terminal/script calling pweave function"""
-    if hasattr(sys,'_getframe'):
+    if hasattr(sys, '_getframe'):
         caller = inspect.stack()[2][0]
         caller.f_globals.update(PwebProcessorGlobals.globals)
-    if not hasattr(sys,'_getframe'):
-        print('%s\n%s\n' % ("Can't return globals" ,"Start Ironpython with ipy -X:Frames if you wan't this to work"))
+    if not hasattr(sys, '_getframe'):
+        print('%s\n%s\n' % ("Can't return globals", "Start Ironpython with ipy -X:Frames if you wan't this to work"))
+
 
 def tangle(file):
     """Tangles a noweb file i.e. extracts code from code chunks to a .py file
@@ -93,7 +94,8 @@ def tangle(file):
     doc = Pweb(file)
     doc.tangle()
 
-def publish(file, format = "html"):
+
+def publish(file, doc_format="html"):
     """Publish python script and results to html or pdf, expects that doc
     chunks are  written in markdown.
 
@@ -102,11 +104,10 @@ def publish(file, format = "html"):
     requires pandoc and pdflatex in your path.
     """
 
-
-    if format == "html":
+    if doc_format == "html":
         pformat = "md2html"
-        rcParams["chunk"]["defaultoptions"].update({"wrap" : False})
-    elif format == "pdf":
+        rcParams["chunk"]["defaultoptions"].update({"wrap": False})
+    elif doc_format == "pdf":
         pformat = "pandoc2latex"
     else:
         print("Unknown format, exiting")
@@ -118,20 +119,22 @@ def publish(file, format = "html"):
     doc.parse()
     doc.run()
     doc.format()
-    doc.write(action = "Published")
-    if format == "pdf":
+    doc.write(action="Published")
+    if doc_format == "pdf":
         try:
-            latex = Popen(["pdflatex", doc.sink], stdin = PIPE, stdout = PIPE)
+            latex = Popen(["pdflatex", doc.sink], stdin=PIPE, stdout=PIPE)
             print("Running pdflatex...")
         except:
-           print("Can't find pdflatex, no pdf produced!")
-           return
+            print("Can't find pdflatex, no pdf produced!")
+            return
         x = latex.communicate()[0].decode('utf-8')
-        print(("\n").join(x.splitlines()[-2:]))
+        print("\n".join(x.splitlines()[-2:]))
+
 
 def spin(file):
     """Convert input file from script format to noweb format, similar to Knitr's spin."""
     doc = readers.PwebConvert(file)
+
 
 def convert(file, informat="noweb", outformat="script", pandoc_args=None,
             listformats=False):

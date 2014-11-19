@@ -3,14 +3,13 @@ from setuptools import setup
 import os
 import pweave
 
+
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-
-
 setup(name='Pweave',
-      entry_points = {
-          'console_scripts' :
+      entry_points={
+          'console_scripts':
               ['Pweave = pweave.scripts:weave',
                'pweave = pweave.scripts:weave',
                'Ptangle = pweave.scripts:tangle',

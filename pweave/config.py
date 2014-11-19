@@ -23,9 +23,9 @@ rcParams = {"figdir": "figures",
                 "complete": True,
                 "engine": "python",
                 "option_string": ""
-                    }
-                }
             }
+            }
+}
 
 
 class PwebProcessorGlobals(object):

@@ -22,17 +22,16 @@ class Pweb(object):
     :param format: ``string`` output format from supported formats. See: http://mpastell.com/pweave/formats.html
     """
 
-    #Shared across class instances
+    # Shared across class instances
     chunkformatters = []
     chunkprocessors = []
-
 
     #: Pweave cache directory
     cachedir = 'cache'
 
     _mpl_imported = False
 
-    def __init__(self, file = None, format = "tex"):
+    def __init__(self, file=None, format="tex"):
 
         #The source document
         self.source = file
@@ -45,7 +44,6 @@ class Pweb(object):
         self.isexecuted = False
         self.isformatted = False
 
-
         #: Use documentation mode?
         self.documentationmode = False
 
@@ -53,7 +51,7 @@ class Pweb(object):
 
         self.setformat(self.doctype)
 
-    def setformat(self, doctype = 'tex', Formatter = None):
+    def setformat(self, doctype='tex', Formatter=None):
         """Set output format for the document
 
         :param doctype: ``string`` output format from supported formats. See: http://mpastell.com/pweave/formats.html
@@ -70,7 +68,7 @@ class Pweb(object):
         except KeyError as e:
             raise Exception("Pweave: Unknown output format")
 
-    def setreader(self, Reader = readers.PwebReader):
+    def setreader(self, Reader=readers.PwebReader):
         """Set class reading for reading documents,
         readers can be used to implement different input markups"""
         if type(Reader) == str or type(Reader) == text_type:
@@ -80,18 +78,18 @@ class Pweb(object):
 
     def getformat(self):
         """Get current format dictionary. See: http://mpastell.com/pweave/customizing.html"""
-        return(self.formatter.formatdict)
+        return self.formatter.formatdict
 
     def updateformat(self, dict):
         """Update existing format, See: http://mpastell.com/pweave/customizing.html"""
         self.formatter.formatdict.update(dict)
 
-    def parse(self, string = None, basename = "string_input"):
+    def parse(self, string=None, basename="string_input"):
         """Parse document"""
         if string is None:
-            parser = self.Reader(file = self.source)
+            parser = self.Reader(file=self.source)
         else:
-            parser = self.Reader(string = string)
+            parser = self.Reader(string=string)
             self.source = basename
         parser.parse()
         self.parsed = parser.getparsed()
@@ -104,7 +102,6 @@ class Pweb(object):
         else:
             Runner = shell
 
-        #runner = PwebProcessor(copy.deepcopy(self.parsed), self.source, self.documentationmode, self.formatter.getformatdict())
         runner = Runner(copy.deepcopy(self.parsed), self.source, self.documentationmode, self.formatter.getformatdict())
         runner.run()
         self.executed = runner.getresults()
@@ -116,23 +113,23 @@ class Pweb(object):
             self.run()
         self.formatter.setexecuted(copy.deepcopy(self.executed))
         self.formatter.format()
-        self.formatted =  self.formatter.getformatted()
+        self.formatted = self.formatter.getformatted()
         self.isformatted = True
 
-    def write(self, action = "Pweaved"):
+    def write(self, action="Pweaved"):
         """Write formatted code to file"""
         if not self.isformatted:
             self.format()
         if self.sink is None:
             self.sink = self._basename() + '.' + self.formatter.getformatdict()['extension']
-        f = io.open(self.sink, 'wt', encoding = 'utf-8')
+        f = io.open(self.sink, 'wt', encoding='utf-8')
         data = self.formatted.replace("\r", "")
         f.write(data)
         f.close()
         sys.stdout.write('%s %s to %s\n' % (action, self.source, self.sink))
 
     def _basename(self):
-        return(re.split("\.+[^\.]+$", self.source)[0])
+        return re.split("\.+[^\.]+$", self.source)[0]
 
     def weave(self, shell="python"):
         """Weave the document, equals -> parse, run, format, write"""
@@ -158,16 +155,16 @@ class Pweb(object):
         allows overriding default options for doc and code chunks
         the function needs to return a string"""
         #Check if there are custom functions in Pweb.chunkformatter
-        f = [x for x in Pweb.chunkformatters if x.__name__==(
+        f = [x for x in Pweb.chunkformatters if x.__name__ == (
             'format%(type)schunk' % chunk)]
         if f:
-            return(f[0](chunk))
+            return f[0](chunk)
         #Check built-in formatters from pweave.formatters
-        if hasattr (formatters, ('format%(type)schunk' % chunk)):
+        if hasattr(formatters, ('format%(type)schunk' % chunk)):
             result = getattr(formatters, ('format%(type)schunk' % chunk))(chunk)
-            return(result)
+            return result
         #If formatter is not found
         if chunk['type'] == 'code' or chunk['type'] == 'doc':
-            return(chunk)
+            return chunk
         sys.stderr.write('UNKNOWN CHUNK TYPE: %s \n' % chunk['type'])
-        return(None)
+        return None
