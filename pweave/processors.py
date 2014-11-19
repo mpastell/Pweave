@@ -493,7 +493,7 @@ class PwebIPythonProcessor(PwebProcessor):
 class PwebProcessors(object):
     """Lists available input formats"""
     formats = {'python': {'class': PwebProcessor, 'description': 'Python shell'},
-               'ipython': {'class': PwebIPythonProcessor, 'description': 'IPython shell'}
+               'ipython': {'class': PwebIPythonProcessor, 'description': 'IPython shell'},
     }
 
     @classmethod
