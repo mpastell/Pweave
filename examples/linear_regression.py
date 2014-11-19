@@ -4,8 +4,7 @@
 
 #' #Requirements
 #' This en example of doing linear regression analysis using Python
-#' and [statsmodels](http://statsmodels.sourceforge.net/devel/). The
-#' example requires statsmodels > 0.5 and we'll use the new formula API
+#' and [statsmodels](http://statsmodels.sourceforge.net). We'll use the new formula API
 #' which makes fitting the models very familiar for R users.
 #' You'll also need [Numpy](http://www.numpy.org/), [Pandas](http://pandas.pydata.org/)
 #' and [matplolib](http://matplotlib.org/).
@@ -17,7 +16,14 @@
 import pandas as pd
 import numpy as np
 import statsmodels.formula.api as sm
+import statsmodels
 import matplotlib.pyplot as plt
+
+#' Statsmodels api seems to change often, check release version:
+#+ term=True
+
+statsmodels.__version__
+
 
 #' We'll use [whiteside](http://stat.ethz.ch/R-manual/R-patched/library/MASS/html/whiteside.html) dataset from R package MASS. You can read the description of the dataset from the link, but in short it contains:
 
@@ -56,7 +62,7 @@ plt.title('Before Insulation')
 #' ## A look at the residuals
 #' Histogram of normalized residuals
 
-plt.hist(fitted.norm_resid())
+plt.hist(fitted.resid_pearson)
 plt.ylabel('Count')
 plt.xlabel('Normalized residuals')
 

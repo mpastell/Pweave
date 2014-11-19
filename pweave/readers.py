@@ -56,10 +56,10 @@ class PwebReader(object):
         docN = 1
         opts = self.getoptions("")
         self.n_emptylines = 0
-        self.lineNo = 1
+        self.lineNo = 0
 
         for line in lines:
-
+            self.lineNo += 1
             (code_starts, skip) = self.codestart(line)
             if code_starts and self.state != "code":
                 self.state = "code"
@@ -87,7 +87,7 @@ class PwebReader(object):
 
             read += line + "\n"
             self.count_emptylines(line)
-            self.lineNo += 1
+
 
         # Handle the last chunk
         if self.state == "code":

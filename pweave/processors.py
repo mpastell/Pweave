@@ -43,7 +43,7 @@ class PwebProcessor(object):
             os.mkdir(rcParams["figdir"])
 
         # Documentation mode uses results from previous  executions
-        #so that compilation is fast if you only work on doc chunks
+        # so that compilation is fast if you only work on doc chunks
         if self.documentationmode:
             success = self._getoldresults()
             if success:
@@ -84,7 +84,7 @@ class PwebProcessor(object):
             f.close()
             # f = open(name, 'r')
             # self._oldresults= json.loads(f.read())
-            #print(len(self._oldresults))
+            # print(len(self._oldresults))
             #f.close()
             return True
         else:
@@ -117,7 +117,7 @@ class PwebProcessor(object):
                     chunk["content"] += "\n" + chunk_text
 
                     # Make function to dispatch based on the type
-                    #Execute a function from a list of functions
+                    # Execute a function from a list of functions
                     #Store builtin functions in a class and add them to a list
                     #when the object initialises or just use getattr?
 
@@ -131,7 +131,7 @@ class PwebProcessor(object):
             chunk['content'] = self.loadinline(chunk['content'])
             return chunk
 
-        #Engines different from python, shell commands for now
+        # Engines different from python, shell commands for now
         if chunk['engine'] == "shell":
             sys.stdout.write("Processing chunk %(number)s named %(name)s from line %(start_line)s\n" % chunk)
             chunk['result'] = self.load_shell(chunk)
@@ -266,7 +266,7 @@ class PwebProcessor(object):
                 command = line.split()
                 try:
                     cmd = Popen(command, stdout=PIPE)
-                    content = cmd.communicate()[0].decode('utf-8').replace("\r", "") + "\n"
+                    content = cmd.communicate(timeout=10)[0].decode('utf-8').replace("\r", "") + "\n"
                 except Exception as e:
                     content = "Pweave ERROR can't execute shell command:\n %s\n" % command
                     content += str(e)
@@ -393,7 +393,10 @@ class PwebSubProcessor(PwebProcessor):
 
             elif chunk["type"] == "code":
                 r = result_soup.find(id="results%i" % chunk["number"])
-                chunk["result"] = r.text
+                if r is not None:  # chunks with continue True will not generate results
+                    chunk["result"] = r.text
+                else:
+                    chunk["result"] = ""
                 figs = result_soup.find(id="figs%i" % chunk["number"])
                 if figs:
                     chunk["figure"] = json.loads(figs.text)
@@ -568,7 +571,7 @@ class PwebIPythonProcessor(PwebProcessor):
 
             tmp = StringIO()
             sys.stdout = tmp
-            #return_value = eval(compiled_statement, PwebProcessorGlobals.globals)
+            # return_value = eval(compiled_statement, PwebProcessorGlobals.globals)
             self.IPy.run_code(compiled_statement)
             result = tmp.getvalue()
             #if return_value is not None:
