@@ -41,6 +41,16 @@ Latex with pygments syntax highlighting:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 `<FIR_design_pygments.texw>`__, `<FIR_design_pygments.tex>`__ , `<FIR_design_pygments.pdf>`__ and with IPython shell `<FIR_design_pygments_ipy.pdf>`__.
+
+<<engine="shell">>=
+Pweave -f texpygments FIR_design_pygments.texw
+pdflatex var = FIR_design_pygments.tex
+Pweave -s ipython -f texpygments FIR_design_pygments.texw
+cp FIR_design_pygments.tex FIR_design_pygments_ipy.tex
+pdflatex FIR_design_pygments_ipy.tex
+@
+
+
    
 <<engine="shell">>=
 Pweave -f texpygments FIR_design_pygments.texw
