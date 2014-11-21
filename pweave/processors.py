@@ -379,14 +379,14 @@ class PwebSubProcessor(PwebProcessor):
     def __init__(self, parsed, source, mode, formatdict):
         err_file = open(os.path.dirname(os.path.abspath(source)) + "/epython_stderr.log", "wt")
         shell = rcParams["shell_path"]
-        self.python = Popen([shell, "-i", "-u"], stdin=PIPE, stdout=PIPE, stderr=err_file)
+        self.shell = Popen([shell, "-i", "-u"], stdin=PIPE, stdout=PIPE, stderr=err_file)
         PwebProcessor.__init__(self, parsed, source, mode, formatdict)
         self.run_string("__pweave_data__ = {}\n")
         self.send_data({"rcParams": rcParams, "cwd": self.cwd, "formatdict": self.formatdict})
         self.inline_count = 1  # Count inline code blocks
 
     def getresults(self):
-        results, errors = self.python.communicate()
+        results, errors = self.shell.communicate()
         print(results.decode('utf-8'))
         import bs4
 
@@ -410,15 +410,19 @@ class PwebSubProcessor(PwebProcessor):
                     chunk["result"] = r.text
                 else:
                     chunk["result"] = ""
-                figs = result_soup.find(id="figs%i" % chunk["number"])
-                if figs:
-                    chunk["figure"] = json.loads(figs.text)
-                else:
-                    chunk["figure"] = []
+                self.get_figures(chunk, result_soup)
             else:
                 pass  # Other possible chunks like shell
 
         return copy.deepcopy(self.executed)
+
+    def get_figures(self, chunk, result_soup):
+        figs = result_soup.find(id="figs%i" % chunk["number"])
+        if figs:
+            chunk["figure"] = json.loads(figs.text)
+        else:
+            chunk["figure"] = []
+
 
     def insert_start_tag(self, chunk_id=0, chunk_type="term", id_prefix="results"):
         self.run_string("""print('<chunk id="%s%i" type="%s">')""" % (id_prefix, chunk_id, chunk_type))
@@ -427,7 +431,7 @@ class PwebSubProcessor(PwebProcessor):
         self.run_string('print("</chunk>")')
 
     def run_string(self, code_string):
-        self.python.stdin.write(("\n" + code_string + "\n").encode('utf-8'))
+        self.shell.stdin.write(("\n" + code_string + "\n").encode('utf-8'))
 
     def loadstring(self, code_str, chunk=None, scope=None):
         self.insert_start_tag(chunk_type="block", chunk_id=chunk["number"])
@@ -480,24 +484,31 @@ class PwebSubProcessor(PwebProcessor):
 
             if not elem.startswith("<%"):
                 continue
+            self.insert_start_tag(self.inline_count, "inline", id_prefix="inlineresult")
             if elem.startswith('<%='):
                 code_str = elem.replace('<%=', '').replace('%>', '').lstrip()
-
+                self.run_inline_eval(code_str)
                 result = '<inlineresult id="inlineresult%i" class="eval"></inlineresult>' % self.inline_count
             elif elem.startswith('<%'):
                 code_str = elem.replace('<%', '').replace('%>', '').lstrip()
-                self.send_data({"inlinechunk": code_str})
-                self.run_string("exec(__pweave_data__['inlinechunk'])")
-
+                self.run_inline_exec(code_str)
                 result = '<inlineresult id="inlineresult%i" class="exec"></inlineresult>' % self.inline_count
 
             splitted[i] = result
-            self.insert_start_tag(self.inline_count, "inline", id_prefix="inlineresult")
-            self.run_string(code_str)
+
             self.insert_close_tag()
             self.inline_count += 1
 
         return ''.join(splitted)
+
+    def run_inline_eval(self, code_str):
+        self.run_string(code_str)
+
+    def run_inline_exec(self, code_str):
+        self.send_data({"inlinechunk": code_str})
+        self.run_string("exec(__pweave_data__['inlinechunk'])")
+
+
 
     def send_data(self, var_dict):
         """Send data to Python subprocess, contents of dictionary var_dict will be added to
@@ -536,6 +547,70 @@ class PwebSubProcessor(PwebProcessor):
     def init_matplotlib(self):
         if rcParams["usematplotlib"]:
             self.run_string("\nimport matplotlib\nmatplotlib.use('Agg')\nimport matplotlib.pyplot as plt\n")
+
+
+class OctaveProcessor(PwebSubProcessor):
+
+    def __init__(self, parsed, source, mode, formatdict):
+        err_file = open(os.path.dirname(os.path.abspath(source)) + "/epython_stderr.log", "wt")
+        shell = "octave"
+        #shell = rcParams["shell_path"]
+
+        rcParams["chunk"]["defaultoptions"].update({"fig": False})
+        self.shell = Popen([shell], stdin=PIPE, stdout=PIPE, stderr=err_file)
+        PwebProcessor.__init__(self, parsed, source, mode, formatdict)
+        #self.run_string("__pweave_data__ = {}\n")
+        #self.send_data({"rcParams": rcParams, "cwd": self.cwd, "formatdict": self.formatdict})
+        self.inline_count = 1  # Count inline code blocks
+
+    def insert_start_tag(self, chunk_id=0, chunk_type="term", id_prefix="results"):
+        self.run_string("""printf('<chunk id="%s%i" type="%s">\\n')""" % (id_prefix, chunk_id, chunk_type))
+
+    def insert_close_tag(self):
+        self.run_string('printf("</chunk>\\n")')
+
+    def run_string(self, code_string):
+        self.shell.stdin.write(("\n" + code_string + "\n").encode('utf-8'))
+
+    def loadstring(self, code_str, chunk=None, scope=None):
+        self.insert_start_tag(chunk_type="block", chunk_id=chunk["number"])
+        #self.send_data({"chunk": chunk}) #TODO Think of a way to pass options to octave
+        self.run_string(code_str)
+        self.insert_close_tag()
+
+    def loadterm(self, code_str, chunk=None):
+        self.loadstring(code_str, chunk)
+
+    def run_inline_eval(self, code_str):
+        self.run_string("disp(%s)" % code_str)
+
+    def run_inline_exec(self, code_str):
+        self.run_string(code_str)
+
+    def init_matplotlib(self):
+        pass
+
+    def savefigs(self, chunk):
+        if chunk['name'] is None:
+            prefix = self.basename + '_figure' + str(chunk['number'])
+        else:
+            prefix = self.basename + '_' + chunk['name']
+
+        figdir = os.path.join(self.cwd, rcParams["figdir"])
+        if not os.path.isdir(figdir):
+            os.mkdir(figdir)
+
+        fignames = []
+        name = rcParams["figdir"] + "/" + prefix + "_" + self.formatdict['figfmt']
+        fignames.append(name)
+        for fmt in self.formatdict['savedformats']:
+            f_name = os.path.join(self.cwd, rcParams["figdir"], prefix + "_" + fmt)
+            self.run_string("print -FHelvetica:12 -r200 -d%s %s" % (fmt[1:], f_name))
+
+        return fignames
+
+    def get_figures(self, chunk, result_soup):
+        pass
 
 
 class PwebIPythonProcessor(PwebProcessor):
@@ -630,7 +705,8 @@ class PwebProcessors(object):
     """Lists available input formats"""
     formats = {'python': {'class': PwebProcessor, 'description': 'Python shell'},
                'ipython': {'class': PwebIPythonProcessor, 'description': 'IPython shell'},
-               'epython': {'class': PwebSubProcessor, 'description': 'Python as separate process'}
+               'epython': {'class': PwebSubProcessor, 'description': 'Python as separate process'},
+               'octave': {'class': OctaveProcessor, 'description': 'Run code using Octave'}
     }
 
     @classmethod

@@ -22,7 +22,7 @@ rcParams = {"figdir": "figures",
                 "f_spines": True,
                 "complete": True,
                 "engine": "python",
-                "option_string": ""
+                "option_string": "",
             }
             }
 }

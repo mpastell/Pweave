@@ -7,6 +7,7 @@ import io
 from . import readers
 from . import formatters
 from .processors import PwebProcessors
+from .config import rcParams
 
 # unicode string type (from the six library)
 if sys.version_info[0] == 2:
@@ -31,7 +32,7 @@ class Pweb(object):
 
     _mpl_imported = False
 
-    def __init__(self, file=None, format="tex"):
+    def __init__(self, file=None, format="tex", shell="python"):
 
         #The source document
         self.source = file
@@ -44,11 +45,13 @@ class Pweb(object):
         self.isexecuted = False
         self.isformatted = False
 
+        if shell == "octave":
+            rcParams["chunk"]["defaultoptions"]["engine"] = "octave" #TODO Think of a better way to implement different shells
+
         #: Use documentation mode?
         self.documentationmode = False
 
         self.Reader = readers.PwebReader
-
         self.setformat(self.doctype)
 
     def setformat(self, doctype='tex', Formatter=None):

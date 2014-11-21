@@ -1,6 +1,7 @@
 import sys
 from subprocess import Popen, PIPE
 import textwrap
+from .config import *
 
 # Pweave output formatters
 
@@ -334,10 +335,12 @@ class PwebRstFormatter(PwebFormatter):
 
 
 class PwebPandocFormatter(PwebFormatter):
+
     def initformat(self):
-        self.formatdict = dict(codestart='~~~~{.python}',
+        #TODO Fix formatting to be done separately for each chunk
+        self.formatdict = dict(codestart='~~~~{.%s}' % rcParams["chunk"]["defaultoptions"]["engine"],
                                codeend='~~~~~~~~~~~~~\n\n',
-                               outputstart='~~~~{.python}',
+                               outputstart='~~~~{.%s}' % rcParams["chunk"]["defaultoptions"]["engine"],
                                outputend='~~~~~~~~~~~~~\n\n',
                                indent='',
                                termindent='',

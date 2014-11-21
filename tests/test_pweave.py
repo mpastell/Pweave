@@ -35,7 +35,7 @@ def test_continue_option():
 
 def test_convert():
     """Test pweave-convert"""
-    REF = 'tests/convert_test_ref.pnw'
+    REF = 'tests/convert_test_ref.Pnw'
     infile = 'tests/convert_test.txt'
     outfile = 'tests/convert_test.Pnw'
     pweave.convert(infile, informat="script", outformat="noweb")
