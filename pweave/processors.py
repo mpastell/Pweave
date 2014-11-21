@@ -387,7 +387,7 @@ class PwebSubProcessor(PwebProcessor):
 
     def getresults(self):
         results, errors = self.shell.communicate()
-        print(results.decode('utf-8'))
+        #print(results.decode('utf-8'))
         import bs4
 
         result_soup = bs4.BeautifulSoup(results.decode("utf-8"))
@@ -402,7 +402,6 @@ class PwebSubProcessor(PwebProcessor):
                         inline_result.string = result_soup.find(id=inline_result["id"]).text.replace("\r", "")[1:-1]
                         inline_result.unwrap()
                         chunk["content"] = chunk_soup.text
-                        print("jotain")
 
             elif chunk["type"] == "code":
                 r = result_soup.find(id="results%i" % chunk["number"])

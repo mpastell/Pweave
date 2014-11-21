@@ -68,6 +68,19 @@ def test_inline_chunks():
     ref = open(REF)
     assert(out.read() == ref.read())
 
+def test_octave():
+    """Test running Octave code"""
+    REF = 'tests/octave_test_ref.md'
+    infile = 'tests/octave_test.mdw'
+    outfile = 'tests/octave_test.md'
+    pweave.weave(file=infile, doctype="pandoc", shell="octave")
+
+    # Compare the outfile and the ref
+    out = open(outfile)
+    ref = open(REF)
+    assert(out.read() == ref.read())
+
+
 #Output contains date and version number, test needs to be fixed
 # def test_publish():
 #     """Test pweave.publish"""
