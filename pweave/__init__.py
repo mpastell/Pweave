@@ -48,7 +48,7 @@ def weave(file, doctype='rst', informat="noweb", shell="python", shell_path=None
 
     assert file != "" is not None, "No input specified"
 
-    doc = Pweb(file)
+    doc = Pweb(file, shell=shell)
     doc.setformat(doctype)
     doc.setreader(readers.PwebReaders.formats[informat]['class'])
 

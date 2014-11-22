@@ -45,8 +45,8 @@ class Pweb(object):
         self.isexecuted = False
         self.isformatted = False
 
-        if shell == "octave":
-            rcParams["chunk"]["defaultoptions"]["engine"] = "octave" #TODO Think of a better way to implement different shells
+        if "python" not in shell:
+            rcParams["chunk"]["defaultoptions"]["engine"] = shell
 
         #: Use documentation mode?
         self.documentationmode = False

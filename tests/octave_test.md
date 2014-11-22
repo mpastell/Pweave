@@ -25,11 +25,11 @@ Give y value 300  in hidden chunk.
 And let's verify that it worked:
 
 
-~~~~{.python}
+~~~~{.octave}
 y
 ~~~~~~~~~~~~~
 
-~~~~{.python}
+~~~~{.octave}
 y =  300
 
 ~~~~~~~~~~~~~
@@ -43,7 +43,7 @@ You can also display the result from inline chunk 2+5= 7
 and trying out plotting features:
 
 
-~~~~{.python}
+~~~~{.octave}
 x = 1:10 + randn(1, 10);
 y = linspace(0, 5, length(x));
 f = x' \ y';

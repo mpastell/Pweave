@@ -86,6 +86,14 @@ class PwebFormatter(object):
             else:
                 return ''
 
+        #Set lexers for code and output
+        if "%s" in chunk["codestart"]:
+            chunk["codestart"] = chunk["codestart"] % chunk["engine"]
+        if "%s" in chunk["outputstart"]:
+            chunk["outputstart"] = chunk["outputstart"] % chunk["engine"]
+        if "%s" in chunk["termstart"]:
+            chunk["termstart"] = chunk["termstart"] % chunk["engine"]
+
         #Code is executed
         #-------------------
         result = ""
@@ -231,11 +239,11 @@ class PwebTexFormatter(PwebFormatter):
 class PwebMintedFormatter(PwebTexFormatter):
     def initformat(self):
         self.formatdict = dict(
-            codestart=r'\begin{minted}[mathescape, fontsize=\small, xleftmargin=0.5em]{python}',
+            codestart=r'\begin{minted}[mathescape, fontsize=\small, xleftmargin=0.5em]{%s}',
             codeend='\end{minted}\n',
             outputstart=r'\begin{minted}[fontsize=\small, xleftmargin=0.5em, mathescape, frame = leftline]{text}',
             outputend='\end{minted}\n',
-            termstart=r'\begin{minted}[fontsize=\footnotesize, xleftmargin=0.5em, mathescape]{python}',
+            termstart=r'\begin{minted}[fontsize=\footnotesize, xleftmargin=0.5em, mathescape]{%s}',
             termend='\end{minted}\n',
             figfmt='.pdf',
             extension='tex',
@@ -294,12 +302,12 @@ class PwebTexPweaveFormatter(PwebTexFormatter):
 
 class PwebRstFormatter(PwebFormatter):
     def initformat(self):
-        self.formatdict = dict(codestart='.. code:: python\n',
+        self.formatdict = dict(codestart='.. code:: %s\n',
                                codeend='\n\n',
                                outputstart='.. code::\n',
                                outputend='\n\n',
                                # rst has specific format (doctest) for term blocks
-                               termstart='.. code:: python\n',
+                               termstart='.. code:: %s\n',
                                termend='\n\n',
                                termindent='    ',
                                indent='    ',
@@ -338,9 +346,9 @@ class PwebPandocFormatter(PwebFormatter):
 
     def initformat(self):
         #TODO Fix formatting to be done separately for each chunk
-        self.formatdict = dict(codestart='~~~~{.%s}' % rcParams["chunk"]["defaultoptions"]["engine"],
+        self.formatdict = dict(codestart='~~~~{.%s}',
                                codeend='~~~~~~~~~~~~~\n\n',
-                               outputstart='~~~~{.%s}' % rcParams["chunk"]["defaultoptions"]["engine"],
+                               outputstart='~~~~{.%s}',
                                outputend='~~~~~~~~~~~~~\n\n',
                                indent='',
                                termindent='',
@@ -359,7 +367,7 @@ class PwebPandocFormatter(PwebFormatter):
         for fig in fignames:
             figstring += '![](%s)\\\n' % fig
 
-        if chunk['caption']:
+        if chunk['caption'] and len(fignames) > 0:
             result += '![%s](%s)\n' % (caption, fignames[0])
         else:
             result += figstring
@@ -404,12 +412,12 @@ class PwebLeanpubFormatter(PwebFormatter):
 
 class PwebSphinxFormatter(PwebRstFormatter):
     def initformat(self):
-        self.formatdict = dict(codestart='.. code-block:: python\n',
+        self.formatdict = dict(codestart='.. code-block:: %s\n',
                                codeend='\n\n',
                                outputstart='::\n',
                                outputend='\n\n',
                                # rst has specific format (doctest) for term blocks
-                               termstart='.. code-block:: python\n',
+                               termstart='.. code-block:: %s\n',
                                termend='\n\n',
                                termindent='    ',
                                indent='    ',

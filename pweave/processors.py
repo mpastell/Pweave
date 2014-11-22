@@ -6,6 +6,7 @@ import re
 import os
 import io
 from subprocess import Popen, PIPE
+import shutil
 
 
 try:
@@ -357,14 +358,17 @@ class PwebProcessor(object):
                 continue
             if elem.startswith('<%='):
                 code_str = elem.replace('<%=', '').replace('%>', '').lstrip()
-                result = self.loadstring('print(%s),' % code_str).replace('\n', '', 1)
+                result = self.loadstring(self.add_echo(code_str)).strip()
                 splitted[i] = result
                 continue
             if elem.startswith('<%'):
                 code_str = elem.replace('<%', '').replace('%>', '').lstrip()
-                result = self.loadstring('%s' % code_str).replace('\n', '', 1)
+                result = self.loadstring(code_str).strip()
                 splitted[i] = result
         return ''.join(splitted)
+
+    def add_echo(self, code_str):
+        return 'print(%s),' % code_str
 
     def _hideinline(self, chunk):
         """Hide inline code in doc mode"""
@@ -507,8 +511,6 @@ class PwebSubProcessor(PwebProcessor):
         self.send_data({"inlinechunk": code_str})
         self.run_string("exec(__pweave_data__['inlinechunk'])")
 
-
-
     def send_data(self, var_dict):
         """Send data to Python subprocess, contents of dictionary var_dict will be added to
          `__pweave_data__` dictionary in the subprocess"""
@@ -611,6 +613,62 @@ class OctaveProcessor(PwebSubProcessor):
     def get_figures(self, chunk, result_soup):
         pass
 
+class MatlabProcessor(PwebProcessor):
+    """Runs Matlab code usinng python-matlab-brigde"""
+
+    def __init__(self, parsed, source, mode, formatdict):
+        from pymatbridge import Matlab
+        self.matlab = Matlab()
+        self.matlab.start()
+        PwebProcessor.__init__(self, parsed, source, mode, formatdict)
+
+    def getresults(self):
+        self.matlab.stop()
+        return copy.copy(self.executed)
+
+    def loadstring(self, code_string, chunk=None, scope=PwebProcessorGlobals.globals):
+        result = self.matlab.run_code(code_string)
+        if chunk is not None and len(result["content"]["figures"]) > 0:
+            chunk["matlab_figures"] = result["content"]["figures"]
+        return result["content"]["stdout"]
+
+    def loadterm(self, code_string, chunk=None):
+        result = self.loadstring(code_string)
+        return result
+
+    def init_matplotlib(self):
+        pass
+
+    def savefigs(self, chunk):
+        if not "matlab_figures" in chunk:
+            return []
+
+
+        if chunk['name'] is None:
+            prefix = self.basename + '_figure' + str(chunk['number'])
+        else:
+            prefix = self.basename + '_' + chunk['name']
+
+        figdir = os.path.join(self.cwd, rcParams["figdir"])
+        if not os.path.isdir(figdir):
+            os.mkdir(figdir)
+
+        fignames = []
+
+        i = 1
+        for fig in reversed(chunk["matlab_figures"]): #python-matlab-bridge returns figures in reverse order
+            #TODO See if its possible to get diffent figure formats. Either fork python-matlab-bridge or use imagemagick
+            name = figdir + "/" + prefix + "_" + str(i) + ".png" #self.formatdict['figfmt']
+            shutil.copyfile(fig, name)
+            fignames.append(name)
+            i += 1
+
+        return fignames
+
+    def add_echo(self, code_str):
+        """Format inline chunk code to show results"""
+        return "disp(%s)" % code_str
+
 
 class PwebIPythonProcessor(PwebProcessor):
     """Runs code from parsed Pweave documents"""
@@ -705,7 +763,8 @@ class PwebProcessors(object):
     formats = {'python': {'class': PwebProcessor, 'description': 'Python shell'},
                'ipython': {'class': PwebIPythonProcessor, 'description': 'IPython shell'},
                'epython': {'class': PwebSubProcessor, 'description': 'Python as separate process'},
-               'octave': {'class': OctaveProcessor, 'description': 'Run code using Octave'}
+               'octave': {'class': OctaveProcessor, 'description': 'Run code using Octave'},
+               'matlab': {'class': MatlabProcessor, 'description': 'Run code using Matlab'}
     }
 
     @classmethod

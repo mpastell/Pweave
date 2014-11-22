@@ -6,17 +6,19 @@ feature is implemented in development branch in will be most likely
 released with Pweave 0.23.
 
 **Features:**
+
 * Inline code and noweb style chunks
 * Capturing of figures
 
 **Limitations**
-* Output formatting is currently only implemented for pandoc
+
 * No terminal chunks
 * Only one figure/chunk
 
 Install Pweave from Github <> and try it out using:
 
     pweave -s octave -f pandoc octave_sample.mdw
+    pweave -s matlab -f pandoc octave_sample.mdw
 
 
 You can use inline code chunks like in Python documents: 
@@ -38,13 +40,16 @@ You can also display the result from inline chunk 2+5=<%=2+5%>
 and trying out plotting features:
 
 <<fig=True>>=
-x = 1:10 + randn(1, 10);
+x = (0:25) + randn(1, 26);
 y = linspace(0, 5, length(x));
-f = x' \ y'
+a = x' \ y'
 plot(x , y, 'o')
 hold on
-plot(x, f*x, 'r')
+plot(x, a*x, 'r')
 hold off
+figure()
+hist(a*x - y)
+title('Histogram of residuals')
 @
 
 

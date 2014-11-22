@@ -19,5 +19,4 @@ True
 
 
 
-Now do some calculation 2+2= 4
- and continue with text...
+Now do some calculation 2+2= 4 and continue with text...
