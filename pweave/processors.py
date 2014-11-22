@@ -271,7 +271,7 @@ class PwebProcessor(object):
                 command = line.split()
                 major, minor = sys.version_info[:2]
                 cmd = Popen(command, stdout=PIPE)
-                if major == 2 or minor < 3: # Python 2 doesn't have timeout for subprocess
+                if major == 2 or minor < 3:  # Python 2 doesn't have timeout for subprocess
                     try:
                         content = cmd.communicate()[0].decode('utf-8').replace("\r", "") + "\n"
                     except Exception as e:
