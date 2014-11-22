@@ -36,3 +36,11 @@ if len(fignames):
 """
 
 
+savefigs_winston = """
+_pweave_figs = copy(Winston._display.fig_order)
+for i =_pweave_figs
+    figure(i)
+    savefig(%s)
+    closefig(i)
+end
+"""
