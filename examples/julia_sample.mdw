@@ -1,0 +1,50 @@
+
+# Using Julia with Pweave
+
+This a sample [Julia](http://julialang.org/) noweb document that can be
+executed using Pweave. Output from code chunks and Winston plots will be included in the
+weaved document. 
+
+You can execute this document (<https://github.com/mpastell/Pweave/tree/master/examples/julia_sample.mdw>) 
+using:
+
+    pweave -f pandoc -s julia julia_sample.mdw
+
+**Known limitations:**
+
+Most of the features and chunk options from Pweave Python (see
+<http://mpastell.com/pweave/>) version work with Julia too, but there
+are a few known limitations:
+
+* Terminal chunks are not implemented.
+* You can only capture one plot/chunk and you need Fig=True for those
+  chunks (it is false by default).
+
+
+<<>>=
+using Winston
+@ 
+
+You can use hidden inline chunks: <% p=20 %>. Or include the results
+from inline expressions: 2+3=<%=2+3%>. 
+
+Variable p was declared in a hidden inline chunk:
+
+<<>>=
+println(p)
+@ 
+
+Here is a captured plot:
+
+<<fig=True>>=
+t = linspace(0, 2*pi, 100)
+plot(t, sinc(t))
+xlabel("x")
+ylabel("sinc(x)")
+@
+
+You can also include a plot with caption and hide the code:
+
+<<fig=True, echo=False, caption="Random walk.">>=
+plot(cumsum(randn(1000, 1)))
+@ 

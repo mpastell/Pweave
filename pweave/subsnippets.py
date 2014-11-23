@@ -36,11 +36,13 @@ if len(fignames):
 """
 
 
+#This only saves empty plots, maybe an issue with Winston?
 savefigs_winston = """
 _pweave_figs = copy(Winston._display.fig_order)
 for i =_pweave_figs
     figure(i)
-    savefig(%s)
-    closefig(i)
+    savefig(string("%s", i, "%s"), width=%i, height=%i)
+    println(i)
+    closefig()
 end
 """

@@ -391,7 +391,7 @@ class PwebSubProcessor(PwebProcessor):
 
     def getresults(self):
         results, errors = self.shell.communicate()
-        print(results.decode('utf-8'))
+        #print(results.decode('utf-8'))
         import bs4
 
         result_soup = bs4.BeautifulSoup(results.decode("utf-8"))
@@ -685,7 +685,7 @@ class JuliaProcessor(PwebSubProcessor):
     def run(self):
         PwebProcessor.run(self)
         shell = "julia"
-        io.open(self.cwd + "/test.jl", "wt", encoding="utf-8").write(self.julia_code)
+        #io.open(self.cwd + "/test.jl", "wt", encoding="utf-8").write(self.julia_code)
         err_file = open(os.path.dirname(os.path.abspath(self.source)) + "/julia_stderr.log", "wt")
         self.shell = Popen([shell, "-e", self.julia_code], stdin=PIPE, stdout=PIPE, stderr=err_file)
 
@@ -727,16 +727,12 @@ class JuliaProcessor(PwebSubProcessor):
         if not os.path.isdir(figdir):
             os.mkdir(figdir)
 
-        fignames = []
-        name = rcParams["figdir"] + "/" + prefix + "_" + self.formatdict['figfmt']
-        fignames.append(name)
         w, h = chunk["f_size"]
+        f_name = os.path.join(self.cwd, rcParams["figdir"], prefix + "_" + "1" + self.formatdict['figfmt'])
 
-        for fmt in self.formatdict['savedformats']:
-            f_name = os.path.join(self.cwd, rcParams["figdir"], prefix + "_" + fmt)
-            self.julia_code += '\nsavefig("%s", width=%i, height=%i)\n' % (f_name, w*200, h*200)
+        self.julia_code += '\nsavefig("%s", width=%i, height=%i)\n' % (f_name, w*200, h*100)
 
-        return fignames
+        return [f_name]
 
     def get_figures(self, chunk, result_soup):
         pass
@@ -837,7 +833,8 @@ class PwebProcessors(object):
                'ipython': {'class': PwebIPythonProcessor, 'description': 'IPython shell'},
                'epython': {'class': PwebSubProcessor, 'description': 'Python as separate process'},
                'octave': {'class': OctaveProcessor, 'description': 'Run code using Octave'},
-               'matlab': {'class': MatlabProcessor, 'description': 'Run code using Matlab'}
+               'matlab': {'class': MatlabProcessor, 'description': 'Run code using Matlab'},
+               'julia': {'class': JuliaProcessor, 'description': 'Run code using Julia'}
     }
 
     @classmethod
