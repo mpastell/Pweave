@@ -50,7 +50,8 @@ def weave(file, doctype='rst', informat="noweb", shell="python", shell_path=None
 
     doc = Pweb(file, shell=shell)
     doc.setformat(doctype)
-    doc.setreader(readers.PwebReaders.formats[informat]['class'])
+    #doc.setreader(readers.PwebReaders.formats[informat]['class'])
+    doc.setreader(informat)
 
     rcParams["usematplotlib"] = plot
     rcParams["figdir"] = figdir
@@ -157,3 +158,8 @@ def convert(file, informat="noweb", outformat="script", pandoc_args=None,
     doc = Converter(file, informat, outformat, pandoc_args)
     doc.convert()
     doc.write()
+
+def listformats():
+    """List output formats"""
+    PwebFormats.listformats()
+
