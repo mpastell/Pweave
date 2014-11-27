@@ -398,7 +398,3 @@ class PwebConverters(object):
     def listformats(cls):
         print("\nPweave supported conversion formats:\n")
         print(cls.getformats())
-
-
-
-

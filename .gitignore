@@ -2,6 +2,8 @@
 
 .idea/
 temp/
+htmlcov/
+conda/pweave/.binstar.yml
 
 *.png
 *.pdf
