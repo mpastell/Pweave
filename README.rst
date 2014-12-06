@@ -1,3 +1,6 @@
+.. image:: https://travis-ci.org/mpastell/Pweave.svg?branch=master
+    :target: https://travis-ci.org/mpastell/Pweave
+
 About Pweave
 -------------
 
