@@ -1,0 +1,6 @@
+markdown
+scipy
+numpy
+matplotlib
+pygments
+ipython
