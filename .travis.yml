@@ -26,7 +26,8 @@ install:
 
 # Reciper from http://dan-blanchard.roughdraft.io/7045057-quicker-travis-builds-that-rely-on-numpy-and-scipy-using-miniconda
 # Run test
-#script:
+script:
+  - nosetests
 #  - nosetests --with-cov --cov Pweave --cov-config .coveragerc --logging-level=INFO
 
 # Calculate coverage
