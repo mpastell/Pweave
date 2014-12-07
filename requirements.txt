@@ -1,3 +1,4 @@
 markdown
 pygments
 ipython
+beautifulsoup4
