@@ -11,7 +11,7 @@ def test_pandoc():
     calling figure() will output a matplotlib figure reference. This
     has a memory pointer that changes every time.
     """
-    REF = 'tests/simple_REF.md'
+    REF = 'tests/simple_ref.md'
     infile = 'tests/simple.mdw'
     outfile = 'tests/simple.md'
     pweave.weave(file=infile, doctype="pandoc")
