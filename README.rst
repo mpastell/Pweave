@@ -60,6 +60,12 @@ Pweave documentation can be found from the website http://mpastell.com/pweave
 Release Notes
 -------------
 
+**Release 0.23**
+
+* New Python option ``--shell`` eshell, runs python as subprocess and is not affected by Pweave imports.
+* Pweave can now be used to weave Octave, Matlab and Julia code using ``--shell`` option. Have a look at the examples on Github.
+
+
 **Release 0.22.2**
 
 * Figure and cache directory are now handled relative to weaved document
