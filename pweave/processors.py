@@ -305,87 +305,9 @@ class PwebProcessor(object):
         return result
 
     def loadterm(self, code_string, chunk=None):
-        return self._ecRunBlock(code_string.lstrip().splitlines())
-
-    # _ec prefix used for methods/variables that shall go to an external class
-    def _ecRunBlock(self, block):
-        # Write output to a StringIO object
-        # loop trough the code lines
-        self._ecStatement = []
-        self._oneLiner = True
-        self._ecChunkResult = "\n"
-        self._ecCompiled = None
-
-        for line in block:
-            self._ecProcessLine(line)
-
-        if self._ecIsStatementValid():
-            self._ecExecuteCurrentStatement()
-
-        return self._ecChunkResult
-
-    def _ecProcessLine(self, line):
-        self._ecEnterLine(line)
-        if self._ecIsStatementValid():
-            if self._ecIsOneLiner() or line == '':
-                self._ecExecuteCurrentStatement()
-
-        else:
-            if self._ecWasLastStatementValid():
-                self._ecExecuteLastStatement()
-                self._ecForgetLastStatement()
-                if self._ecIsStatementValid():
-                    self._ecExecuteCurrentStatement()
-
-    def _ecForgetLastStatement(self):
-        self._ecStatement = self._ecStatement[-1:]
-        self._CompileStatement()
-
-    def _ecEnterLine(self, line):
-        self._ecStatement.append(line + '\n')
-        self._ecCompileStatement()
-
-    def _ecCompileStatement(self):
-        self._ecLastStatement = self._ecCompiled
-        self._ecCompiled = code.compile_command(''.join(self._ecStatement),
-                                                self.source)
-
-    def _ecIsStatementValid(self):
-        return self._ecCompiled != None
-
-    def _ecWasLastStatementValid(self):
-        return self._ecLastStatement is not None
-
-    def _ecIsOneLiner(self):
-        return len(self._ecStatement) == 1
-
-    def _ecExecuteCurrentStatement(self):
-        self._ecTypeStatement(self._ecStatement)
-        self._ecStatement = []
-        self._ecRunStatement(self._ecCompiled)
-        self._ecCompiled = None
-
-    def _ecExecuteLastStatement(self):
-        self._ecTypeStatement(self._ecStatement[:-1])
-        self._ecRunStatement(self._ecLastStatement)
-
-    def _ecRunStatement(self, statement):
-        out = StringIO()
-        sys.stdout = out
-        return_value = eval(statement, PwebProcessorGlobals.globals)
-        result = out.getvalue()
-        if return_value is not None:
-            result += repr(return_value)
-        out.close()
-        if result:
-            self._ecChunkResult += result
-
-        sys.stdout = self._stdout
-
-    def _ecTypeStatement(self, statement):
-        self._ecChunkResult += '>>> {}'.format(statement[0])
-        for line in statement[1:]:
-            self._ecChunkResult += '... {}'.format(line)
+        with self.ConsoleEmulator(self.source) as emulator:
+            emulator.runBlock(code_string.lstrip().splitlines())
+            return emulator.getOutput()
 
     def loadinline(self, content):
         """Evaluate code from doc chunks using ERB markup"""
@@ -420,6 +342,91 @@ class PwebProcessor(object):
         splitted = re.split('<%[\w\s\W]*?%>', chunk['content'])
         chunk['content'] = ''.join(splitted)
         return chunk
+
+    class ConsoleEmulator(object):
+        def __enter__(self):
+            self.__stdout = sys.stdout
+            return self
+
+        def __exit__(self, type, value, traceback):
+            sys.stdout = self.__stdout
+
+        def __init__(self, source):
+            self.__statement = []
+            self.__chunkResult = "\n"
+            self.__compiled = None
+            self.__source = source
+
+        def runBlock(self, block):
+            for line in block:
+                self._processLine(line)
+
+            if self._isStatementValid():
+                self._executeCurrentStatement()
+
+        def getOutput(self):
+            return self.__chunkResult
+
+        def _processLine(self, line):
+            self._enterLine(line)
+            if self._isStatementValid():
+                if self._isOneLineStatement() or line == '':
+                    self._executeCurrentStatement()
+
+            else:
+                if self._isPreviousStatementValid():
+                    self._executePreviousStatement()
+                    self._forgetLastStatement()
+                    if self._isStatementValid():
+                        self._executeCurrentStatement()
+
+        def _forgetLastStatement(self):
+            self.__statement = self.__statement[-1:]
+            self._compileStatement()
+
+        def _enterLine(self, line):
+            self.__statement.append(line + '\n')
+            self._compileStatement()
+
+        def _compileStatement(self):
+            self.__previousStatement = self.__compiled
+            self.__compiled = code.compile_command(''.join(self.__statement),
+                                                   self.__source)
+
+        def _isStatementValid(self):
+            return self.__compiled != None
+
+        def _isPreviousStatementValid(self):
+            return self.__previousStatement is not None
+
+        def _isOneLineStatement(self):
+            return len(self.__statement) == 1
+
+        def _executeCurrentStatement(self):
+            self._typeStatement(self.__statement)
+            self.__statement = []
+            self._runStatement(self.__compiled)
+            self.__compiled = None
+
+        def _executePreviousStatement(self):
+            self._typeStatement(self.__statement[:-1])
+            self._runStatement(self.__previousStatement)
+
+        def _runStatement(self, statement):
+            out = StringIO()
+            sys.stdout = out
+            return_value = eval(statement, PwebProcessorGlobals.globals)
+            result = out.getvalue()
+            if return_value is not None:
+                result += repr(return_value)
+            out.close()
+            if result:
+                self.__chunkResult += result
+
+        def _typeStatement(self, statement):
+            self.__chunkResult += '>>> {}'.format(statement[0])
+            for line in statement[1:]:
+                self.__chunkResult += '... {}'.format(line)
 
 
 class PwebSubProcessor(PwebProcessor):
