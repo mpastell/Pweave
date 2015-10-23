@@ -362,7 +362,11 @@ class PwebProcessor(object):
                 self._processLine(line)
 
             if self._isStatementValid():
-                self._executeCurrentStatement()
+                if self._isOneLineStatement():
+                    self._executeCurrentStatement()
+
+                else:
+                    self._processLine('')
 
         def getOutput(self):
             return self.__chunkResult
@@ -375,6 +379,7 @@ class PwebProcessor(object):
 
             else:
                 if self._isPreviousStatementValid():
+                    # self.__statement.append('\n') <- possible fix for console-incompatible code?
                     self._executePreviousStatement()
                     self._forgetLastStatement()
                     if self._isStatementValid():
