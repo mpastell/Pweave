@@ -305,42 +305,87 @@ class PwebProcessor(object):
         return result
 
     def loadterm(self, code_string, chunk=None):
+        return self._ecRunBlock(code_string.lstrip().splitlines())
+
+    # _ec prefix used for methods/variables that shall go to an external class
+    def _ecRunBlock(self, block):
         # Write output to a StringIO object
         # loop trough the code lines
-        statement = ""
-        prompt = ">>>"
-        chunkresult = "\n"
-        block = code_string.lstrip().splitlines()
+        self._ecStatement = []
+        self._oneLiner = True
+        self._ecChunkResult = "\n"
+        self._ecCompiled = None
 
-        for x in block:
-            chunkresult += ('%s %s\n' % (prompt, x))
-            statement += x + '\n'
+        for line in block:
+            self._ecProcessLine(line)
 
-            # Is the statement complete?
-            compiled_statement = code.compile_command(statement, self.source)
-            if compiled_statement is None:
-                # No, not yet.
-                prompt = "..."
-                continue
+        if self._ecIsStatementValid():
+            self._ecExecuteCurrentStatement()
 
-            if prompt != '>>>':
-                chunkresult += ('%s \n' % prompt)
+        return self._ecChunkResult
 
-            tmp = StringIO()
-            sys.stdout = tmp
-            return_value = eval(compiled_statement, PwebProcessorGlobals.globals)
-            result = tmp.getvalue()
-            if return_value is not None:
-                result += repr(return_value)
-            tmp.close()
-            sys.stdout = self._stdout
-            if result:
-                chunkresult += result
+    def _ecProcessLine(self, line):
+        self._ecEnterLine(line)
+        if self._ecIsStatementValid():
+            if self._ecIsOneLiner() or line == '':
+                self._ecExecuteCurrentStatement()
 
-            statement = ""
-            prompt = ">>>"
+        else:
+            if self._ecWasLastStatementValid():
+                self._ecExecuteLastStatement()
+                self._ecForgetLastStatement()
+                if self._ecIsStatementValid():
+                    self._ecExecuteCurrentStatement()
 
-        return chunkresult
+    def _ecForgetLastStatement(self):
+        self._ecStatement = self._ecStatement[-1:]
+        self._CompileStatement()
+
+    def _ecEnterLine(self, line):
+        self._ecStatement.append(line + '\n')
+        self._ecCompileStatement()
+
+    def _ecCompileStatement(self):
+        self._ecLastStatement = self._ecCompiled
+        self._ecCompiled = code.compile_command(''.join(self._ecStatement),
+                                                self.source)
+
+    def _ecIsStatementValid(self):
+        return self._ecCompiled != None
+
+    def _ecWasLastStatementValid(self):
+        return self._ecLastStatement is not None
+
+    def _ecIsOneLiner(self):
+        return len(self._ecStatement) == 1
+
+    def _ecExecuteCurrentStatement(self):
+        self._ecTypeStatement(self._ecStatement)
+        self._ecStatement = []
+        self._ecRunStatement(self._ecCompiled)
+        self._ecCompiled = None
+
+    def _ecExecuteLastStatement(self):
+        self._ecTypeStatement(self._ecStatement[:-1])
+        self._ecRunStatement(self._ecLastStatement)
+
+    def _ecRunStatement(self, statement):
+        out = StringIO()
+        sys.stdout = out
+        return_value = eval(statement, PwebProcessorGlobals.globals)
+        result = out.getvalue()
+        if return_value is not None:
+            result += repr(return_value)
+        out.close()
+        if result:
+            self._ecChunkResult += result
+
+        sys.stdout = self._stdout
+
+    def _ecTypeStatement(self, statement):
+        self._ecChunkResult += '>>> {}'.format(statement[0])
+        for line in statement[1:]:
+            self._ecChunkResult += '... {}'.format(line)
 
     def loadinline(self, content):
         """Evaluate code from doc chunks using ERB markup"""
