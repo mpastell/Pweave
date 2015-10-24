@@ -32,7 +32,7 @@ class LoadTermTest(unittest.TestCase):
 
     def testNestedOneLinerThenOneLiner(self):
         self.checkOutput('for i in range(3):\n    print(i)\n\nprint(1 + 2)\n',
-                         '\n>>> for i in range(3):\n...     print(i)\n... \n0\n1\n2\n>>> print(1 + 2)\n 3\n')
+                         '\n>>> for i in range(3):\n...     print(i)\n... \n0\n1\n2\n>>> print(1 + 2)\n3\n')
 
     def checkOutput(self, inStr, outStr):
         self.assertEqual(outStr,
