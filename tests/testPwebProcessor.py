@@ -42,9 +42,13 @@ class LoadTermTest(unittest.TestCase):
       self.checkOutput('for i in range(2):\n    print(i)\n    if i > 0:\n        print("one")',
                        '\n>>> for i in range(2):\n...     print(i)\n...     if i > 0:\n...         print("one")\n... \n0\n1\none\n')
 
-    def testFailingCode(self):
+    def testRuntimeFailingCode(self):
       self.checkOutput('for i in range(3):\n    print(i)\n    if i == 1:\n        raise Exception("foo")\n\nprint(42)\n',
                        '\n>>> for i in range(3):\n...     print(i)\n...     if i == 1:\n...         raise Exception("foo")\n... \n0\n1\nTraceback (most recent call last):\n  File "DummySource", line 4, in <module>\nException: foo\n>>> print(42)\n42\n')
+
+    def testFailingCode(self):
+      self.checkOutput('def f\nprint(42)\n',
+                       '\n>>> def f\n  File "DummySource", line 1\n    def f\n        ^\nSyntaxError: invalid syntax\n>>> print(42)\n42\n')
 
     def checkOutput(self, inStr, outStr):
         self.assertEqual(outStr,

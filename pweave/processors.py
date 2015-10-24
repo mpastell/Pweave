@@ -390,8 +390,12 @@ class PwebProcessor(object):
             return '>>>' if self._isOneLineStatement() else '...'
 
         def _compileStatement(self):
-            return code.compile_command('\n'.join(self.__statement) + '\n',
-                                        self.__source)
+            try:
+                return code.compile_command('\n'.join(self.__statement) + '\n',
+                                            self.__source)
+            except SyntaxError:
+                self.__chunkResult += self._getExceptionTraceback(3)
+                self._forgetStatement()
 
         def _isOneLineStatement(self):
             return len(self.__statement) == 1
@@ -410,7 +414,8 @@ class PwebProcessor(object):
                 returnValue = eval(statement,
                                    self.__globals)
             except Exception:
-                out.write(self._getExceptionTraceback())
+                out.write('Traceback (most recent call last):\n' \
+                          + self._getExceptionTraceback(1))
 
             else:
                 if returnValue is not None:
@@ -419,11 +424,11 @@ class PwebProcessor(object):
             self.__chunkResult += out.getvalue()
             out.close()
 
-        def _getExceptionTraceback(self):
+        def _getExceptionTraceback(self, skip):
             eType, eValue, eTb = sys.exc_info()
-            return ''.join(['Traceback (most recent call last):\n'] \
-                 + traceback.format_list(traceback.extract_tb(eTb)[1:]) \
-                 + traceback.format_exception_only(eType, eValue))
+            result = traceback.format_list(traceback.extract_tb(eTb)[skip:]) \
+                   + traceback.format_exception_only(eType, eValue)
+            return ''.join(result)
 
 class PwebSubProcessor(PwebProcessor):
     """Runs code in external Python shell using subprocess.Popen"""
