@@ -34,6 +34,10 @@ class LoadTermTest(unittest.TestCase):
         self.checkOutput('for i in range(3):\n    print(i)\n\nprint(1 + 2)\n',
                          '\n>>> for i in range(3):\n...     print(i)\n... \n0\n1\n2\n>>> print(1 + 2)\n3\n')
 
+    def testNestedBlockValidBeforeDobleNestedBlockAppears(self):
+      self.checkOutput('for i in range(2):\n    print(i)\n    if i > 0:\n        print("one")',
+                       '\n>>> for i in range(2):\n...     print(i)\n...     if i > 0:\n...         print("one")\n... \n0\n1\none\n')
+
     def checkOutput(self, inStr, outStr):
         self.assertEqual(outStr,
                          self.processor.loadterm(inStr))

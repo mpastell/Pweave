@@ -306,7 +306,7 @@ class PwebProcessor(object):
 
     def loadterm(self, code_string, chunk=None):
         with self.ConsoleEmulator(self.source) as emulator:
-            emulator.runBlock(code_string.lstrip().splitlines())
+            emulator.typeLines(code_string.lstrip().splitlines())
             return emulator.getOutput()
 
     def loadinline(self, content):
@@ -357,67 +357,48 @@ class PwebProcessor(object):
             self.__compiled = None
             self.__source = source
 
-        def runBlock(self, block):
+        def typeLines(self, block):
             for line in block:
-                self._processLine(line)
+                self.typeLine(line)
 
-            if self._isStatementValid():
-                if self._isOneLineStatement():
-                    self._executeCurrentStatement()
-
-                else:
-                    self._processLine('')
+            if self._isStatementWaiting():
+                self.typeLine('')
 
         def getOutput(self):
             return self.__chunkResult
 
-        def _processLine(self, line):
+        def typeLine(self, line):
             self._enterLine(line)
-            if self._isStatementValid():
-                if self._isOneLineStatement() or line == '':
-                    self._executeCurrentStatement()
+            if line == '' or self._isOneLineStatement():
+                self._tryToProcessStatement()
 
-            else:
-                if self._isPreviousStatementValid():
-                    # self.__statement.append('\n') <- possible fix for console-incompatible code?
-                    self._executePreviousStatement()
-                    self._forgetLastStatement()
-                    if self._isStatementValid():
-                        self._executeCurrentStatement()
-
-        def _forgetLastStatement(self):
-            self.__statement = self.__statement[-1:]
-            self._compileStatement()
+        def _tryToProcessStatement(self):
+            compiled = self._compileStatement()
+            if compiled is not None:
+                self._executeStatement(compiled)
+                self._forgetStatement()
 
         def _enterLine(self, line):
             self.__statement.append(line + '\n')
-            self._compileStatement()
+            self.__chunkResult += '{} {}\n'.format(self._getPrompt(), line)
+
+        def _getPrompt(self):
+            return '>>>' if self._isOneLineStatement() else '...'
 
         def _compileStatement(self):
-            self.__previousStatement = self.__compiled
-            self.__compiled = code.compile_command(''.join(self.__statement),
-                                                   self.__source)
-
-        def _isStatementValid(self):
-            return self.__compiled != None
-
-        def _isPreviousStatementValid(self):
-            return self.__previousStatement is not None
+            return code.compile_command('\n'.join(self.__statement) + '\n',
+                                        self.__source)
 
         def _isOneLineStatement(self):
             return len(self.__statement) == 1
 
-        def _executeCurrentStatement(self):
-            self._typeStatement(self.__statement)
+        def _isStatementWaiting(self):
+            return self.__statement != []
+
+        def _forgetStatement(self):
             self.__statement = []
-            self._runStatement(self.__compiled)
-            self.__compiled = None
 
-        def _executePreviousStatement(self):
-            self._typeStatement(self.__statement[:-1])
-            self._runStatement(self.__previousStatement)
-
-        def _runStatement(self, statement):
+        def _executeStatement(self, statement):
             out = StringIO()
             sys.stdout = out
             return_value = eval(statement, PwebProcessorGlobals.globals)
@@ -427,12 +408,6 @@ class PwebProcessor(object):
             out.close()
             if result:
                 self.__chunkResult += result
-
-        def _typeStatement(self, statement):
-            self.__chunkResult += '>>> {}'.format(statement[0])
-            for line in statement[1:]:
-                self.__chunkResult += '... {}'.format(line)
-
 
 class PwebSubProcessor(PwebProcessor):
     """Runs code in external Python shell using subprocess.Popen"""
