@@ -22,6 +22,10 @@ class LoadTermTest(unittest.TestCase):
         self.checkOutput('a = 42\nprint(a)\n',
                          '\n>>> a = 42\n>>> print(a)\n42\n')
 
+    def testOutput(self):
+        self.checkOutput('2 + 2 * 2 ** 2\n',
+                         '\n>>> 2 + 2 * 2 ** 2\n10\n')
+
     def testNestedOneLineBody(self):
         self.checkOutput('for i in range(3):\n    print(i)\n',
                          '\n>>> for i in range(3):\n...     print(i)\n... \n0\n1\n2\n')

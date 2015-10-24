@@ -306,7 +306,14 @@ class PwebProcessor(object):
         return result
 
     def loadterm(self, code_string, chunk=None):
-        with self.ConsoleEmulator(self.source) as emulator:
+        if chunk is None:
+            source = self.source
+
+        else:
+            source = '< chunk {} named {} in {} >'.format(chunk.get('number'),
+                                                          chunk.get('name'),
+                                                          self.source)
+        with self.ConsoleEmulator(source) as emulator:
             emulator.typeLines(code_string.lstrip().splitlines())
             return emulator.getOutput()
 
