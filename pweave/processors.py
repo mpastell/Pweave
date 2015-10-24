@@ -373,13 +373,13 @@ class PwebProcessor(object):
 
         def typeLine(self, line):
             self._enterLine(line)
-            if line == '' or self._isOneLineStatement():
-                self._tryToProcessStatement()
-
-        def _tryToProcessStatement(self):
             compiled = self._compileStatement()
-            if compiled is not None:
-                self._executeStatement(compiled)
+            if line == '' or self._isOneLineStatement():
+                self._tryToProcessStatement(compiled)
+
+        def _tryToProcessStatement(self, compiledStatement):
+            if compiledStatement is not None:
+                self._executeStatement(compiledStatement)
                 self._forgetStatement()
 
         def _enterLine(self, line):

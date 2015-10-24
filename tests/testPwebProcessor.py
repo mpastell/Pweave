@@ -46,9 +46,14 @@ class LoadTermTest(unittest.TestCase):
       self.checkOutput('for i in range(3):\n    print(i)\n    if i == 1:\n        raise Exception("foo")\n\nprint(42)\n',
                        '\n>>> for i in range(3):\n...     print(i)\n...     if i == 1:\n...         raise Exception("foo")\n... \n0\n1\nTraceback (most recent call last):\n  File "DummySource", line 4, in <module>\nException: foo\n>>> print(42)\n42\n')
 
-    def testFailingCode(self):
+    def testSyntaxError(self):
       self.checkOutput('def f\nprint(42)\n',
                        '\n>>> def f\n  File "DummySource", line 1\n    def f\n        ^\nSyntaxError: invalid syntax\n>>> print(42)\n42\n')
+
+    def testIndentationError(self):
+      self.checkOutput('def f():\n    print(12)\n  print(8)\nprint(42)\n',
+                       '\n>>> def f():\n...     print(12)\n...   print(8)\n  File "DummySource", line 3\n    print(8)\n           ^\nIndentationError: unindent does not match any outer indentation level\n>>> print(42)\n42\n')
+
 
     def checkOutput(self, inStr, outStr):
         self.assertEqual(outStr,
