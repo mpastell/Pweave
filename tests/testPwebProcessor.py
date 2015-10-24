@@ -30,6 +30,10 @@ class LoadTermTest(unittest.TestCase):
         self.checkOutput('for i in range(3):\n    print(i)\n    print(i**2)\n',
                          '\n>>> for i in range(3):\n...     print(i)\n...     print(i**2)\n... \n0\n0\n1\n1\n2\n4\n')
 
+    def testNestedTwoLineBodySeparatedWithWhiteSpaceLine(self):
+      self.checkOutput('for i in range(3):\n    print(i)\n \n    print(i**2)\n',
+                       '\n>>> for i in range(3):\n...     print(i)\n...  \n...     print(i**2)\n... \n0\n0\n1\n1\n2\n4\n')
+
     def testNestedOneLinerThenOneLiner(self):
         self.checkOutput('for i in range(3):\n    print(i)\n\nprint(1 + 2)\n',
                          '\n>>> for i in range(3):\n...     print(i)\n... \n0\n1\n2\n>>> print(1 + 2)\n3\n')
@@ -37,6 +41,10 @@ class LoadTermTest(unittest.TestCase):
     def testNestedBlockValidBeforeDobleNestedBlockAppears(self):
       self.checkOutput('for i in range(2):\n    print(i)\n    if i > 0:\n        print("one")',
                        '\n>>> for i in range(2):\n...     print(i)\n...     if i > 0:\n...         print("one")\n... \n0\n1\none\n')
+
+    def testFailingCode(self):
+      self.checkOutput('for i in range(3):\n    print(i)\n    if i == 1:\n        raise Exception("foo")\n\nprint(42)\n',
+                       '\n>>> for i in range(3):\n...     print(i)\n...     if i == 1:\n...         raise Exception("foo")\n... \n0\n1\nTraceback (most recent call last):\n  File "DummySource", line 4, in <module>\nException: foo\n>>> print(42)\n42\n')
 
     def checkOutput(self, inStr, outStr):
         self.assertEqual(outStr,

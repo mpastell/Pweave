@@ -7,6 +7,7 @@ import os
 import io
 from subprocess import Popen, PIPE
 import shutil
+import traceback
 
 
 try:
@@ -346,16 +347,19 @@ class PwebProcessor(object):
     class ConsoleEmulator(object):
         def __enter__(self):
             self.__stdout = sys.stdout
+            self.__stderr = sys.stderr
             return self
 
         def __exit__(self, type, value, traceback):
             sys.stdout = self.__stdout
+            sys.stderr = self.__stderr
 
         def __init__(self, source):
             self.__statement = []
             self.__chunkResult = "\n"
             self.__compiled = None
             self.__source = source
+            self.__globals = PwebProcessorGlobals.globals
 
         def typeLines(self, block):
             for line in block:
@@ -379,7 +383,7 @@ class PwebProcessor(object):
                 self._forgetStatement()
 
         def _enterLine(self, line):
-            self.__statement.append(line + '\n')
+            self.__statement.append(line)
             self.__chunkResult += '{} {}\n'.format(self._getPrompt(), line)
 
         def _getPrompt(self):
@@ -401,13 +405,25 @@ class PwebProcessor(object):
         def _executeStatement(self, statement):
             out = StringIO()
             sys.stdout = out
-            return_value = eval(statement, PwebProcessorGlobals.globals)
-            result = out.getvalue()
-            if return_value is not None:
-                result += repr(return_value)
+            sys.stderr = out
+            try:
+                returnValue = eval(statement,
+                                   self.__globals)
+            except Exception:
+                out.write(self._getExceptionTraceback())
+
+            else:
+                if returnValue is not None:
+                    out.write(repr(returnValue))
+
+            self.__chunkResult += out.getvalue()
             out.close()
-            if result:
-                self.__chunkResult += result
+
+        def _getExceptionTraceback(self):
+            eType, eValue, eTb = sys.exc_info()
+            return ''.join(['Traceback (most recent call last):\n'] \
+                 + traceback.format_list(traceback.extract_tb(eTb)[1:]) \
+                 + traceback.format_exception_only(eType, eValue))
 
 class PwebSubProcessor(PwebProcessor):
     """Runs code in external Python shell using subprocess.Popen"""
