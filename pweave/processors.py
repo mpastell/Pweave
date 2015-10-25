@@ -313,7 +313,7 @@ class PwebProcessor(object):
             source = '< chunk {} named {} in {} >'.format(chunk.get('number'),
                                                           chunk.get('name'),
                                                           self.source)
-        with self.ConsoleEmulator(source) as emulator:
+        with self.ProtectStdStreamsFor(self.ConsoleEmulator(source)) as emulator:
             emulator.typeLines(code_string.lstrip().splitlines())
             return emulator.getOutput()
 
@@ -351,18 +351,24 @@ class PwebProcessor(object):
         chunk['content'] = ''.join(splitted)
         return chunk
 
-    class ConsoleEmulator(object):
+    class ProtectStdStreamsFor(object):
+        def __init__(self, obj):
+            self.__obj = obj
+
         def __enter__(self):
             self.__stdout = sys.stdout
             self.__stderr = sys.stderr
+            self.__stdin = sys.stdin
             self.__displayhook = sys.displayhook
-            return self
+            return self.__obj
 
         def __exit__(self, type, value, traceback):
             sys.stdout = self.__stdout
             sys.stderr = self.__stderr
+            sys.stdin = self.__stdin
             sys.displayhook = self.__displayhook
 
+    class ConsoleEmulator(object):
         def __init__(self, source):
             self.__statement = []
             self.__chunkResult = "\n"
