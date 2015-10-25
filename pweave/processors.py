@@ -313,9 +313,9 @@ class PwebProcessor(object):
             source = '< chunk {} named {} in {} >'.format(chunk.get('number'),
                                                           chunk.get('name'),
                                                           self.source)
-        with self.ProtectStdStreamsFor(self.ConsoleEmulator(source)) as emulator:
-            emulator.typeLines(code_string.lstrip().splitlines())
-            return emulator.getOutput()
+        emulator = self.ConsoleEmulator(source)
+        emulator.typeLines(code_string.lstrip().splitlines())
+        return emulator.getOutput()
 
     def loadinline(self, content):
         """Evaluate code from doc chunks using ERB markup"""
@@ -351,22 +351,6 @@ class PwebProcessor(object):
         chunk['content'] = ''.join(splitted)
         return chunk
 
-    class ProtectStdStreamsFor(object):
-        def __init__(self, obj):
-            self.__obj = obj
-
-        def __enter__(self):
-            self.__stdout = sys.stdout
-            self.__stderr = sys.stderr
-            self.__stdin = sys.stdin
-            self.__displayhook = sys.displayhook
-            return self.__obj
-
-        def __exit__(self, type, value, traceback):
-            sys.stdout = self.__stdout
-            sys.stderr = self.__stderr
-            sys.stdin = self.__stdin
-            sys.displayhook = self.__displayhook
 
     class ConsoleEmulator(object):
         def __init__(self, source):
@@ -430,7 +414,7 @@ class PwebProcessor(object):
         def _forgetStatement(self):
             self.__statement = []
 
-        def _executeStatement(self, statement):
+        def _getRedirectedOutput(self):
             out = StringIO()
             sys.stdout = out
             sys.stderr = out
@@ -439,12 +423,17 @@ class PwebProcessor(object):
                     out.write('{!r}\n'.format(obj))
 
             sys.displayhook = displayhook
-            try:
-                eval(statement,  self.__globals)
+            return out
 
-            except Exception:
-                out.write('Traceback (most recent call last):\n' \
-                          + self._getExceptionTraceback())
+        def _executeStatement(self, statement):
+            with ProtectStdStreams():
+                out = self._getRedirectedOutput()
+                try:
+                    eval(statement,  self.__globals)
+
+                except Exception:
+                    out.write('Traceback (most recent call last):\n' \
+                              + self._getExceptionTraceback())
 
             self.__chunkResult += out.getvalue()
             out.close()
@@ -947,3 +936,19 @@ class PwebProcessors(object):
 
 
 
+class ProtectStdStreams(object):
+    def __init__(self, obj=None):
+        self.__obj = obj
+
+    def __enter__(self):
+        self.__stdout = sys.stdout
+        self.__stderr = sys.stderr
+        self.__stdin = sys.stdin
+        self.__displayhook = sys.displayhook
+        return self.__obj
+
+    def __exit__(self, type, value, traceback):
+        sys.stdout = self.__stdout
+        sys.stderr = self.__stderr
+        sys.stdin = self.__stdin
+        sys.displayhook = self.__displayhook
