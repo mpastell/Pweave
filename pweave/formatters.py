@@ -572,6 +572,7 @@ class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
         \\setlength{\parindent}{0pt}
         \\setlength{\parskip}{1.2ex}
         %s
+        \\begin{document}
         """) % (self.source, x.get_style_defs())
         self.footer = r"\end{document}"
 
