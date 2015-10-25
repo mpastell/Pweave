@@ -355,11 +355,13 @@ class PwebProcessor(object):
         def __enter__(self):
             self.__stdout = sys.stdout
             self.__stderr = sys.stderr
+            self.__displayhook = sys.displayhook
             return self
 
         def __exit__(self, type, value, traceback):
             sys.stdout = self.__stdout
             sys.stderr = self.__stderr
+            sys.displayhook = self.__displayhook
 
         def __init__(self, source):
             self.__statement = []
@@ -367,6 +369,15 @@ class PwebProcessor(object):
             self.__compiled = None
             self.__source = source
             self.__globals = PwebProcessorGlobals.globals
+            self._probeTracebackSkip()
+
+        def _probeTracebackSkip(self):
+            try:
+                eval(code.compile_command('raise Exception\n'))
+
+            except Exception:
+                _, _, eTb = sys.exc_info()
+                self.__skipTb = len(traceback.extract_tb(eTb)) - 1
 
         def typeLines(self, block):
             for line in block:
@@ -401,7 +412,7 @@ class PwebProcessor(object):
                 return code.compile_command('\n'.join(self.__statement) + '\n',
                                             self.__source)
             except SyntaxError:
-                self.__chunkResult += self._getExceptionTraceback(3)
+                self.__chunkResult += self._getSyntaxError()
                 self._forgetStatement()
 
         def _isOneLineStatement(self):
@@ -417,22 +428,28 @@ class PwebProcessor(object):
             out = StringIO()
             sys.stdout = out
             sys.stderr = out
+            def displayhook(obj=None):
+                if obj is not None:
+                    out.write('{!r}\n'.format(obj))
+
+            sys.displayhook = displayhook
             try:
-                returnValue = eval(statement,
-                                   self.__globals)
+                eval(statement,  self.__globals)
+
             except Exception:
                 out.write('Traceback (most recent call last):\n' \
-                          + self._getExceptionTraceback(1))
-
-            else:
-                if returnValue is not None:
-                    out.write(repr(returnValue))
+                          + self._getExceptionTraceback())
 
             self.__chunkResult += out.getvalue()
             out.close()
 
-        def _getExceptionTraceback(self, skip):
+        def _getSyntaxError(self):
+            eType, eValue, _ = sys.exc_info()
+            return ''.join(traceback.format_exception_only(eType, eValue))
+
+        def _getExceptionTraceback(self):
             eType, eValue, eTb = sys.exc_info()
+            skip = self.__skipTb
             result = traceback.format_list(traceback.extract_tb(eTb)[skip:]) \
                    + traceback.format_exception_only(eType, eValue)
             return ''.join(result)
