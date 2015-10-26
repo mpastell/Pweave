@@ -7,6 +7,7 @@ import os
 import io
 from subprocess import Popen, PIPE
 import shutil
+import traceback
 
 
 try:
@@ -305,9 +306,16 @@ class PwebProcessor(object):
         return result
 
     def loadterm(self, code_string, chunk=None):
-        with self.ConsoleEmulator(self.source) as emulator:
-            emulator.runBlock(code_string.lstrip().splitlines())
-            return emulator.getOutput()
+        if chunk is None:
+            source = self.source
+
+        else:
+            source = '< chunk {} named {} in {} >'.format(chunk.get('number'),
+                                                          chunk.get('name'),
+                                                          self.source)
+        emulator = self.ConsoleEmulator(source)
+        emulator.typeLines(code_string.lstrip().splitlines())
+        return emulator.getOutput()
 
     def loadinline(self, content):
         """Evaluate code from doc chunks using ERB markup"""
@@ -343,96 +351,103 @@ class PwebProcessor(object):
         chunk['content'] = ''.join(splitted)
         return chunk
 
+
     class ConsoleEmulator(object):
-        def __enter__(self):
-            self.__stdout = sys.stdout
-            return self
-
-        def __exit__(self, type, value, traceback):
-            sys.stdout = self.__stdout
-
         def __init__(self, source):
             self.__statement = []
             self.__chunkResult = "\n"
             self.__compiled = None
             self.__source = source
+            self.__globals = PwebProcessorGlobals.globals
+            self._probeTracebackSkip()
 
-        def runBlock(self, block):
+        def _probeTracebackSkip(self):
+            try:
+                eval(code.compile_command('raise Exception\n'))
+
+            except Exception:
+                _, _, eTb = sys.exc_info()
+                self.__skipTb = len(traceback.extract_tb(eTb)) - 1
+
+        def typeLines(self, block):
             for line in block:
-                self._processLine(line)
+                self.typeLine(line)
 
-            if self._isStatementValid():
-                if self._isOneLineStatement():
-                    self._executeCurrentStatement()
-
-                else:
-                    self._processLine('')
+            if self._isStatementWaiting():
+                self.typeLine('')
 
         def getOutput(self):
             return self.__chunkResult
 
-        def _processLine(self, line):
+        def typeLine(self, line):
             self._enterLine(line)
-            if self._isStatementValid():
-                if self._isOneLineStatement() or line == '':
-                    self._executeCurrentStatement()
+            compiled = self._compileStatement()
+            if line == '' or self._isOneLineStatement():
+                self._tryToProcessStatement(compiled)
 
-            else:
-                if self._isPreviousStatementValid():
-                    # self.__statement.append('\n') <- possible fix for console-incompatible code?
-                    self._executePreviousStatement()
-                    self._forgetLastStatement()
-                    if self._isStatementValid():
-                        self._executeCurrentStatement()
-
-        def _forgetLastStatement(self):
-            self.__statement = self.__statement[-1:]
-            self._compileStatement()
+        def _tryToProcessStatement(self, compiledStatement):
+            if compiledStatement is not None:
+                self._executeStatement(compiledStatement)
+                self._forgetStatement()
 
         def _enterLine(self, line):
-            self.__statement.append(line + '\n')
-            self._compileStatement()
+            self.__statement.append(line)
+            self.__chunkResult += '{} {}\n'.format(self._getPrompt(), line)
+
+        def _getPrompt(self):
+            return '>>>' if self._isOneLineStatement() else '...'
 
         def _compileStatement(self):
-            self.__previousStatement = self.__compiled
-            self.__compiled = code.compile_command(''.join(self.__statement),
-                                                   self.__source)
-
-        def _isStatementValid(self):
-            return self.__compiled != None
-
-        def _isPreviousStatementValid(self):
-            return self.__previousStatement is not None
+            try:
+                return code.compile_command('\n'.join(self.__statement) + '\n',
+                                            self.__source)
+            except SyntaxError:
+                self.__chunkResult += self._getSyntaxError()
+                self._forgetStatement()
 
         def _isOneLineStatement(self):
             return len(self.__statement) == 1
 
-        def _executeCurrentStatement(self):
-            self._typeStatement(self.__statement)
+        def _isStatementWaiting(self):
+            return self.__statement != []
+
+        def _forgetStatement(self):
             self.__statement = []
-            self._runStatement(self.__compiled)
-            self.__compiled = None
 
-        def _executePreviousStatement(self):
-            self._typeStatement(self.__statement[:-1])
-            self._runStatement(self.__previousStatement)
-
-        def _runStatement(self, statement):
+        def _getRedirectedOutput(self):
             out = StringIO()
             sys.stdout = out
-            return_value = eval(statement, PwebProcessorGlobals.globals)
-            result = out.getvalue()
-            if return_value is not None:
-                result += repr(return_value)
+            sys.stderr = out
+            def displayhook(obj=None):
+                if obj is not None:
+                    out.write('{!r}\n'.format(obj))
+
+            sys.displayhook = displayhook
+            return out
+
+        def _executeStatement(self, statement):
+            with ProtectStdStreams():
+                out = self._getRedirectedOutput()
+                try:
+                    eval(statement,  self.__globals)
+
+                except Exception:
+                    out.write('Traceback (most recent call last):\n' \
+                              + self._getExceptionTraceback())
+
+            self.__chunkResult += out.getvalue()
             out.close()
-            if result:
-                self.__chunkResult += result
 
-        def _typeStatement(self, statement):
-            self.__chunkResult += '>>> {}'.format(statement[0])
-            for line in statement[1:]:
-                self.__chunkResult += '... {}'.format(line)
+        def _getSyntaxError(self):
+            eType, eValue, _ = sys.exc_info()
+            return ''.join(traceback.format_exception_only(eType, eValue))
 
+        def _getExceptionTraceback(self):
+            eType, eValue, eTb = sys.exc_info()
+            skip = self.__skipTb
+            result = traceback.format_list(traceback.extract_tb(eTb)[skip:]) \
+                   + traceback.format_exception_only(eType, eValue)
+            return ''.join(result)
 
 class PwebSubProcessor(PwebProcessor):
     """Runs code in external Python shell using subprocess.Popen"""
@@ -921,3 +936,19 @@ class PwebProcessors(object):
 
 
 
+class ProtectStdStreams(object):
+    def __init__(self, obj=None):
+        self.__obj = obj
+
+    def __enter__(self):
+        self.__stdout = sys.stdout
+        self.__stderr = sys.stderr
+        self.__stdin = sys.stdin
+        self.__displayhook = sys.displayhook
+        return self.__obj
+
+    def __exit__(self, type, value, traceback):
+        sys.stdout = self.__stdout
+        sys.stderr = self.__stderr
+        sys.stdin = self.__stdin
+        sys.displayhook = self.__displayhook
