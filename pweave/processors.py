@@ -313,7 +313,8 @@ class PwebProcessor(object):
             source = '< chunk {} named {} in {} >'.format(chunk.get('number'),
                                                           chunk.get('name'),
                                                           self.source)
-        emulator = self.ConsoleEmulator(source)
+        emulator = self.ConsoleEmulator(PwebProcessorGlobals.globals,
+                                        source)
         emulator.typeLines(code_string.lstrip().splitlines())
         return emulator.getOutput()
 
@@ -353,12 +354,12 @@ class PwebProcessor(object):
 
 
     class ConsoleEmulator(object):
-        def __init__(self, source):
+        def __init__(self, globals, source):
             self.__statement = []
             self.__chunkResult = "\n"
             self.__compiled = None
             self.__source = source
-            self.__globals = PwebProcessorGlobals.globals
+            self.__globals = globals
             self._probeTracebackSkip()
 
         def _probeTracebackSkip(self):
