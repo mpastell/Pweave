@@ -571,6 +571,9 @@ class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
         }
         \\setlength{\parindent}{0pt}
         \\setlength{\parskip}{1.2ex}
+        %% fix for pandoc 1.14
+        \\providecommand{\\tightlist}{%%
+            \\setlength{\\itemsep}{0pt}\\setlength{\\parskip}{0pt}}
         %s
         """) % (self.source, x.get_style_defs())
         self.footer = r"\end{document}"
