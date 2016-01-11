@@ -59,14 +59,13 @@ def test_inline_chunks():
     assertSameContent(REF, outfile)
 
 
-def test_octave():
-    """Test running Octave code"""
-    REF = 'tests/octave_test_ref.md'
-    infile = 'tests/octave_test.mdw'
-    outfile = 'tests/octave_test.md'
-    pweave.weave(file=infile, doctype="pandoc", shell="octave")
-
-    assertSameContent(REF, outfile)
+#def test_octave():
+#    """Test running Octave code"""
+#    REF = 'tests/octave_test_ref.md'
+#    infile = 'tests/octave_test.mdw'
+#    outfile = 'tests/octave_test.md'
+#    pweave.weave(file=infile, doctype="pandoc", shell="octave")
+#    assertSameContent(REF, outfile)
 
 
 def test_term():
