@@ -60,6 +60,12 @@ Pweave documentation can be found from the website http://mpastell.com/pweave
 Release Notes
 -------------
 
+**Release 0.23.1**
+
+* Fix for multiline indented blocks by @abukaj
+* Pypublish missing \begin{document} problem fixed by @abukaj
+* Fix for pandoc 1.14 - \tightlist not defined @trsaunders
+
 **Release 0.23**
 
 * New Python option ``--shell`` eshell, runs python as subprocess and is not affected by Pweave imports.
