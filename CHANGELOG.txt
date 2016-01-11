@@ -1,3 +1,12 @@
+In 0.23.1
+* Fix for multiline indented blocks by @abukaj
+* Pypublish missing \begin{document} problem fixed by @abukaj
+* Fix for pandoc 1.14 - \tightlist not defined @trsaunders
+
+In 0.23
+* New Python option --shell eshell, runs python as subprocess and is not affected by Pweave imports.
+* Pweave can now be used to weave Octave, Matlab and Julia code using --shell option. Have a look at the examples on Github
+
 In 0.22.2
 * Figure and cache directory are now handled relative to weaved document
 * Fixed caching
