@@ -7,6 +7,7 @@ import os
 import io
 from subprocess import Popen, PIPE
 import shutil
+import traceback
 
 
 try:
@@ -305,42 +306,17 @@ class PwebProcessor(object):
         return result
 
     def loadterm(self, code_string, chunk=None):
-        # Write output to a StringIO object
-        # loop trough the code lines
-        statement = ""
-        prompt = ">>>"
-        chunkresult = "\n"
-        block = code_string.lstrip().splitlines()
+        if chunk is None:
+            source = self.source
 
-        for x in block:
-            chunkresult += ('%s %s\n' % (prompt, x))
-            statement += x + '\n'
-
-            # Is the statement complete?
-            compiled_statement = code.compile_command(statement, self.source)
-            if compiled_statement is None:
-                # No, not yet.
-                prompt = "..."
-                continue
-
-            if prompt != '>>>':
-                chunkresult += ('%s \n' % prompt)
-
-            tmp = StringIO()
-            sys.stdout = tmp
-            return_value = eval(compiled_statement, PwebProcessorGlobals.globals)
-            result = tmp.getvalue()
-            if return_value is not None:
-                result += repr(return_value)
-            tmp.close()
-            sys.stdout = self._stdout
-            if result:
-                chunkresult += result
-
-            statement = ""
-            prompt = ">>>"
-
-        return chunkresult
+        else:
+            source = '< chunk {} named {} in {} >'.format(chunk.get('number'),
+                                                          chunk.get('name'),
+                                                          self.source)
+        emulator = self.ConsoleEmulator(PwebProcessorGlobals.globals,
+                                        source)
+        emulator.typeLines(code_string.lstrip().splitlines())
+        return emulator.getOutput()
 
     def loadinline(self, content):
         """Evaluate code from doc chunks using ERB markup"""
@@ -376,6 +352,103 @@ class PwebProcessor(object):
         chunk['content'] = ''.join(splitted)
         return chunk
 
+
+    class ConsoleEmulator(object):
+        def __init__(self, globals, source):
+            self.__statement = []
+            self.__chunkResult = "\n"
+            self.__compiled = None
+            self.__source = source
+            self.__globals = globals
+            self._probeTracebackSkip()
+
+        def _probeTracebackSkip(self):
+            try:
+                eval(code.compile_command('raise Exception\n'))
+
+            except Exception:
+                _, _, eTb = sys.exc_info()
+                self.__skipTb = len(traceback.extract_tb(eTb)) - 1
+
+        def typeLines(self, block):
+            for line in block:
+                self.typeLine(line)
+
+            if self._isStatementWaiting():
+                self.typeLine('')
+
+        def getOutput(self):
+            return self.__chunkResult
+
+        def typeLine(self, line):
+            self._enterLine(line)
+            compiled = self._compileStatement()
+            if line == '' or self._isOneLineStatement():
+                self._tryToProcessStatement(compiled)
+
+        def _tryToProcessStatement(self, compiledStatement):
+            if compiledStatement is not None:
+                self._executeStatement(compiledStatement)
+                self._forgetStatement()
+
+        def _enterLine(self, line):
+            self.__statement.append(line)
+            self.__chunkResult += '{} {}\n'.format(self._getPrompt(), line)
+
+        def _getPrompt(self):
+            return '>>>' if self._isOneLineStatement() else '...'
+
+        def _compileStatement(self):
+            try:
+                return code.compile_command('\n'.join(self.__statement) + '\n',
+                                            self.__source)
+            except SyntaxError:
+                self.__chunkResult += self._getSyntaxError()
+                self._forgetStatement()
+
+        def _isOneLineStatement(self):
+            return len(self.__statement) == 1
+
+        def _isStatementWaiting(self):
+            return self.__statement != []
+
+        def _forgetStatement(self):
+            self.__statement = []
+
+        def _getRedirectedOutput(self):
+            out = StringIO()
+            sys.stdout = out
+            sys.stderr = out
+            def displayhook(obj=None):
+                if obj is not None:
+                    out.write('{!r}\n'.format(obj))
+
+            sys.displayhook = displayhook
+            return out
+
+        def _executeStatement(self, statement):
+            with ProtectStdStreams():
+                out = self._getRedirectedOutput()
+                try:
+                    eval(statement,  self.__globals)
+
+                except Exception:
+                    out.write('Traceback (most recent call last):\n' \
+                              + self._getExceptionTraceback())
+
+            self.__chunkResult += out.getvalue()
+            out.close()
+
+        def _getSyntaxError(self):
+            eType, eValue, _ = sys.exc_info()
+            return ''.join(traceback.format_exception_only(eType, eValue))
+
+        def _getExceptionTraceback(self):
+            eType, eValue, eTb = sys.exc_info()
+            skip = self.__skipTb
+            result = traceback.format_list(traceback.extract_tb(eTb)[skip:]) \
+                   + traceback.format_exception_only(eType, eValue)
+            return ''.join(result)
 
 class PwebSubProcessor(PwebProcessor):
     """Runs code in external Python shell using subprocess.Popen"""
@@ -864,3 +937,19 @@ class PwebProcessors(object):
 
 
 
+class ProtectStdStreams(object):
+    def __init__(self, obj=None):
+        self.__obj = obj
+
+    def __enter__(self):
+        self.__stdout = sys.stdout
+        self.__stderr = sys.stderr
+        self.__stdin = sys.stdin
+        self.__displayhook = sys.displayhook
+        return self.__obj
+
+    def __exit__(self, type, value, traceback):
+        sys.stdout = self.__stdout
+        sys.stderr = self.__stderr
+        sys.stdin = self.__stdin
+        sys.displayhook = self.__displayhook
