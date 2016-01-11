@@ -26,7 +26,7 @@ setup(name='Pweave',
       license='LICENSE.txt',
       long_description = read('README.rst'),
       classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Stable',
         'Topic :: Text Processing :: Markup',
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering',
@@ -37,4 +37,3 @@ setup(name='Pweave',
         ]
 
 )
-
