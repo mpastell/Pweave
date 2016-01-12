@@ -342,9 +342,15 @@ class PwebNBConvert(object):
         print("Output written to " + file)
 
     def convert(self):
-        from IPython.nbformat.v3 import (new_notebook, new_worksheet,
-                                         new_code_cell, new_text_cell,
-                                         writes_json)
+        try:
+            from IPython.nbformat.v3 import (new_notebook, new_worksheet,
+                                             new_code_cell, new_text_cell,
+                                             writes_json)
+
+        except ImportError: # The `IPython.nbformat` package has been deprecated
+            from nbformat.v3 import (new_notebook, new_worksheet,
+                                     new_code_cell, new_text_cell,
+                                     writes_json)
 
         ws = new_worksheet()
 

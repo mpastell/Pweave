@@ -1,4 +1,3 @@
-
 # Using Octave with Pweave
 
 You can also use Pweave to publish reports using GNU Octave. The
@@ -14,7 +13,7 @@ released with Pweave 0.23.
 * No terminal chunks
 * Only one figure/chunk
 
-Install Pweave from Github <> and try it out using:
+Install Pweave from Github  and try it out using:
 
     pweave -s octave -f pandoc octave_sample.mdw
 
@@ -34,8 +33,6 @@ y
 y =  300
 
 ~~~~~~~~~~~~~
-
-
 
 
 You can also display the result from inline chunk 2+5= 7

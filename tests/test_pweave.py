@@ -1,7 +1,6 @@
 import pweave
 
 
-
 def test_pandoc():
     """Integration test pweave by comparing output to a known good
     reference.
@@ -16,10 +15,8 @@ def test_pandoc():
     outfile = 'tests/simple.md'
     pweave.weave(file=infile, doctype="pandoc")
 
-    # Compare the outfile and the ref
-    out = open(outfile)
-    ref = open(REF)
-    assert(out.read() == ref.read())
+    assertSameContent(REF, outfile)
+
 
 def test_continue_option():
     """Test documenting a class in multiple chunks using continue option"""
@@ -28,10 +25,8 @@ def test_continue_option():
     outfile = 'tests/ar_yw.md'
     pweave.weave(file=infile, doctype="pandoc")
 
-    # Compare the outfile and the ref
-    out = open(outfile)
-    ref = open(REF)
-    assert(out.read() == ref.read())
+    assertSameContent(REF, outfile)
+
 
 def test_convert():
     """Test pweave-convert"""
@@ -39,7 +34,7 @@ def test_convert():
     infile = 'tests/convert_test.txt'
     outfile = 'tests/convert_test.Pnw'
     pweave.convert(infile, informat="script", outformat="noweb")
-    assert(open(outfile).read() == open(REF).read())
+    assertSameContent(REF, outfile)
 
 
 def test_nbformat():
@@ -51,10 +46,8 @@ def test_nbformat():
     # pandoc_args = None skips the call to pandoc
     pweave.convert(file=infile, informat="noweb", outformat="notebook")
 
-    # Compare the outfile and the ref
-    out = open(outfile)
-    ref = open(REF)
-    assert(out.read() == ref.read())
+    assertSameContent(REF, outfile)
+
 
 def test_inline_chunks():
     """Test inline code"""
@@ -63,23 +56,34 @@ def test_inline_chunks():
     outfile = 'tests/inline_chunks.md'
     pweave.weave(file=infile, doctype="pandoc")
 
-    # Compare the outfile and the ref
+    assertSameContent(REF, outfile)
+
+
+#def test_octave():
+#    """Test running Octave code"""
+#    REF = 'tests/octave_test_ref.md'
+#    infile = 'tests/octave_test.mdw'
+#    outfile = 'tests/octave_test.md'
+#    pweave.weave(file=infile, doctype="pandoc", shell="octave")
+#    assertSameContent(REF, outfile)
+
+
+def test_term():
+    """Test Python terminal emulation
+
+    Eval statements might not work with ipython properly (code compiled differently)"""
+    REF = 'tests/term_test_ref.tex'
+    infile = 'tests/term_test.texw'
+    outfile = 'tests/term_test.tex'
+    pweave.weave(file=infile, doctype="tex", shell="python")
+
+    assertSameContent(REF, outfile)
+
+
+def assertSameContent(REF, outfile):
     out = open(outfile)
     ref = open(REF)
-    assert(out.read() == ref.read())
-
-def test_octave():
-    """Test running Octave code"""
-    REF = 'tests/octave_test_ref.md'
-    infile = 'tests/octave_test.mdw'
-    outfile = 'tests/octave_test.md'
-    pweave.weave(file=infile, doctype="pandoc", shell="octave")
-
-    # Compare the outfile and the ref
-    out = open(outfile)
-    ref = open(REF)
-    assert(out.read() == ref.read())
-
+    assert (out.read() == ref.read())
 
 #Output contains date and version number, test needs to be fixed
 # def test_publish():

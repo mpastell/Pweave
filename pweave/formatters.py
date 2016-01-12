@@ -571,9 +571,17 @@ class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
         }
         \\setlength{\parindent}{0pt}
         \\setlength{\parskip}{1.2ex}
+        %% fix for pandoc 1.14
+        \\providecommand{\\tightlist}{%%
+            \\setlength{\\itemsep}{0pt}\\setlength{\\parskip}{0pt}}
         %s
         """) % (self.source, x.get_style_defs())
         self.footer = r"\end{document}"
+        self.subheader = "\n\\begin{document}\n"
+
+    def add_header(self):
+        """Can be used to add header to self.formatted list"""
+        self.formatted = self.header + self.subheader + self.formatted
 
     def parsetitle(self, chunk):
         """Parse titleblock from first doc chunk, like Pandoc"""
@@ -588,10 +596,7 @@ class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
                 if lines[2].startswith("%"):
                     self.header += '\\date{%s}\n' % (lines[2].replace("%", "", ))
                     lines[2] = ""
-                self.header += "\n\\begin{document}\n\maketitle\n"
-            # If there is no titleblock
-            else:
-                self.header += "\\begin{document}\n"
+                self.subheader += "\maketitle\n"
 
         chunk['content'] = "\n".join(lines)
         return chunk
