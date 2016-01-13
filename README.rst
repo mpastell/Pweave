@@ -1,3 +1,5 @@
+.. image:: https://zenodo.org/badge/doi/10.5281/zenodo.44683.svg
+   :target: http://dx.doi.org/10.5281/zenodo.44683
 .. image:: https://travis-ci.org/mpastell/Pweave.svg?branch=master
     :target: https://travis-ci.org/mpastell/Pweave
 
