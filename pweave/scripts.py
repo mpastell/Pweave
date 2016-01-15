@@ -61,6 +61,8 @@ def publish():
     parser = OptionParser(usage="pypublish [options] sourcefile", version="Part of Pweave " + pweave.__version__)
     parser.add_option("-f", "--format", dest="format", default='html',
                       help="Output format html or pdf, pdf output requires pandoc and pdflatex")
+    parser.add_option("-e", "--latex_engine", dest = "latex_engine", default = "pdflatex",
+                      help = "The command for running latex.")
 
     (options, args) = parser.parse_args()
 
@@ -69,7 +71,7 @@ def publish():
     except IndexError:
         infile = ""
 
-    pweave.publish(infile, options.format)
+    pweave.publish(infile, options.format, options.latex_engine)
 
 
 def tangle():

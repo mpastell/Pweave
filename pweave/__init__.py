@@ -96,13 +96,14 @@ def tangle(file):
     doc.tangle()
 
 
-def publish(file, doc_format="html"):
+def publish(file, doc_format="html", latex_engine = "pdflatex"):
     """Publish python script and results to html or pdf, expects that doc
     chunks are  written in markdown.
 
     ":param file: ``string`` input file"
     ":param format: ``string`` output format "html" of "pdf", pdf output
     requires pandoc and pdflatex in your path.
+    :param: ``string`` latex_engine the command for running latex. Defaults to "pdflatex".
     """
 
     if doc_format == "html":
@@ -123,10 +124,10 @@ def publish(file, doc_format="html"):
     doc.write(action="Published")
     if doc_format == "pdf":
         try:
-            latex = Popen(["pdflatex", doc.sink], stdin=PIPE, stdout=PIPE)
-            print("Running pdflatex...")
+            latex = Popen([latex_engine, doc.sink], stdin=PIPE, stdout=PIPE)
+            print("Running " + latex_engine + "...")
         except:
-            print("Can't find pdflatex, no pdf produced!")
+            print("Can't find " + latex_engine + ", no pdf produced!")
             return
         x = latex.communicate()[0].decode('utf-8')
         print("\n".join(x.splitlines()[-2:]))
@@ -162,4 +163,3 @@ def convert(file, informat="noweb", outformat="script", pandoc_args=None,
 def listformats():
     """List output formats"""
     PwebFormats.listformats()
-

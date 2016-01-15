@@ -561,6 +561,12 @@ class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
         \\usepackage{palatino}
         \\usepackage[a4paper,text={16.5cm,25.2cm},centering]{geometry}
 
+        %%Set different options for xetex and luatex
+        \\usepackage{iftex}
+        \\ifxetex\\usepackage{fontspec}\\fi
+
+        \\ifluatex\\usepackage{fontspec}\\fi
+
         \\hypersetup
         {   pdfauthor = {Pweave},
             pdftitle={Published from %s},
