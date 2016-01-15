@@ -1,0 +1,37 @@
+
+%Fix and test to issues #18 and #21
+
+\documentclass{article}
+\usepackage{palatino}
+\usepackage{minted}
+
+
+\begin{document}
+
+\section{wrap=True block}
+
+
+\begin{minted}[mathescape, fontsize=\small, xleftmargin=0.5em]{python}
+first_line = 1
+second_line = 2
+last_line = 'last'
+\end{minted}
+
+
+\section{wrap=False block}
+
+
+\begin{minted}[mathescape, fontsize=\small, xleftmargin=0.5em]{python}
+first_line = 1
+second_line = 2
+last_line = 'last'
+\end{minted}
+
+
+
+\begin{minted}[mathescape, fontsize=\small, xleftmargin=0.5em]{python}
+plot(arange(10))
+\end{minted}
+
+
+\end{document}

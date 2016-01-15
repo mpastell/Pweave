@@ -1,0 +1,31 @@
+
+%Fix and test to issues #18 and #21
+
+\documentclass{article}
+\usepackage{palatino}
+\usepackage{minted}
+
+
+\begin{document}
+
+\section{wrap=True block}
+
+<<wrap=True>>=
+first_line = 1
+second_line = 2
+last_line = 'last'
+@
+
+\section{wrap=False block}
+
+<<wrap=False>>=
+first_line = 1
+second_line = 2
+last_line = 'last'
+@
+
+<< not_evaled_plot, fig=True, caption='A plot caption', f_pos='h!', evaluate=False >>=
+plot(arange(10))
+@
+
+\end{document}

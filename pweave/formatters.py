@@ -38,6 +38,8 @@ class PwebFormatter(object):
                     chunk['content'] = self._wrap(chunk['content'])
                 if chunk['wrap'] == 'results':
                     chunk['result'] = self._wrap(chunk['result'])
+                if not chunk['wrap']:
+                    chunk['content'] = chunk['content'] + "\n"
 
             # Preformat chunk content before default formatters
             chunk = self.preformat_chunk(chunk)
@@ -80,6 +82,8 @@ class PwebFormatter(object):
 
         # Code is not executed
         if not chunk['evaluate']:
+            if "%s" in chunk["codestart"]:
+                chunk["codestart"] = chunk["codestart"] % chunk["engine"]
             if chunk['echo']:
                 result = '%(codestart)s%(content)s%(codeend)s' % chunk
                 return result

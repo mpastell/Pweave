@@ -80,10 +80,20 @@ def test_term():
     assertSameContent(REF, outfile)
 
 
+def test_():
+    """Test wrap and code output. Issues #18 and #21"""
+    REF = 'tests/wrap_test_ref.tex'
+    infile = 'tests/wrap_test.texw'
+    outfile = 'tests/wrap_test.tex'
+    pweave.weave(file=infile, doctype="texminted")
+    assertSameContent(REF, outfile)
+
+
 def assertSameContent(REF, outfile):
     out = open(outfile)
     ref = open(REF)
     assert (out.read() == ref.read())
+
 
 #Output contains date and version number, test needs to be fixed
 # def test_publish():
