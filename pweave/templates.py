@@ -8,6 +8,8 @@ htmltemplate["header"] = ("""
 <HTML>
   <HEAD>
 
+  <meta charset="UTF-8">
+
   <script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
