@@ -557,7 +557,7 @@ class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
 
         x = LatexFormatter()
         self.header = ("""\\documentclass[a4paper,11pt,final]{article}
-        \\usepackage{fancyvrb, color, graphicx, hyperref, ,amsmath, url}
+        \\usepackage{fancyvrb, color, graphicx, hyperref, amsmath, url, textcomp}
         \\usepackage{palatino}
         \\usepackage[a4paper,text={16.5cm,25.2cm},centering]{geometry}
 
@@ -659,8 +659,3 @@ class PwebFormats(object):
         print("\nPweave supported output formats:\n")
         print(cls.getformats())
         print("More info: http://mpastell.com/pweave/formats.html \n")
-
-
-
-
-
