@@ -1,3 +1,11 @@
+In 0.23.2
+* Add --latex_engine option to pypublish. Enables the use xetex or luatex
+* Bug fixes
+  - Fix formatting bugs for eval=FALSE #18
+  - Fix white space error in code chunks for wrap = FALSE #24
+  - Fix unicode bug with pypublish #21
+  - Update pypublish template to include textcomp due to changes in Pandoc #23
+
 In 0.23.1
 * Fix for multiline indented blocks by @abukaj
 * Pypublish missing \begin{document} problem fixed by @abukaj
@@ -37,7 +45,7 @@ In 0.22
 * Output formats:
     - Leanpub markdown
 * New options for figures
-	- f_size ( (8,6) ) Saved figure size in inches a tuple (w, h) 
+	- f_size ( (8,6) ) Saved figure size in inches a tuple (w, h)
 	- f_env (None) Environment that goes around figure e.g. sidefigure
 	- f_spines (True) removes spines from figure right and top if False.
 	- complete (False)
