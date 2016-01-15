@@ -13,7 +13,7 @@ from .processors import *
 from .config import *
 import copy
 
-__version__ = '0.23.2'
+__version__ = '0.23.2+'
 
 
 def weave(file, doctype='rst', informat="noweb", shell="python", shell_path=None, plot=True,

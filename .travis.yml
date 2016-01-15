@@ -31,7 +31,7 @@ install:
 # Recipe from http://dan-blanchard.roughdraft.io/7045057-quicker-travis-builds-that-rely-on-numpy-and-scipy-using-miniconda
 # Run test
 script:
-  - nosetests --with-cov --cov pweave
+  - nosetests --with-coverage --cover-package=pweave
 #  - nosetests --with-cov --cov Pweave --cov-config .coveragerc --logging-level=INFO
 
 # Calculate coverage

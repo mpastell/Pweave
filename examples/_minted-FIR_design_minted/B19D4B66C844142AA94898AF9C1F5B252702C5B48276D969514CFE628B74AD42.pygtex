@@ -1,0 +1,12 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+\PYGdefault{o}{\PYGdefaultZgt{}\PYGdefaultZgt{}\PYGdefaultZgt{}} \PYGdefault{n}{n} \PYGdefault{o}{=} \PYGdefault{l+m+mi}{61}
+\PYGdefault{o}{\PYGdefaultZgt{}\PYGdefaultZgt{}\PYGdefaultZgt{}} \PYGdefault{n}{a} \PYGdefault{o}{=} \PYGdefault{n}{signal}\PYGdefault{o}{.}\PYGdefault{n}{firwin}\PYGdefault{p}{(}\PYGdefault{n}{n}\PYGdefault{p}{,} \PYGdefault{n}{cutoff} \PYGdefault{o}{=} \PYGdefault{l+m+mf}{0.3}\PYGdefault{p}{,} \PYGdefault{n}{window} \PYGdefault{o}{=} \PYGdefault{l+s}{\PYGdefaultZdq{}hamming\PYGdefaultZdq{}}\PYGdefault{p}{)}
+\PYGdefault{o}{\PYGdefaultZgt{}\PYGdefaultZgt{}\PYGdefaultZgt{}} \PYGdefault{c}{\PYGdefaultZsh{}Frequency and phase response}
+\PYGdefault{o}{\PYGdefaultZgt{}\PYGdefaultZgt{}\PYGdefaultZgt{}} \PYGdefault{n}{mfreqz}\PYGdefault{p}{(}\PYGdefault{n}{a}\PYGdefault{p}{)}
+\PYGdefault{o}{\PYGdefaultZgt{}\PYGdefaultZgt{}\PYGdefaultZgt{}} \PYGdefault{n}{show}\PYGdefault{p}{()}
+\PYGdefault{o}{\PYGdefaultZgt{}\PYGdefaultZgt{}\PYGdefaultZgt{}} \PYGdefault{c}{\PYGdefaultZsh{}Impulse and step response}
+\PYGdefault{o}{\PYGdefaultZgt{}\PYGdefaultZgt{}\PYGdefaultZgt{}} \PYGdefault{n}{figure}\PYGdefault{p}{(}\PYGdefault{l+m+mi}{2}\PYGdefault{p}{)}
+\PYGdefault{o}{\PYGdefaultZlt{}}\PYGdefault{n}{matplotlib}\PYGdefault{o}{.}\PYGdefault{n}{figure}\PYGdefault{o}{.}\PYGdefault{n}{Figure} \PYGdefault{n+nb}{object} \PYGdefault{n}{at} \PYGdefault{l+m+mh}{0x7f13f937d690}\PYGdefault{o}{\PYGdefaultZgt{}}
+\PYGdefault{o}{\PYGdefaultZgt{}\PYGdefaultZgt{}\PYGdefaultZgt{}} \PYGdefault{n}{impz}\PYGdefault{p}{(}\PYGdefault{n}{a}\PYGdefault{p}{)}
+\PYGdefault{o}{\PYGdefaultZgt{}\PYGdefaultZgt{}\PYGdefaultZgt{}} \PYGdefault{n}{show}\PYGdefault{p}{()}
+\end{Verbatim}

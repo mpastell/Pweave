@@ -1,0 +1,7 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+\PYGdefault{n}{n} \PYGdefault{o}{=} \PYGdefault{l+m+mi}{1001}
+\PYGdefault{n}{a} \PYGdefault{o}{=} \PYGdefault{n}{signal}\PYGdefault{o}{.}\PYGdefault{n}{firwin}\PYGdefault{p}{(}\PYGdefault{n}{n}\PYGdefault{p}{,} \PYGdefault{n}{cutoff} \PYGdefault{o}{=} \PYGdefault{p}{[}\PYGdefault{l+m+mf}{0.2}\PYGdefault{p}{,} \PYGdefault{l+m+mf}{0.5}\PYGdefault{p}{],} \PYGdefault{n}{window} \PYGdefault{o}{=} \PYGdefault{l+s}{\PYGdefaultZsq{}blackmanharris\PYGdefaultZsq{}}\PYGdefault{p}{,}
+\PYGdefault{n}{pass\PYGdefaultZus{}zero} \PYGdefault{o}{=} \PYGdefault{n+nb+bp}{False}\PYGdefault{p}{)}
+\PYGdefault{n}{mfreqz}\PYGdefault{p}{(}\PYGdefault{n}{a}\PYGdefault{p}{)}
+\PYGdefault{n}{show}\PYGdefault{p}{()}
+\end{Verbatim}
