@@ -310,9 +310,9 @@ class PwebProcessor(object):
             source = self.source
 
         else:
-            source = '< chunk {} named {} in {} >'.format(chunk.get('number'),
-                                                          chunk.get('name'),
-                                                          self.source)
+            source = '< chunk {no} named {name} >'.format(no=chunk.get('number'),
+                                                          name=chunk.get('name'),
+                                                          source=self.source)
         emulator = self.ConsoleEmulator(PwebProcessorGlobals.globals,
                                         source)
         emulator.typeLines(code_string.lstrip().splitlines())

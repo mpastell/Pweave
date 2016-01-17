@@ -1,7 +1,34 @@
 import pweave
 
+import unittest
+import os
 
-def test_pandoc():
+class RegressionTest(unittest.TestCase):
+    TESTDIR = '.'
+
+    def assertSameAsReference(self):
+        try:
+            self.assertEqual(self.contentOf(self.REFERENCE),
+                             self.contentOf(self.OUTFILE))
+        except AssertionError:
+            raise AssertionError("{ref} and {out} differs".format(
+                                 ref=self.absPathTo(self.REFERENCE),
+                                 out=self.absPathTo(self.OUTFILE)))
+
+    def absPathTo(self, filename):
+        return os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                            self.TESTDIR,
+                                            filename))
+
+    def contentOf(self, filename):
+        return open(self.absPathTo(filename)).read()
+
+    def tearDown(self):
+        os.remove(self.absPathTo(self.OUTFILE))
+        pass
+
+
+class PandocTest(RegressionTest):
     """Integration test pweave by comparing output to a known good
     reference.
 
@@ -10,53 +37,58 @@ def test_pandoc():
     calling figure() will output a matplotlib figure reference. This
     has a memory pointer that changes every time.
     """
-    REF = 'tests/simple_REF.md'
-    infile = 'tests/simple.mdw'
-    outfile = 'tests/simple.md'
-    pweave.weave(file=infile, doctype="pandoc")
+    TESTDIR = 'pandoc'
+    REFERENCE = 'simple_REF.md'
+    INFILE = 'simple.mdw'
+    OUTFILE = 'simple.md'
 
-    assertSameContent(REF, outfile)
-
-
-def test_continue_option():
-    """Test documenting a class in multiple chunks using continue option"""
-    REF = 'tests/ar_yw_ref.md'
-    infile = 'tests/ar_yw.mdw'
-    outfile = 'tests/ar_yw.md'
-    pweave.weave(file=infile, doctype="pandoc")
-
-    assertSameContent(REF, outfile)
+    def testPandoc(self):
+        pweave.weave(file=self.absPathTo(self.INFILE),
+                     doctype="pandoc")
+        self.assertSameAsReference()
 
 
-def test_convert():
-    """Test pweave-convert"""
-    REF = 'tests/convert_test_ref.Pnw'
-    infile = 'tests/convert_test.txt'
-    outfile = 'tests/convert_test.Pnw'
-    pweave.convert(infile, informat="script", outformat="noweb")
-    assertSameContent(REF, outfile)
+class PandocContinueOptionTest(PandocTest):
+    """Test documenting a class in multiple chunks using continue option
+    """
+    REFERENCE = 'ar_yw_ref.md'
+    INFILE = 'ar_yw.mdw'
+    OUTFILE = 'ar_yw.md'
 
 
-def test_nbformat():
+class PandocInlineChunksTest(PandocTest):
+    """Test inline code"""
+    REFERENCE = 'inline_chunks_ref.md'
+    INFILE = 'inline_chunks.mdw'
+    OUTFILE = 'inline_chunks.md'
+
+
+class ConvertTest(RegressionTest):
+    """Test pweave-convert
+    """
+    TESTDIR = 'convert'
+    REFERENCE = 'convert_test_ref.Pnw'
+    INFILE = 'convert_test.txt'
+    OUTFILE = 'convert_test.Pnw'
+    INFORMAT = 'script'
+    OUTFORMAT = 'noweb'
+
+    def testConvert(self):
+        pweave.convert(self.absPathTo(self.INFILE),
+                       informat=self.INFORMAT,
+                       outformat=self.OUTFORMAT)
+        self.assertSameAsReference()
+
+
+class NbformatTest(ConvertTest):
     """Test whether we can write an IPython Notebook.
     """
-    REF = 'tests/simple_REF.ipynb'
-    infile = 'tests/simple.mdw'
-    outfile = 'tests/simple.ipynb'
-    # pandoc_args = None skips the call to pandoc
-    pweave.convert(file=infile, informat="noweb", outformat="notebook")
+    REFERENCE = 'simple_REF.ipynb'
+    INFILE = 'simple.mdw'
+    OUTFILE = 'simple.ipynb'
+    INFORMAT = 'noweb'
+    OUTFORMAT = 'notebook'
 
-    assertSameContent(REF, outfile)
-
-
-def test_inline_chunks():
-    """Test inline code"""
-    REF = 'tests/inline_chunks_ref.md'
-    infile = 'tests/inline_chunks.mdw'
-    outfile = 'tests/inline_chunks.md'
-    pweave.weave(file=infile, doctype="pandoc")
-
-    assertSameContent(REF, outfile)
 
 
 #def test_octave():
@@ -68,31 +100,33 @@ def test_inline_chunks():
 #    assertSameContent(REF, outfile)
 
 
-def test_term():
+class TermTest(RegressionTest):
     """Test Python terminal emulation
 
     Eval statements might not work with ipython properly (code compiled differently)"""
-    REF = 'tests/term_test_ref.tex'
-    infile = 'tests/term_test.texw'
-    outfile = 'tests/term_test.tex'
-    pweave.weave(file=infile, doctype="tex", shell="python")
+    TESTDIR = 'term'
+    REFERENCE = 'term_test_ref.tex'
+    INFILE = 'term_test.texw'
+    OUTFILE = 'term_test.tex'
 
-    assertSameContent(REF, outfile)
+    def testTerm(self):
+        pweave.weave(file=self.absPathTo(self.INFILE),
+                     doctype="tex",
+                     shell="python")
+        self.assertSameAsReference()
 
 
-def test_():
+class WrapTest(RegressionTest):
     """Test wrap and code output. Issues #18 and #21"""
-    REF = 'tests/wrap_test_ref.tex'
-    infile = 'tests/wrap_test.texw'
-    outfile = 'tests/wrap_test.tex'
-    pweave.weave(file=infile, doctype="texminted")
-    assertSameContent(REF, outfile)
+    TESTDIR = 'wrap'
+    REFERENCE = 'wrap_test_ref.tex'
+    INFILE = 'wrap_test.texw'
+    OUTFILE = 'wrap_test.tex'
 
-
-def assertSameContent(REF, outfile):
-    out = open(outfile)
-    ref = open(REF)
-    assert (out.read() == ref.read())
+    def testWrap(self):
+        pweave.weave(file=self.absPathTo(self.INFILE),
+                     doctype="texminted")
+        self.assertSameAsReference()
 
 
 #Output contains date and version number, test needs to be fixed
@@ -103,3 +137,6 @@ def assertSameContent(REF, outfile):
 #     outfile = 'tests/publish_test.html'
 #     pweave.publish("tests/publish_test.txt")
 #     assert(open(outfile).read() == open(REF).read())
+
+if __name__ == '__main__':
+    unittest.main()
