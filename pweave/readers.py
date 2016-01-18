@@ -140,6 +140,7 @@ class PwebScriptReader(PwebReader):
     def codestart(self, line):
         if line.startswith("#+"):
             starts = True
+            self.state = "doc" #Always parse options for #+ in PwebReader.parse
         elif self.state != "code" and (not line.startswith("#'") and self.n_emptylines > 0):
             starts = True
         else:
