@@ -568,16 +568,18 @@ class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
 
 
 class PwebPandocMDtoHTMLFormatter(PwebMDtoHTMLFormatter):
-    def convert(self):
+
+    def format_docchunk(self, chunk):
+        if 'number' in chunk and chunk['number'] == 1:
+            chunk = self.parsetitle(chunk)
         try:
             pandoc = Popen(["pandoc", "--mathjax", "-t", "html", "-f", "markdown"], stdin=PIPE, stdout=PIPE)
-        # pandoc = Popen(["pandoc.exe", "--mathjax"], stdin = PIPE, stdout = PIPE)
         except:
             sys.stderr.write("ERROR: Can't find pandoc")
             raise
-        pandoc.stdin.write(self.formatted.encode('utf-8'))
-        self.formatted = pandoc.communicate()[0].decode('utf-8')
-        # return(chunk['content'])
+        pandoc.stdin.write(chunk['content'].encode('utf-8'))
+        chunk['content'] = pandoc.communicate()[0].decode('utf-8')
+        return chunk['content']
 
 
 class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
