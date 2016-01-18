@@ -35,4 +35,4 @@ def test_publish():
     test = io.open("tests/publish/publish_test.html", "r").read().encode("utf-8")
     ref = io.open("tests/publish/publish_test_ref.html", "r").read().encode("utf-8")
     #Leave out the changing footer
-    assert (test[:210100] == ref[:210100])
+    assert (test[len(test) - 500] == ref[len(test) - 500])
