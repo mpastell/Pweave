@@ -1,4 +1,4 @@
-import sys
+import sys, os
 from subprocess import Popen, PIPE
 import base64
 import textwrap
@@ -547,12 +547,17 @@ class PwebHTMLFormatter(PwebFormatter):
 
 
 class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
-    def __init__(self, source):
+    def __init__(self, source = None):
         from .templates import htmltemplate
         from . import __version__
         import time
-
         PwebHTMLFormatter.__init__(self, source)
+
+        if not None:
+            self.path = os.path.dirname(self.source)
+        else:
+            self.path = ""
+
         self.header = htmltemplate["header"]
         self.footer = (htmltemplate["footer"] %
                        {"source": self.source, "version": __version__,
@@ -591,7 +596,8 @@ class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
         figstring = ""
 
         for fig in chunk['figure']:
-            fig_base64 = base64.b64encode(io.open(fig, "rb").read())
+            print(self.path + "/" + fig)
+            fig_base64 = base64.b64encode(io.open(self.path + "/" + fig, "rb").read()).decode("utf-8")
             figstring += ('<img src="data:image/png;base64,%s" width="%s"/>\n' % (fig_base64, chunk['width']))
 
         # Figure environment
