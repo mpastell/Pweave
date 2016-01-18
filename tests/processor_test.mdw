@@ -1,0 +1,50 @@
+
+`````python
+from pylab import *
+x = linspace(0, 2*pi, 1000)
+`````
+
+Here is some lovely inline code <% a = 3 %> for a test <%= a %>.
+
+
+```python
+plot(x, sin(x))
+```
+
+```{python, caption="Sinc function", echo=False}
+plot(x, sinc(x))
+```
+
+```{python}
+print("Hello")
+```
+
+```{.python, wrap = True }
+print("pweave " * 20)
+```
+Some text in between
+
+```{python, wrap = False}
+print("pweave " * 20)
+```
+
+```{python, evaluate = False}
+plot(x)
+```
+
+```{python, f_spines = False}
+plot(x)
+```
+
+```{python, results = "markdown"}
+print("**Bold stuff**")
+```
+
+```{python term=True}
+for i in range(10):
+  print(i)
+```
+
+```{python engine="shell"}
+echo hello
+```

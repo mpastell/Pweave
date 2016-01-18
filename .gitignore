@@ -4,7 +4,7 @@
 temp/
 htmlcov/
 conda/pweave/.binstar.yml
-
+cover/
 *.png
 *.pdf
 koe.py

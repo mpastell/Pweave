@@ -452,11 +452,11 @@ class PwebSubProcessor(PwebProcessor):
         #print(results.decode('utf-8'))
         import bs4
 
-        result_soup = bs4.BeautifulSoup(results.decode("utf-8"))
+        result_soup = bs4.BeautifulSoup(results.decode("utf-8"), "html.parser")
 
         for chunk in self.executed:
             if chunk["type"] == "doc":
-                chunk_soup = bs4.BeautifulSoup(chunk["content"])
+                chunk_soup = bs4.BeautifulSoup(chunk["content"], "html.parser")
                 inline_results = chunk_soup.find_all("inlineresult")
                 if inline_results:
                     for inline_result in inline_results:
