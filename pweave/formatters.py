@@ -1,6 +1,8 @@
 import sys
 from subprocess import Popen, PIPE
+import base64
 import textwrap
+import io
 from .config import *
 
 # Pweave output formatters
@@ -539,6 +541,30 @@ class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
 
         chunk["content"] = markdown.markdown(chunk["content"], extensions=[MathExtension()])
         return chunk['content']
+
+    def formatfigure(self, chunk):
+        result = ""
+        figstring = ""
+
+        for fig in chunk['figure']:
+            fig_base64 = base64.b64encode(io.open(fig, "rb").read())
+            figstring += ('<img src="data:image/png;base64,%s" width="%s"/>\n' % (fig_base64, chunk['width']))
+
+        # Figure environment
+        if chunk['caption']:
+            # Write labels as data-attribute for javascript etc.
+            if chunk['name']:
+                labelstring = 'data-label = "fig:%s"' % chunk["name"]
+            else:
+                labelstring = ""
+
+            result += ("<figure>\n" \
+                       "%s"
+                       "<figcaption %s>%s</figcaption>\n</figure>" % (figstring, labelstring, chunk['caption']))
+
+        else:
+            result += figstring
+        return result
 
 
 class PwebPandocMDtoHTMLFormatter(PwebMDtoHTMLFormatter):
