@@ -122,17 +122,6 @@ class PwebProcessor(object):
                 if chunk_text.strip() != "":
                     chunk["content"] += "\n" + chunk_text
 
-                    # Make function to dispatch based on the type
-                    # Execute a function from a list of functions
-                    #Store builtin functions in a class and add them to a list
-                    #when the object initialises or just use getattr?
-
-                    #List functions from a class:
-                    #filter(lambda x : not x.startswith('_')   ,dir(pweave.PwebFormatters))
-
-                    #Users can then append their own functions
-        # filter(lambda x: x.func_name=='f', a)[0](10)
-
         if chunk['type'] == 'doc':
             chunk['content'] = self.loadinline(chunk['content'])
             return chunk
@@ -144,10 +133,6 @@ class PwebProcessor(object):
 
             #chunk['term'] = True
             return chunk
-
-        #Settings for figures, matplotlib and sho
-        #if chunk['width'] is None:
-        #        chunk['width'] = self.formatdict['width']
 
         if chunk['type'] == 'code':
             sys.stdout.write("Processing chunk %(number)s named %(name)s from line %(start_line)s\n" % chunk)

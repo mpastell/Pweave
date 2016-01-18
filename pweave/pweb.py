@@ -152,22 +152,3 @@ class Pweb(object):
         f.write('\n'.join(code))
         f.close()
         sys.stdout.write('Tangled code from %s to %s\n' % (self.source, target))
-
-    def _getformatter(self, chunk):
-        """Call code from pweave.formatters and user provided formatters
-        allows overriding default options for doc and code chunks
-        the function needs to return a string"""
-        #Check if there are custom functions in Pweb.chunkformatter
-        f = [x for x in Pweb.chunkformatters if x.__name__ == (
-            'format%(type)schunk' % chunk)]
-        if f:
-            return f[0](chunk)
-        #Check built-in formatters from pweave.formatters
-        if hasattr(formatters, ('format%(type)schunk' % chunk)):
-            result = getattr(formatters, ('format%(type)schunk' % chunk))(chunk)
-            return result
-        #If formatter is not found
-        if chunk['type'] == 'code' or chunk['type'] == 'doc':
-            return chunk
-        sys.stderr.write('UNKNOWN CHUNK TYPE: %s \n' % chunk['type'])
-        return None
