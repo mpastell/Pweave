@@ -1,27 +1,9 @@
 
-# Using Octave with Pweave
+# Octave test document for pweave
 
-You can also use Pweave to publish reports using GNU Octave. The
-feature is implemented in development branch in will be most likely
-released with Pweave 0.23.
+You can use inline code chunks like in Python documents:
 
-**Features:**
-* Inline code and noweb style chunks
-* Capturing of figures
-
-**Limitations**
-* Output formatting is currently only implemented for pandoc
-* No terminal chunks
-* Only one figure/chunk
-
-Install Pweave from Github <> and try it out using:
-
-    pweave -s octave -f pandoc octave_sample.mdw
-
-
-You can use inline code chunks like in Python documents: 
-
-Give y value 300 <%y=300;%> in hidden chunk. 
+Give y value 300 <%y=300;%> in hidden chunk.
 
 And let's verify that it worked:
 
@@ -29,13 +11,9 @@ And let's verify that it worked:
 y
 @
 
-
 You can also display the result from inline chunk 2+5=<%=2+5%>
 
-## Solving least squares
-
-
-and trying out plotting features:
+## Solving least squares and trying out plotting features:
 
 <<fig=True>>=
 x = 1:10 + randn(1, 10);
@@ -47,14 +25,12 @@ plot(x, f*x, 'r')
 hold off
 @
 
-
 And include a plot but hide the code:
-
 
 <<fig=True, echo=False, caption="Sinc function">>=
 x = linspace(0, 4*pi, 200);
 plot(x, sinc(x), 'linewidth', 1)
-hold on 
+hold on
 plot(x, sinc(0.7*x), 'g', 'linewidth', 1)
 hold off
 xlabel('x')
