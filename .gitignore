@@ -1,4 +1,13 @@
+
+##Test artefacts
+tests/processors/cache/
+tests/processors/ipy_processor_test.txt
+tests/processors/processor_test.txt
+tests/readers/markdown_reader.txt
+
+
 *.py[cod]
+
 
 .idea/
 temp/
