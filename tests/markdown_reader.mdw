@@ -16,13 +16,13 @@ plot(x, sinc(x))
 print("Hello")
 ```
 
-```{.python }
-print(range(100))
+```{.python, wrap = True }
+print("pweave " * 20)
 ```
 Some text in between
 
 ```{python, wrap = False}
-print(range(100))
+print("pweave " * 20)
 ```
 
 ```{python, evaluate = False}
