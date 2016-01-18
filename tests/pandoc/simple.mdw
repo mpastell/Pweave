@@ -13,11 +13,10 @@ The concept is similar to
 publishing documents with [MATLAB](http://mathworks.com) or using
 stitch with [Knitr](http://http://yihui.name/knitr/demo/stitch/).
 
-
-~~~~{.python}
+<<>>=
 from pylab import *
 import scipy.signal as signal
-
+    
 #Plot frequency and phase response
 def mfreqz(b,a=1):
     w,h = signal.freqz(b,a)
@@ -54,9 +53,7 @@ def impz(b,a=1):
     xlabel(r'n (samples)')
     title(r'Step response')
     subplots_adjust(hspace=0.5)
-~~~~~~~~~~~~~
-
-
+@
 
 ## Lowpass FIR filter
 
@@ -71,6 +68,9 @@ The next code chunk is executed in term mode, see the [Python script](FIR_design
 Notice also that Pweave can now catch multiple figures/code chunk.
 
 
-
-![Bandpass FIR filter.](figures/simple_figure2_1.png)
-
+<<caption="Bandpass FIR filter.", echo=False>>=
+n = 1001
+a = signal.firwin(n, cutoff = [0.2, 0.5], window = 'blackmanharris', pass_zero = False)
+mfreqz(a)
+show()
+@
