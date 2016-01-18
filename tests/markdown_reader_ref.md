@@ -12,11 +12,11 @@ x = linspace(0, 2*pi, 1000)
 plot(x, sin(x))
 ~~~~~~~~~~~~~
 
-![](figures/markdown_reader_figure2_1.png)\
+![](figures/markdown_reader_figure2_1.png)
 
 
 
-![Sinc function](figures/markdown_reader_figure3_1.png)
+![Sinc function](figures/markdown_reader_figure3_1.png)\
 
 
 

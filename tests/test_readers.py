@@ -2,7 +2,7 @@ import pweave
 
 def test_markdown():
     """Test markdown reader"""
-    pweave.weave("tests/markdown_reader.mdw", doctype = "pandoc", informat = "markdown")
+    pweave.weave("tests/markdown_reader.mdw", doctype = "leanpub", informat = "markdown")
     assertSameContent("tests/markdown_reader.md", "tests/markdown_reader_ref.md")
 
 def assertSameContent(REF, outfile):

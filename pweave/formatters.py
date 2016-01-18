@@ -393,7 +393,7 @@ class PwebPandocFormatter(PwebFormatter):
             if attributes != "":
                 figstring += "{%s}" % attributes
 
-        if caption != "":
+        if caption == "":
             figstring += "\\"
 
         figstring += "\n"
@@ -420,7 +420,6 @@ class PwebPandocFormatter(PwebFormatter):
         for fig in fignames:
             figstring += self.make_figure_string(fignames[0], chunk["width"], chunk["name"])
 
-        print(figstring)
         return figstring
 
 
