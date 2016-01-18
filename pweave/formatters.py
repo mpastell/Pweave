@@ -4,9 +4,9 @@ import base64
 import textwrap
 import io
 from .config import *
+from distutils.version import LooseVersion
 
 # Pweave output formatters
-
 
 class PwebFormatter(object):
 
@@ -350,8 +350,25 @@ class PwebRstFormatter(PwebFormatter):
 
 class PwebPandocFormatter(PwebFormatter):
 
+    def __init__(self, source=None):
+        PwebFormatter.__init__(self, source)
+        pandoc_ver = False
+
+        try:
+            pandoc = Popen(["pandoc", "--version"], stdin=PIPE, stdout=PIPE)
+            pandoc_ver = pandoc.communicate()[0].decode('utf-8').split("\n")[0]
+            pandoc_ver = LooseVersion(pandoc_ver.split(" ")[1])
+        except:
+            pandoc_ver = LooseVersion("0.0.1")
+            print("Error in trying to detect pandoc version")
+
+        if pandoc_ver < LooseVersion("1.16.0"):
+            self.new_pandoc = False
+            print("Your pandoc version is below 1.16, not setting figure size and id")
+        else:
+            self.new_pandoc = True
+
     def initformat(self):
-        #TODO Fix formatting to be done separately for each chunk
         self.formatdict = dict(codestart='~~~~{.%s}',
                                codeend='~~~~~~~~~~~~~\n\n',
                                outputstart='~~~~{.%s}',
@@ -360,24 +377,51 @@ class PwebPandocFormatter(PwebFormatter):
                                termindent='',
                                figfmt='.png',
                                extension='md',
-                               width='15 cm',
+                               width = None,
                                doctype='pandoc')
 
+    def make_figure_string(self, figname, width, label, caption = ""):
+        figstring = "![%s](%s)" % (caption, figname)
+
+        #Pandoc >= 1.16 supports figure width and id
+        if (self.new_pandoc):
+            attributes = ""
+            if label is not None:
+                attributes += "#%s " % label
+            if width is not None:
+                attributes += "width=%s" % width
+            if attributes != "":
+                figstring += "{%s}" % attributes
+
+        if caption != "":
+            figstring += "\\"
+
+        figstring += "\n"
+
+        return figstring
+
     def formatfigure(self, chunk):
+
         fignames = chunk['figure']
-        caption = chunk['caption']
-        width = chunk['width']
-        result = ""
+
+        if chunk["caption"]:
+            caption = chunk["caption"]
+        else:
+            caption = ""
+
         figstring = ""
 
-        for fig in fignames:
-            figstring += '![](%s)\\\n' % fig
-
         if chunk['caption'] and len(fignames) > 0:
-            result += '![%s](%s)\n' % (caption, fignames[0])
-        else:
-            result += figstring
-        return result
+            if len(fignames) > 1:
+                print("INFO: Only including the first plot in a chunk when the caption is set")
+            figstring = self.make_figure_string(fignames[0], chunk["width"], chunk["name"], caption)
+            return figstring
+
+        for fig in fignames:
+            figstring += self.make_figure_string(fignames[0], chunk["width"], chunk["name"])
+
+        print(figstring)
+        return figstring
 
 
 class PwebLeanpubFormatter(PwebFormatter):
