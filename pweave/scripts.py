@@ -19,7 +19,7 @@ def weave():
     parser.add_option("-i", "--input-format", dest="informat", default='noweb',
                       help="Input format: noweb, markdown, notebook or script")
     parser.add_option("-s", "--shell", dest="shell", default='python',
-                      help="shell used to run code: python, epython (external python shell), ipython, matlab, octave or julia")
+                      help="shell used to run code: python, epython (external python shell), ipython, octave or matlab")
     parser.add_option("--shell-path", dest="shell_path", default=None,
                       help="Set the path of shell to run code, only affects \"epython\" shell")
     parser.add_option("-l", "--list-formats", dest="listformats", action="store_true", default=False,

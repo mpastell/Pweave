@@ -728,75 +728,6 @@ class MatlabProcessor(PwebProcessor):
         """Format inline chunk code to show results"""
         return "disp(%s)" % code_str
 
-
-class JuliaProcessor(PwebSubProcessor):
-
-    def __init__(self, parsed, source, mode, formatdict):
-
-
-        #shell = rcParams["shell_path"]
-        rcParams["chunk"]["defaultoptions"].update({"fig": False})
-        self.julia_code = ""
-        PwebProcessor.__init__(self, parsed, source, mode, formatdict)
-        self.inline_count = 1  # Count inline code blocks
-
-    def run(self):
-        PwebProcessor.run(self)
-        shell = "julia"
-        #io.open(self.cwd + "/test.jl", "wt", encoding="utf-8").write(self.julia_code)
-        err_file = open(os.path.dirname(os.path.abspath(self.source)) + "/julia_stderr.log", "wt")
-        self.shell = Popen([shell, "-e", self.julia_code], stdin=PIPE, stdout=PIPE, stderr=err_file)
-
-    def insert_start_tag(self, chunk_id=0, chunk_type="term", id_prefix="results"):
-        #self.run_string(r"""print("\n<chunk id=\"%s%i\" type=\"%s\">\n")""" % (id_prefix, chunk_id, chunk_type))
-        self.julia_code += "\n" + r"""println("<chunk id=\"%s%i\" type=\"%s\">")""" % (id_prefix, chunk_id, chunk_type)
-
-    def insert_close_tag(self):
-        #self.run_string(r'print("</chunk>\n")')
-        self.julia_code += "\n" + r'println("\n</chunk>")'
-
-    def run_string(self, code_string):
-        self.julia_code += code_string
-
-    def run_inline_exec(self, code_str):
-        self.julia_code += "\n" + code_str
-
-    def run_inline_eval(self, code_str):
-        self.julia_code += "\nprint(%s)" % code_str
-
-    def loadstring(self, code_str, chunk=None, scope=None):
-        self.insert_start_tag(chunk_type="block", chunk_id=chunk["number"])
-        self.julia_code += code_str
-        self.insert_close_tag()
-
-    def loadterm(self, code_str, chunk=None):
-        self.run_string(code_str)
-
-    def init_matplotlib(self):
-        pass
-
-    def savefigs(self, chunk):
-        if chunk['name'] is None:
-            prefix = self.basename + '_figure' + str(chunk['number'])
-        else:
-            prefix = self.basename + '_' + chunk['name']
-
-        figdir = os.path.join(self.cwd, rcParams["figdir"])
-        if not os.path.isdir(figdir):
-            os.mkdir(figdir)
-
-        w, h = chunk["f_size"]
-        f_name = os.path.join(self.cwd, rcParams["figdir"], prefix + "_" + "1" + self.formatdict['figfmt'])
-
-        self.julia_code += '\nsavefig("%s", width=%i, height=%i)\n' % (f_name, w*200, h*100)
-
-        return [f_name]
-
-    def get_figures(self, chunk, result_soup):
-        pass
-
-
-
 class PwebIPythonProcessor(PwebProcessor):
     """Runs code from parsed Pweave documents"""
 
@@ -891,8 +822,7 @@ class PwebProcessors(object):
                'ipython': {'class': PwebIPythonProcessor, 'description': 'IPython shell'},
                'epython': {'class': PwebSubProcessor, 'description': 'Python as separate process'},
                'octave': {'class': OctaveProcessor, 'description': 'Run code using Octave'},
-               'matlab': {'class': MatlabProcessor, 'description': 'Run code using Matlab'},
-               'julia': {'class': JuliaProcessor, 'description': 'Run code using Julia'}
+               'matlab': {'class': MatlabProcessor, 'description': 'Run code using Matlab'}
     }
 
     @classmethod
