@@ -2,6 +2,8 @@
 <HTML>
   <HEAD>
 
+  <meta charset="UTF-8">
+
   <script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -101,6 +103,7 @@
 .nv { color: #19177C } /* Name.Variable */
 .ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
 .w { color: #bbbbbb } /* Text.Whitespace */
+.mb { color: #666666 } /* Literal.Number.Bin */
 .mf { color: #666666 } /* Literal.Number.Float */
 .mh { color: #666666 } /* Literal.Number.Hex */
 .mi { color: #666666 } /* Literal.Number.Integer */
@@ -125,42 +128,12 @@
     </style>
   </HEAD>
   <BODY>
-<H1 class = "title"> FIR filter design with Python and SciPy</H1>
-
-<p><strong>Author:</strong>  Matti Pastell <BR/>
-<strong>Date:</strong>  15th April 2013 <BR/></p>
-<h1>Introduction</h1>
-<p>This an example of a script that can be published using
-<a href="http://mpastell.com/pweave">Pweave</a>. The script can be executed
-normally using Python or published to HTML with Pweave
-Text is written in markdown in lines starting with "<code>#'</code> " and code
-is executed and results are included in the published document.
-The concept is similar to
-publishing documents with <a href="http://mathworks.com">MATLAB</a> or using
-stitch with <a href="http://http://yihui.name/knitr/demo/stitch/">Knitr</a>.</p>
-<p>Notice that you don't need to define chunk options (see
-<a href="http://mpastell.com/pweave/usage.html#code-chunk-options">Pweave docs</a>
-),
-but you do need one line of whitespace between text and code.
-If you want to define options you can do it on using a line starting with
-<code>#+</code>. just before code e.g. <code>#+ term=True, caption='Fancy plots.'</code>. 
-If you're viewing the HTML version have a look at the
-<a href="FIR_design.py">source</a> to see the markup.</p>
-<p>The code and text below comes mostly
-from my blog post <a href="http://mpastell.com/2010/01/18/fir-with-scipy/">FIR design with SciPy</a>,
-but I've updated it to reflect new features in SciPy. </p>
-<h1>FIR Filter Design</h1>
-<p>We'll implement lowpass, highpass and ' bandpass FIR filters. If
-you want to read more about DSP I highly recommend <a href="http://www.dspguide.com/">The Scientist
-and Engineer's Guide to Digital Signal
-Processing</a> which is freely available
-online.</p>
 <h2>Functions for frequency, phase, impulse and step response</h2>
 <p>Let's first define functions to plot filter
 properties.</p>
 <div class="highlight"><pre><span class="kn">from</span> <span class="nn">pylab</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">import</span> <span class="nn">scipy.signal</span> <span class="kn">as</span> <span class="nn">signal</span>
-    
+
 <span class="c">#Plot frequency and phase response</span>
 <span class="k">def</span> <span class="nf">mfreqz</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="n">w</span><span class="p">,</span><span class="n">h</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">freqz</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="n">a</span><span class="p">)</span>
@@ -204,43 +177,30 @@ properties.</p>
 need to do is to define the window length, cut off frequency and the
 window.</p>
 <p>The Hamming window is defined as:
-<span class="math">\(w(n) = \alpha - \beta\cos\frac{2\pi n}{N-1}\)</span class="math">, where <span class="math">\(\alpha=0.54\)</span class="math"> and <span class="math">\(\beta=0.46\)</span class="math"> </p>
+<span class="math">\(w(n) = \alpha - \beta\cos\frac{2\pi n}{N-1}\)</span class="math">, where <span class="math">\(\alpha=0.54\)</span class="math"> and <span class="math">\(\beta=0.46\)</span class="math"></p>
 <p>The next code chunk is executed in term mode, see the <a href="FIR_design.py">Python script</a> for syntax.
 Notice also that Pweave can now catch multiple figures/code chunk.</p>
-<div class="highlight"><pre><span class="o">&gt;&gt;&gt;</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">61</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">firwin</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">cutoff</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">window</span> <span class="o">=</span> <span class="s">&quot;hamming&quot;</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="c">#Frequency and phase response</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">mfreqz</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">show</span><span class="p">()</span>
+<div class="highlight"><pre><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="s">&quot;I&#39;m publishing a term chunk&quot;</span><span class="p">)</span>
+<span class="n">I</span><span class="s">&#39;m publishing a term chunk</span>
 </pre></div>
-<img src="figures/publish_test_figure3_1.png" width="600"/>
 
-<h2>Highpass FIR Filter</h2>
 <p>Let's define a highpass FIR filter, if you compare to original blog
 post you'll notice that it has become easier since 2009. You don't
 need to do ' spectral inversion "manually" anymore!</p>
-<div class="highlight"><pre><span class="n">n</span> <span class="o">=</span> <span class="mi">101</span>
-<span class="n">a</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">firwin</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">cutoff</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">window</span> <span class="o">=</span> <span class="s">&quot;hanning&quot;</span><span class="p">,</span> <span class="n">pass_zero</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-<span class="n">mfreqz</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-<span class="n">show</span><span class="p">()</span>
+<div class="highlight"><pre><span class="n">a</span> <span class="o">=</span> <span class="mi">12</span>
+<span class="n">b</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="k">print</span><span class="p">(</span><span class="n">a</span><span class="o">+</span><span class="n">b</span><span class="p">)</span>
 </pre></div>
-<img src="figures/publish_test_figure4_1.png" width="600"/>
+<div class="highlight"><pre>22
+</pre></div>
 
 <p><span class="math">\[
 \sum_{i=1}^n x_i
 \]</span class="math"></p>
-<h2>Bandpass FIR filter</h2>
-<p>Notice that the plot has a caption defined in code chunk options.</p>
-<div class="highlight"><pre><span class="n">n</span> <span class="o">=</span> <span class="mi">1001</span>
-<span class="n">a</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">firwin</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">cutoff</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">window</span> <span class="o">=</span> <span class="s">&#39;blackmanharris&#39;</span><span class="p">,</span> <span class="n">pass_zero</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
-<span class="n">mfreqz</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-<span class="n">show</span><span class="p">()</span>
-</pre></div>
-<figure>
-<img src="figures/publish_test_figure5_1.png" width="600"/>
-<figcaption >Bandpass FIR filter.</figcaption>
-</figure>
     <HR/>
-    <div class="footer">      <p>Published from <a href="tests/publish_test.txt">tests/publish_test.txt</a> 	using <a href="http://mpastell.com/pweave">Pweave</a> 0.22.2	on 15-11-2014.<p></div>
+    <div class="footer">
+      <p>Published from <a href="tests/publish/publish_test.txt">tests/publish/publish_test.txt</a>
+    using <a href="http://mpastell.com/pweave">Pweave</a> 0.23.2+
+    on 18-01-2016.<p></div>
   </BODY>
 </HTML>

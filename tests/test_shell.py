@@ -1,5 +1,5 @@
 import pweave
-import os
+import os, io
 
 #Inline code is hidden for cached docs
 def test_cache():
@@ -19,7 +19,7 @@ def test_external_shell():
     assertSameContent("tests/processors/processor_test.txt", "tests/processors/processor_external_ref.md")
 
 def test_ipython_shell():
-    """Test external python shell"""
+    """Test ipython python shell"""
     pweave.weave("tests/processors/ipy_processor_test.mdw", shell = "ipython", doctype = "leanpub", informat = "markdown")
     assertSameContent("tests/processors/ipy_processor_test.txt", "tests/processors/ipy_processor_ref.md")
 
@@ -28,3 +28,11 @@ def assertSameContent(REF, outfile):
     out = open(outfile)
     ref = open(REF)
     assert (out.read() == ref.read())
+
+def test_publish():
+    """Test pypublish"""
+    pweave.publish("tests/publish/publish_test.txt", doc_format="html")
+    test = io.open("tests/publish/publish_test.html", "r").read().encode("utf-8")
+    ref = io.open("tests/publish/publish_test_ref.html", "r").read().encode("utf-8")
+    #Leave out the changing footer
+    assert (test[:210100] == ref[:210100])

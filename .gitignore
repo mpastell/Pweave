@@ -5,6 +5,7 @@ tests/processors/ipy_processor_test.txt
 tests/processors/processor_test.txt
 tests/readers/markdown_reader.txt
 tests/octave/octave_test.txt
+tests/publish/publish_test.html
 
 run_tests.sh
 

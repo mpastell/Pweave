@@ -2,6 +2,7 @@
 In 0.23.3
 - New input format: markdown
 - pypublish now embeds figures in html output
+- pypublish no longer defaults to wrap = False in html output
 
 In 0.23.2
 * Add --latex_engine option to pypublish. Enables the use xetex or luatex

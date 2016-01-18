@@ -546,16 +546,17 @@ class PwebHTMLFormatter(PwebFormatter):
 
 
 class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
+
     def __init__(self, source = None):
         from .templates import htmltemplate
         from . import __version__
         import time
         PwebHTMLFormatter.__init__(self, source)
 
-        if not None:
-            self.path = os.path.dirname(self.source)
+        if self.source is not None:
+            self.path = os.path.dirname(os.path.abspath(self.source))
         else:
-            self.path = ""
+             self.path = "."
 
         self.header = htmltemplate["header"]
         self.footer = (htmltemplate["footer"] %
@@ -595,7 +596,7 @@ class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
         figstring = ""
 
         for fig in chunk['figure']:
-            print(self.path + "/" + fig)
+            #print(self.path + "/" + fig)
             fig_base64 = base64.b64encode(io.open(self.path + "/" + fig, "rb").read()).decode("utf-8")
             figstring += ('<img src="data:image/png;base64,%s" width="%s"/>\n' % (fig_base64, chunk['width']))
 
