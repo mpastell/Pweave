@@ -17,7 +17,7 @@ def weave():
                       help="The output format. Available formats: " + pweave.PwebFormats.shortformats() +
                            " Use Pweave -l to list descriptions or see http://mpastell.com/pweave/formats.html")
     parser.add_option("-i", "--input-format", dest="informat", default='noweb',
-                      help="Input format: noweb, notebook or script")
+                      help="Input format: noweb, markdown, notebook or script")
     parser.add_option("-s", "--shell", dest="shell", default='python',
                       help="shell used to run code: python, epython (external python shell), ipython, matlab, octave or julia")
     parser.add_option("--shell-path", dest="shell_path", default=None,

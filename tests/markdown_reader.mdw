@@ -1,0 +1,34 @@
+
+`````python
+from pylab import *
+x = linspace(0, 2*pi, 1000)
+`````
+
+```python
+plot(x, sin(x))
+```
+
+```{python, caption="Sinc function", echo=False}
+plot(x, sinc(x))
+```
+
+```{python}
+print("Hello")
+```
+
+```{.python }
+print(range(100))
+```
+Some text in between
+
+```{python, wrap = False}
+print(range(100))
+```
+
+```{python, evaluate = False}
+plot(x)
+```
+
+```{python, results = "markdown"}
+print("**Bold stuff**")
+```

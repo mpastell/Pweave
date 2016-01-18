@@ -29,8 +29,8 @@ def weave(file, doctype='rst', informat="noweb", shell="python", shell_path=None
 
     :param file: ``string`` input file
     :param doctype: ``string`` output document format: call with listformats true to get list of supported formats.
-    :param informat: ``string`` input format: "noweb" or "script"
-    :param shell: ``string`` shell used to run code: "python" or "ipython"
+    :param informat: ``string`` input format: "noweb", "markdown", "notebook" or "script"
+    :param shell: ``string`` shell used to run code: "python", "ipython", "matlab" or "octave" 
     :param shell_path: ``string`` Set the path of shell to run code, only affects "epython" shell
     :param plot: ``bool`` use matplotlib
     :param docmode: ``bool`` use documentation mode, chunk code and results will be loaded from cache and inline code will be hidden

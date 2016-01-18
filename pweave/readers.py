@@ -7,15 +7,16 @@ import json
 import io
 from subprocess import Popen, PIPE
 
-
 class PwebReader(object):
     """Reads and parses Pweb documents"""
+
     # regex that matches beginning of code block
-    code_begin = r"^\s*<<(.*)>>=$"
+    code_begin = r"^<<(.*?)>>=\s*$"
     doc_begin = r"^@$"
 
     def __init__(self, file=None, string=None):
         self.source = file
+
         # Get input from string or
         if file is not None:
             codefile = io.open(self.source, 'r', encoding='utf-8')
@@ -54,7 +55,7 @@ class PwebReader(object):
         chunks = []
         codeN = 1
         docN = 1
-        opts = self.getoptions("")
+        opts = {"option_string": ""}
         self.n_emptylines = 0
         self.lineNo = 0
 
@@ -97,14 +98,15 @@ class PwebReader(object):
             chunks.append({"type": "doc", "content": read, "number": docN})
         self.parsed = chunks
 
-    def getoptions(self, opt):
+    def getoptions(self, line):
         # Aliases for False and True to conform with Sweave syntax
         FALSE = False
         TRUE = True
 
         # Parse options from chunk to a dictionary
-        optstring = opt.replace('<<', '').replace('>>=', '').strip()
-        if not optstring:
+        #optstring = opt.replace('<<', '').replace('>>=', '').strip()
+        optstring = re.findall(self.code_begin, line)[0]
+        if not optstring.strip():
             return {"option_string": ""}
         # First option can be a name/label
         if optstring.split(',')[0].find('=') == -1:
@@ -121,6 +123,13 @@ class PwebReader(object):
             chunkoptions['name'] = chunkoptions['label']
 
         return chunkoptions
+
+class PwebMarkdownReader(PwebReader):
+
+    def __init__(self, file=None, string=None):
+        PwebReader.__init__(self, file, string)
+        self.code_begin = r"(?:^(?:`|~){3,}\s*(?:\{|\{\.|)python(?:,|\s|"")(.*)\}\s*$)|(?:^(?:`|~){3,}\s*python\s*$)"
+        self.doc_begin = r"^`|~{3,}\s*$"
 
 
 class PwebScriptReader(PwebReader):
@@ -217,7 +226,8 @@ class PwebNBReader(object):
 class PwebReaders(object):
     """Lists available input formats"""
     formats = {'noweb': {'class': PwebReader, 'description': 'Noweb document'},
-               'script': {'class': PwebScriptReader, 'description': 'Script format'},
+               'script': {'class': PwebScriptReader, 'description': 'Python script with markup in comments'},
+               'markdown' : {'class': PwebMarkdownReader, 'description': 'Markdown document'},
                'notebook': {'class': PwebNBReader, 'description': 'IPython notebook'}}
 
     @classmethod
