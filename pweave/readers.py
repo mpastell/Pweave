@@ -184,21 +184,24 @@ class PwebScriptReader(object):
                     start_line = self.lineNo
                 self.state = "doc"
             elif re.match(self.opt_line, line):
-                opts = self.getoptions(line)
+                print("OPTS:", opts)
                 start_line = self.lineNo
                 if self.state == "code" and read.strip() !="":
                     chunks.append({"type": "code", "content": "\n" + read.rstrip(),
                                        "number": codeN, "options": opts, "start_line": start_line})
+                    read = ""
                     codeN +=1
                 if self.state == "doc" and read.strip() !="":
                     chunks.append({"type": "doc", "content": read, "number": docN, "start_line": start_line})
                     read = ""
                     docN +=1
+                opts = self.getoptions(line)
                 self.state = "code"
                 continue
             elif self.state == "doc" and line.strip() != "" and read.strip() != "":
                 self.state = "code"
                 chunks.append({"type": "doc", "content": read, "number": docN, "start_line": start_line})
+                opts = {"option_string": ""}
                 start_line = self.lineNo
                 read = ""
                 docN += 1
