@@ -1,7 +1,11 @@
 .. image:: https://zenodo.org/badge/doi/10.5281/zenodo.44683.svg
    :target: http://dx.doi.org/10.5281/zenodo.44683
 .. image:: https://travis-ci.org/mpastell/Pweave.svg?branch=master
-    :target: https://travis-ci.org/mpastell/Pweave
+   :target: https://travis-ci.org/mpastell/Pweave
+.. image:: https://coveralls.io/repos/github/mpastell/Pweave/badge.svg?branch=master
+   :target: https://coveralls.io/github/mpastell/Pweave?branch=master
+
+
 
 About Pweave
 -------------
