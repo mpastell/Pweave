@@ -196,6 +196,73 @@ class PwebScriptReader(PwebReader):
         return chunkoptions
 
 
+class PwebSpyderScriptReader(PwebReader):
+    """Read scripts to Pweave"""
+
+    def __init__(self, file=None, string=None):
+        PwebReader.__init__(self, file, string)
+        self.state = "code"  # Initial state
+
+    def count_emptylines(self, line):
+        """Counts empty lines for parser, the result is stored in self.n_emptylines"""
+        if line.strip() == "":
+            self.n_emptylines += 1
+        else:
+            self.n_emptylines = 0
+
+    def codestart(self, line):
+        if line.startswith("#%%+"):
+            starts = True
+            #self.state = "doc" #Always parse options for #+ in PwebReader.parse
+        elif self.state != "code" and (not line.startswith("#%%") and self.n_emptylines > 0):
+            starts = True
+        else:
+            starts = False
+        #skip = line.startswith("#%%+")
+        skip = False
+        return starts, skip
+
+    def docstart(self, line):
+        if line.startswith("#%%+"):
+            return(True, True)
+        else:
+            return line.startswith("#%%"), False
+
+    def strip_comments(self, line):
+        if line == "#%%":
+            line = line.replace("#%%", "")
+        else:
+            line = line.replace("#%% ", "", 1)
+        return line
+
+    def getoptions(self, opt):
+        if not opt.startswith("#%%+ "):
+            return {"option_string": ""}
+
+        # Aliases for False and True to conform with Sweave syntax
+        FALSE = False
+        TRUE = True
+        # Parse options from chunk to a dictionary
+        optstring = opt.replace('#%%+', '', 1).strip()
+        if optstring == "":
+            return {"option_string": ""}
+        # First option can be a name/label
+        if optstring.split(',')[0].find('=') == -1:
+            splitted = optstring.split(',')
+            splitted[0] = 'name = "%s"' % splitted[0]
+            optstring = ','.join(splitted)
+
+        opt_scope = {}
+        exec("chunkoptions =  dict(" + optstring + ")", opt_scope)
+        chunkoptions = opt_scope["chunkoptions"]
+        chunkoptions["option_string"] = optstring
+        # Update the defaults
+
+        if 'label' in chunkoptions:
+            chunkoptions['name'] = chunkoptions['label']
+
+        return(chunkoptions)
+
 class PwebNBReader(object):
     """Read IPython notebooks"""
 
@@ -226,7 +293,8 @@ class PwebNBReader(object):
 class PwebReaders(object):
     """Lists available input formats"""
     formats = {'noweb': {'class': PwebReader, 'description': 'Noweb document'},
-               'script': {'class': PwebScriptReader, 'description': 'Python script with markup in comments'},
+               'script': {'class': PwebScriptReader, 'description': 'Python script with rogyxen markup'},
+               'spyder': {'class': PwebSpyderScriptReader, 'description': 'Python script with Spyder cell format'},
                'markdown' : {'class': PwebMarkdownReader, 'description': 'Markdown document'},
                'notebook': {'class': PwebNBReader, 'description': 'IPython notebook'}}
 
