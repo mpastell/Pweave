@@ -20,11 +20,11 @@ before_install:
   - sudo ln -s /run/shm /dev/shm
 # Install packages
 install:
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION atlas numpy scipy matplotlib nose dateutil pandas statsmodels pip beautiful-soup ipython nbformat
-  - pip install -r requirements.txt
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION scipy matplotlib beautifulsoup4 markdown pygments coverage ipython nose nbformat
+  #- pip install -r requirements.txt
   # Coverage packages are on my binstar channel
-  #- conda install --yes -c dan_blanchard python-coveralls nose-cov
-  - pip install nose-cov python-coveralls
+  - conda install --yes -c dan_blanchard python-coveralls nose-cov
+  #- pip install python-coveralls
   - python setup.py install
 
 
