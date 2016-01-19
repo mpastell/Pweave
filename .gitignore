@@ -6,8 +6,10 @@ tests/processors/processor_test.txt
 tests/readers/markdown_reader.txt
 tests/octave/octave_test.txt
 tests/publish/publish_test.html
+tests/publish/publish_test_cell.html
 
 run_tests.sh
+koe.py
 
 *.py[cod]
 
