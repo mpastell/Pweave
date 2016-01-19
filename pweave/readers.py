@@ -132,12 +132,26 @@ class PwebMarkdownReader(PwebReader):
         self.doc_begin = r"^`|~{3,}\s*$"
 
 
-class PwebScriptReader(PwebReader):
+class PwebScriptReader(object):
     """Read scripts to Pweave"""
 
+    doc_line = r"^#' .*$"
+    opt_line = r"^#\+.*$"
+
     def __init__(self, file=None, string=None):
-        PwebReader.__init__(self, file, string)
-        self.state = "code"  # Initial state
+        self.source = file
+
+        # Get input from string or
+        if file is not None:
+            codefile = io.open(self.source, 'r', encoding='utf-8')
+            self.rawtext = codefile.read()
+            codefile.close()
+        else:
+            self.rawtext = string
+        self.state = "code"  # Initial state of document
+
+    def getparsed(self):
+        return copy.deepcopy(self.parsed)
 
     def count_emptylines(self, line):
         """Counts empty lines for parser, the result is stored in self.n_emptylines"""
@@ -146,31 +160,61 @@ class PwebScriptReader(PwebReader):
         else:
             self.n_emptylines = 0
 
-    def codestart(self, line):
-        if line.startswith("#+"):
-            starts = True
-            self.state = "doc" #Always parse options for #+ in PwebReader.parse
-        elif self.state != "code" and (not line.startswith("#'") and self.n_emptylines > 0):
-            starts = True
-        else:
-            starts = False
-        skip = line.startswith("#+")
-        return starts, skip
+    def parse(self):
+        lines = self.rawtext.splitlines()
 
-    def docstart(self, line):
-        return line.startswith("#'"), False
+        read = ""
+        chunks = []
+        codeN = 1
+        docN = 1
+        opts = {"option_string": ""}
+        self.n_emptylines = 0
+        self.lineNo = 0
+        start_line = 1
 
-    def strip_comments(self, line):
-        if line == "#'":
-            line = line.replace("#'", "")
-        else:
-            line = line.replace("#' ", "", 1)
-        return line
+        for line in lines:
+            self.lineNo += 1
+            if re.match(self.doc_line, line):
+                line = line.replace("#' ", "", 1) #Need to fix with general!
+                if self.state == "code"  and read.strip() != "":
+                    chunks.append({"type": "code", "content": "\n" + read.rstrip(),
+                                       "number": codeN, "options": opts, "start_line": start_line})
+                    codeN +=1
+                    read = ""
+                    start_line = self.lineNo
+                self.state = "doc"
+            elif re.match(self.opt_line, line):
+                opts = self.getoptions(line)
+                start_line = self.lineNo
+                if self.state == "code" and read.strip() !="":
+                    chunks.append({"type": "code", "content": "\n" + read.rstrip(),
+                                       "number": codeN, "options": opts, "start_line": start_line})
+                    codeN +=1
+                if self.state == "doc" and read.strip() !="":
+                    chunks.append({"type": "doc", "content": read, "number": docN, "start_line": start_line})
+                    read = ""
+                    docN +=1
+                self.state = "code"
+                continue
+            elif self.state == "doc" and line.strip() != "" and read.strip() != "":
+                self.state = "code"
+                chunks.append({"type": "doc", "content": read, "number": docN, "start_line": start_line})
+                start_line = self.lineNo
+                read = ""
+                docN += 1
+
+            read += line + "\n"
+            self.count_emptylines(line)
+
+        # Handle the last chunk
+        if self.state == "code":
+            chunks.append({"type": "code", "content": "\n" + read.rstrip(),
+                           "number": codeN, "options": opts, "start_line": start_line})
+        if self.state == "doc":
+            chunks.append({"type": "doc", "content": read, "number": docN, "start_line": start_line})
+        self.parsed = chunks
 
     def getoptions(self, opt):
-        if not opt.startswith("#+ "):
-            return {"option_string": ""}
-
         # Aliases for False and True to conform with Sweave syntax
         FALSE = False
         TRUE = True
@@ -203,22 +247,13 @@ class PwebSpyderScriptReader(PwebReader):
         PwebReader.__init__(self, file, string)
         self.state = "code"  # Initial state
 
-    def count_emptylines(self, line):
-        """Counts empty lines for parser, the result is stored in self.n_emptylines"""
-        if line.strip() == "":
-            self.n_emptylines += 1
-        else:
-            self.n_emptylines = 0
-
     def codestart(self, line):
         if line.startswith("#%%+"):
             starts = True
-            #self.state = "doc" #Always parse options for #+ in PwebReader.parse
-        elif self.state != "code" and (not line.startswith("#%%") and self.n_emptylines > 0):
+        elif self.state != "code" and (not line.startswith("#%%")):
             starts = True
         else:
             starts = False
-        #skip = line.startswith("#%%+")
         skip = False
         return starts, skip
 
