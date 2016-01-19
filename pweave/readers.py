@@ -135,8 +135,11 @@ class PwebMarkdownReader(PwebReader):
 class PwebScriptReader(object):
     """Read scripts to Pweave"""
 
-    doc_line = r"^#' .*$"
-    opt_line = r"^#\+.*$"
+    doc_line = r"(^#' .*)|(^#%% .*)|(^# %% .*)"
+    doc_start = r"(^#' )|(^#%% )|(^# %% )"
+
+    opt_line = r"(^#\+.*$)|(^#%%\+.*$)|(^# %%\+.*$)"
+    opt_start = r"(^#\+)|(^#%%\+)|(^# %%\+)"
 
     def __init__(self, file=None, string=None):
         self.source = file
@@ -175,7 +178,8 @@ class PwebScriptReader(object):
         for line in lines:
             self.lineNo += 1
             if re.match(self.doc_line, line):
-                line = line.replace("#' ", "", 1) #Need to fix with general!
+                #line = line.replace("#' ", "", 1) #Need to fix with general!
+                line = re.sub(self.doc_start, "", line, 1)
                 if self.state == "code"  and read.strip() != "":
                     chunks.append({"type": "code", "content": "\n" + read.rstrip(),
                                        "number": codeN, "options": opts, "start_line": start_line})
@@ -184,7 +188,6 @@ class PwebScriptReader(object):
                     start_line = self.lineNo
                 self.state = "doc"
             elif re.match(self.opt_line, line):
-                print("OPTS:", opts)
                 start_line = self.lineNo
                 if self.state == "code" and read.strip() !="":
                     chunks.append({"type": "code", "content": "\n" + read.rstrip(),
@@ -192,6 +195,8 @@ class PwebScriptReader(object):
                     read = ""
                     codeN +=1
                 if self.state == "doc" and read.strip() !="":
+                    if docN > 1:
+                        read = "\n" + read # Add whitespace to doc chunk. Needed for markdown output
                     chunks.append({"type": "doc", "content": read, "number": docN, "start_line": start_line})
                     read = ""
                     docN +=1
@@ -200,6 +205,8 @@ class PwebScriptReader(object):
                 continue
             elif self.state == "doc" and line.strip() != "" and read.strip() != "":
                 self.state = "code"
+                if docN > 1:
+                    read = "\n" + read # Add whitespace to doc chunk. Needed for markdown output
                 chunks.append({"type": "doc", "content": read, "number": docN, "start_line": start_line})
                 opts = {"option_string": ""}
                 start_line = self.lineNo
@@ -217,12 +224,13 @@ class PwebScriptReader(object):
             chunks.append({"type": "doc", "content": read, "number": docN, "start_line": start_line})
         self.parsed = chunks
 
-    def getoptions(self, opt):
+    def getoptions(self, line):
         # Aliases for False and True to conform with Sweave syntax
         FALSE = False
         TRUE = True
         # Parse options from chunk to a dictionary
-        optstring = opt.replace('#+', '', 1).strip()
+        optstring = re.sub(self.opt_start, "", line, 1)
+        #optstring = opt.replace('#+', '', 1).strip()
         if optstring == "":
             return {"option_string": ""}
         # First option can be a name/label
@@ -241,65 +249,6 @@ class PwebScriptReader(object):
             chunkoptions['name'] = chunkoptions['label']
 
         return chunkoptions
-
-
-class PwebSpyderScriptReader(PwebReader):
-    """Read scripts to Pweave"""
-
-    def __init__(self, file=None, string=None):
-        PwebReader.__init__(self, file, string)
-        self.state = "code"  # Initial state
-
-    def codestart(self, line):
-        if line.startswith("#%%+"):
-            starts = True
-        elif self.state != "code" and (not line.startswith("#%%")):
-            starts = True
-        else:
-            starts = False
-        skip = False
-        return starts, skip
-
-    def docstart(self, line):
-        if line.startswith("#%%+"):
-            return(True, True)
-        else:
-            return line.startswith("#%%"), False
-
-    def strip_comments(self, line):
-        if line == "#%%":
-            line = line.replace("#%%", "")
-        else:
-            line = line.replace("#%% ", "", 1)
-        return line
-
-    def getoptions(self, opt):
-        if not opt.startswith("#%%+ "):
-            return {"option_string": ""}
-
-        # Aliases for False and True to conform with Sweave syntax
-        FALSE = False
-        TRUE = True
-        # Parse options from chunk to a dictionary
-        optstring = opt.replace('#%%+', '', 1).strip()
-        if optstring == "":
-            return {"option_string": ""}
-        # First option can be a name/label
-        if optstring.split(',')[0].find('=') == -1:
-            splitted = optstring.split(',')
-            splitted[0] = 'name = "%s"' % splitted[0]
-            optstring = ','.join(splitted)
-
-        opt_scope = {}
-        exec("chunkoptions =  dict(" + optstring + ")", opt_scope)
-        chunkoptions = opt_scope["chunkoptions"]
-        chunkoptions["option_string"] = optstring
-        # Update the defaults
-
-        if 'label' in chunkoptions:
-            chunkoptions['name'] = chunkoptions['label']
-
-        return(chunkoptions)
 
 class PwebNBReader(object):
     """Read IPython notebooks"""
@@ -332,7 +281,6 @@ class PwebReaders(object):
     """Lists available input formats"""
     formats = {'noweb': {'class': PwebReader, 'description': 'Noweb document'},
                'script': {'class': PwebScriptReader, 'description': 'Python script with rogyxen markup'},
-               'spyder': {'class': PwebSpyderScriptReader, 'description': 'Python script with Spyder cell format'},
                'markdown' : {'class': PwebMarkdownReader, 'description': 'Markdown document'},
                'notebook': {'class': PwebNBReader, 'description': 'IPython notebook'}}
 
