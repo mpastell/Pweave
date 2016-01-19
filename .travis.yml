@@ -23,8 +23,8 @@ install:
   - conda install --yes python=$TRAVIS_PYTHON_VERSION scipy matplotlib beautifulsoup4 markdown pygments coverage ipython nose nbformat
   #- pip install -r requirements.txt
   # Coverage packages are on my binstar channel
-  - conda install --yes -c dan_blanchard python-coveralls nose-cov
-  #- pip install python-coveralls
+  #- conda install --yes -c dan_blanchard python-coveralls nose-cov
+  - pip install python-coveralls nose-cov
   - python setup.py install
 
 
