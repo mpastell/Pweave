@@ -713,6 +713,7 @@ class PwebFormats(object):
                                'description': 'Latex output with pygments highlighted output'},
                'rst': {'class': PwebRstFormatter, 'description': 'reStructuredText'},
                'pandoc': {'class': PwebPandocFormatter, 'description': 'Pandoc markdown'},
+               'markdown': {'class': PwebPandocFormatter, 'description': 'Pandoc markdown, same as format pandoc'},
                'leanpub': {'class': PwebLeanpubFormatter, 'description': 'Leanpub markdown'},
                'sphinx': {'class': PwebSphinxFormatter, 'description': 'reStructuredText for Sphinx'},
                'html': {'class': PwebHTMLFormatter, 'description': 'HTML with pygments highlighting'},
