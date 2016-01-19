@@ -82,6 +82,7 @@ def impz(b,a=1):
     subplots_adjust(hspace=0.5)
 @
 
+
 ## Lowpass FIR filter
 
 Designing a lowpass FIR filter is very simple to do with SciPy, all you
@@ -95,7 +96,7 @@ The next code chunk is executed in term mode, see the [Python script](FIR_design
 Notice also that Pweave can now catch multiple figures/code chunk.
 
 
-<<term=True>>=
+<< term=True>>=
 n = 61
 a = signal.firwin(n, cutoff = 0.3, window = "hamming")
 #Frequency and phase response
@@ -106,6 +107,7 @@ figure(2)
 impz(a)
 show()
 @
+
 
 ## Highpass FIR Filter
 
@@ -121,12 +123,13 @@ mfreqz(a)
 show()
 @
 
+
 ## Bandpass FIR filter
 
 Notice that the plot has a caption defined in code chunk options.
 
 
-<<caption = "Bandpass FIR filter.">>=
+<< caption = "Bandpass FIR filter.">>=
 n = 1001
 a = signal.firwin(n, cutoff = [0.2, 0.5], window = 'blackmanharris', pass_zero = False)
 mfreqz(a)
