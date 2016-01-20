@@ -1,10 +1,12 @@
-
-In 0.23.2+
-* New supported script format: Spyder cell markup
-* More robust script reader, not sensitive to empty lines anymore
+In 0.24rc
 * New input format: markdown
+* New supported script format: Spyder cell markup
+* Support new link attributes for pandoc >= 1.16
 * pypublish now embeds figures in html output
 * pypublish no longer defaults to wrap = False in html output
+* Improved test coverage
+* More robust script reader, not sensitive to empty lines anymore
+* Removed obsolete Julia support.
 
 In 0.23.2
 * Add --latex_engine option to pypublish. Enables the use xetex or luatex

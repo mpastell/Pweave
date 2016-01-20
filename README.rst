@@ -6,62 +6,56 @@
    :target: https://coveralls.io/github/mpastell/Pweave?branch=master
 
 
-
 About Pweave
 -------------
 
 Pweave is a scientific report generator and a literate programming
 tool for Python. Pweave can capture the results and plots from data
-analysis and works well with numpy, scipy and matplotlib. Pweave is
-inspired by `Sweave
-<http://www.stat.uni-muenchen.de/~leisch/Sweave/>`_, an excellent tool
-for R programmers, and the syntax is mostly compatible with it.  Pweave
-supports reST, Sphinx, Latex, and Pandoc markdown markups.
+analysis and works well with NumPy, SciPy and matplotlib. It is able to run
+python code from source document and include the results and capture
+`matplotlib <http://matplotlib.sourceforge.net/>`_ plots in the output.
 
-Pweave uses the noweb syntax for separating code from documentation,
-but it also supports ERB style evaluation of inline code.  Pweave is
-able to weave a python code between ``<<>>=`` and ``@`` blocks and
-include the results and capture matplotlib plots in the
-document. Inline code in documentation chunks is marked using ``<%
-%>`` (code will be evaluated in place) and ``<%= %>`` (result of
-expression will be printed) tags. Pweave is good for creating reports
-and tutorials. It can also be used to make websites together with
-Sphinx or rest2web.
+It can produce reST, Sphinx, Latex, HTML and markdown (pandoc and leanpub)
+output from several input formats.
+
+- Noweb  uses `noweb <http://www.cs.tufts.edu/~nr/noweb/>`_ syntax for separating code from documentation.
+- Markdown. Run code from markdown code blocks.
+- Script. Python script with special markup in comments. See: :ref:`publishing scripts <publish>`.
+
+Pweave is good for creating reports, tutorials, presentations etc. with embedded python
+code It can also be used to make websites together with e.g. Sphinx or rest2web.
 
 Features:
 ---------
 
-* Supports Python 2 and Python 3. Tested with 2.7 and 3.4. as of release 0.22.
+* Python 2.7, 3.4 and 3.5 compatibility
 * **Execute python code** in the chunks and **capture** input and output to a report.
 * **Use hidden code chunks,** i.e. code is executed, but not printed in the output file.
 * Capture matplotlib graphics.
-* Evaluate inline code in documentation chunks
+* Evaluate inline code in documentation chunks marked using ``<% %>`` and ``<%= %>``.
 * Cache all code and results from previous runs for fast report
   generation when you are only working with documentation. Inline code
   will be hidden in documentation mode.
-* Supports reST, LaTeX or Pandoc markdown for document chunks
-* Run from command line or interpreter
+* Supports reST, LaTeX, HTML or markdown for document chunks
+* Publish reports from Python scipts. Similar to R markdown.
+* Run from command line or interpreter.
+* Support also for Octave and Matlab code.
 
-Install:
---------
+Install
+-----------------------
 
-::
+with pip::
 
   pip install --upgrade Pweave
 
-If you use conda:::
+with conda::
 
-  conda install -c https://conda.binstar.org/mpastell pweave
+  conda config --add channels mpastell
+  conda install pweave
 
-
-Or download the source package and run:::
-
-  python setup.py install
-
-Documentation
--------------
 
 Pweave documentation can be found from the website http://mpastell.com/pweave
+
 
 Release Notes
 -------------
