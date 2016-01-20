@@ -1,4 +1,4 @@
-In 0.24rc
+In 0.24
 * New input format: markdown
 * New supported script format: Spyder cell markup
 * Support new link attributes for pandoc >= 1.16
