@@ -1,5 +1,6 @@
 from __future__ import print_function, division, unicode_literals, absolute_import
 import sys
+import os
 import re
 import copy
 import io
@@ -45,6 +46,13 @@ class Pweb(object):
         self.isexecuted = False
         self.isformatted = False
 
+        if self.source != None:
+            name, file_ext = os.path.splitext(self.source)
+            self.file_ext = file_ext.lower()
+        else:
+            self.file_ext = None
+
+
         if "python" not in shell:
             rcParams["chunk"]["defaultoptions"]["engine"] = shell
 
@@ -78,6 +86,31 @@ class Pweb(object):
             self.Reader = readers.PwebReaders.formats[Reader]['class']
         else:
             self.Reader = Reader
+
+    def detect_format(self):
+        """Detect output format based on file extension"""
+        if self.file_ext == ".pmd" or self.file_ext == ".py":
+            self.setformat("markdown")
+        elif "md" in self.file_ext:
+            self.setformat("markdown")
+        elif "tex" in self.file_ext:
+            self.setformat("texpygments")
+        elif "rst" in self.file_ext:
+            self.setformat("rst")
+        elif "htm" in self.file_ext:
+            self.setformat("html")
+        else:
+            print("Can't autodetect output format, defaulting to reStructured text")
+            self.setformat("rst")
+
+    def detect_reader(self):
+        """Detect input format based on file extension"""
+        if self.file_ext == ".pmd":
+            self.setreader("markdown")
+        elif self.file_ext == ".py":
+            self.setreader("script")
+        else:
+            self.setreader("noweb")
 
     def getformat(self):
         """Get current format dictionary. See: http://mpastell.com/pweave/customizing.html"""

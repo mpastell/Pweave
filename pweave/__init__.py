@@ -16,14 +16,10 @@ import copy
 __version__ = '0.23.2+'
 
 
-def weave(file, doctype='rst', informat="noweb", shell="python", shell_path=None, plot=True,
+def weave(file, doctype=None, informat=None, shell="python", shell_path=None, plot=True,
           docmode=False, cache=False,
           figdir='figures', cachedir='cache',
           figformat=None, returnglobals=True, listformats=False):
-    # def weave(file, doctype='rst', informat="noweb", shell="python", shell_path=None, plot=True,
-    # docmode=False, cache=False,
-    # figdir='figures', cachedir='cache',
-    # figformat=None, returnglobals=True, listformats=False):
     """
     Processes a Pweave document and writes output to a file
 
@@ -49,9 +45,15 @@ def weave(file, doctype='rst', informat="noweb", shell="python", shell_path=None
     assert file != "" is not None, "No input specified"
 
     doc = Pweb(file, shell=shell)
-    doc.setformat(doctype)
-    #doc.setreader(readers.PwebReaders.formats[informat]['class'])
-    doc.setreader(informat)
+    if doctype == None:
+        doc.detect_format()
+    else:
+        doc.setformat(doctype)
+
+    if informat == None:
+        doc.detect_reader()
+    else:
+        doc.setreader(informat)
 
     rcParams["usematplotlib"] = plot
     rcParams["figdir"] = figdir

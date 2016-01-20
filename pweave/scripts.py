@@ -13,10 +13,10 @@ def weave():
 
     # Command line options
     parser = OptionParser(usage="Pweave [options] sourcefile", version="Pweave " + pweave.__version__)
-    parser.add_option("-f", "--format", dest="doctype", default='rst',
+    parser.add_option("-f", "--format", dest="doctype", default=None,
                       help="The output format. Available formats: " + pweave.PwebFormats.shortformats() +
                            " Use Pweave -l to list descriptions or see http://mpastell.com/pweave/formats.html")
-    parser.add_option("-i", "--input-format", dest="informat", default='noweb',
+    parser.add_option("-i", "--input-format", dest="informat", default=None,
                       help="Input format: noweb, markdown, notebook or script")
     parser.add_option("-s", "--shell", dest="shell", default='python',
                       help="shell used to run code: python, epython (external python shell), ipython, octave or matlab")
