@@ -135,8 +135,8 @@ class PwebMarkdownReader(PwebReader):
 class PwebScriptReader(object):
     """Read scripts to Pweave"""
 
-    doc_line = r"(^#' .*)|(^#%% .*)|(^# %% .*)"
-    doc_start = r"(^#' )|(^#%% )|(^# %% )"
+    doc_line = r"(^#'.*)|(^#%%.*)|(^# %%.*)"
+    doc_start = r"(^#')|(^#%%)|(^# %%)"
 
     opt_line = r"(^#\+.*$)|(^#%%\+.*$)|(^# %%\+.*$)"
     opt_start = r"(^#\+)|(^#%%\+)|(^# %%\+)"
@@ -177,9 +177,11 @@ class PwebScriptReader(object):
 
         for line in lines:
             self.lineNo += 1
-            if re.match(self.doc_line, line):
+            if re.match(self.doc_line, line) and not re.match(self.opt_line, line):
                 #line = line.replace("#' ", "", 1) #Need to fix with general!
                 line = re.sub(self.doc_start, "", line, 1)
+                if line.startswith(" "):
+                    line = line.replace(" ", "", 1)
                 if self.state == "code"  and read.strip() != "":
                     chunks.append({"type": "code", "content": "\n" + read.rstrip(),
                                        "number": codeN, "options": opts, "start_line": start_line})
