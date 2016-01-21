@@ -14,26 +14,13 @@
     plot(x, sin(x))
     
 
-.. image:: figures/formatters_test_REF_figure2_1.png
+.. image:: figures/formatters_test_figure2_1.png
    :width: 15 cm
 
 
 
 
-.. figure:: figures/formatters_test_REF_figure3_1.png
-   :width: 15 cm
-
-   Sinc function
-
-
-
-
-.. code:: python
-
-    plot(x, sinc(x))
-    
-
-.. figure:: figures/formatters_test_REF_sinc_1.png
+.. figure:: figures/formatters_test_figure3_1.png
    :width: 15 cm
 
    Sinc function
@@ -46,7 +33,20 @@
     plot(x, sinc(x))
     
 
-.. figure:: figures/formatters_test_REF_sinc_1.png
+.. figure:: figures/formatters_test_sinc_1.png
+   :width: 15 cm
+
+   Sinc function
+
+
+
+
+.. code:: python
+
+    plot(x, sinc(x))
+    
+
+.. figure:: figures/formatters_test_sinc_1.png
    :width: 50%
 
    Sinc function
@@ -59,7 +59,7 @@
     plot(x, sinc(x))
     
 
-.. figure:: figures/formatters_test_REF_figure6_1.png
+.. figure:: figures/formatters_test_figure6_1.png
    :width: 50%
 
    Sinc function
@@ -72,22 +72,7 @@
     plot(x, sinc(x))
     
 
-.. figure:: figures/formatters_test_REF_figure7_1.png
-   :width: 50%
-
-   Sinc function
-
-
-
-
-.. code:: python
-
-    for i in range(5):
-      figure()
-      plot(x, sinc(x*i))
-    
-
-.. figure:: figures/formatters_test_REF_figure8_1.png
+.. figure:: figures/formatters_test_figure7_1.png
    :width: 50%
 
    Sinc function
@@ -102,19 +87,34 @@
       plot(x, sinc(x*i))
     
 
-.. image:: figures/formatters_test_REF_figure9_1.png
+.. figure:: figures/formatters_test_figure8_1.png
+   :width: 50%
+
+   Sinc function
+
+
+
+
+.. code:: python
+
+    for i in range(5):
+      figure()
+      plot(x, sinc(x*i))
+    
+
+.. image:: figures/formatters_test_figure9_1.png
    :width: 15 cm
 
-.. image:: figures/formatters_test_REF_figure9_2.png
+.. image:: figures/formatters_test_figure9_2.png
    :width: 15 cm
 
-.. image:: figures/formatters_test_REF_figure9_3.png
+.. image:: figures/formatters_test_figure9_3.png
    :width: 15 cm
 
-.. image:: figures/formatters_test_REF_figure9_4.png
+.. image:: figures/formatters_test_figure9_4.png
    :width: 15 cm
 
-.. image:: figures/formatters_test_REF_figure9_5.png
+.. image:: figures/formatters_test_figure9_5.png
    :width: 15 cm
 
 

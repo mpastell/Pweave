@@ -1,15 +1,44 @@
 import pweave
+import unittest
+
+try:
+    from _frameworkForTests import RegressionTest
+
+except ImportError:
+    from ._frameworkForTests import RegressionTest
+
+class WeaveFormatsTest(RegressionTest):
+    TESTDIR = 'formats'
+    INFILE = 'formatters_test.pmd'
+
+    def _testGenerator(name, doctype, ext, reference):
+        def testMethod(self):
+            infile = self.absPathTo(self.INFILE)
+            pweave.weave(infile,
+                         doctype=doctype,
+                         informat='markdown')
+            self.OUTFILE = infile[:-3] + ext
+            self.REFERENCE = self.absPathTo(reference)
+            self.assertSameAsReference()
+
+        testMethod.__name__ = name
+        return testMethod
+
+    _tests = {'Tex': (['tex', 'tex', 'formatters_test_REF.tex'], {}),
+              'Rst': (['rst', 'rst', 'formatters_test_REF.rst'], {}),
+              }
+
 
 #Inline code is hidden for cached docs
-def test_tex_format():
-    """Test caching shell"""
-    pweave.weave("tests/formats/formatters_test.pmd", doctype = "tex", informat = "markdown")
-    return(True)
-
-def test_rst_format():
-    """Test caching shell"""
-    pweave.weave("tests/formats/formatters_test.pmd", doctype = "rst", informat = "markdown")
-    return(True)
+# def test_tex_format():
+#     """Test caching shell"""
+#     pweave.weave("tests/formats/formatters_test.pmd", doctype = "tex", informat = "markdown")
+#     return(True)
+#
+# def test_rst_format():
+#     """Test caching shell"""
+#     pweave.weave("tests/formats/formatters_test.pmd", doctype = "rst", informat = "markdown")
+#     return(True)
 
 def test_leanpub_format():
     """Test caching shell"""
@@ -45,3 +74,7 @@ def test_sphinx_format():
     """Test caching shell"""
     pweave.weave("tests/formats/formatters_test.pmd", doctype = "sphinx", informat = "markdown")
     return(True)
+
+
+if __name__ == '__main__':
+    unittest.main()

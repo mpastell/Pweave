@@ -2,10 +2,18 @@ import os
 import sys
 
 if sys.version_info[0] < 3:
-    from _frameworkForTests_2 import ParametricTests
+    try:
+        from _frameworkForTests_2 import ParametricTests
+
+    except ImportError:
+        from ._frameworkForTests_2 import ParametricTests
 
 else:
+  try:
     from _frameworkForTests_3 import ParametricTests
+
+  except ImportError:
+    from ._frameworkForTests_3 import ParametricTests
 
 class RegressionTest(ParametricTests):
     TESTDIR = '.'
