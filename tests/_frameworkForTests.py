@@ -1,10 +1,13 @@
 import os
-import unittest
+import sys
 
-__author__ = 'abukaj'
+if sys.version_info[0] < 3:
+    from _frameworkForTests_2 import ParametricTests
 
+else:
+    from _frameworkForTests_3 import ParametricTests
 
-class RegressionTest(unittest.TestCase):
+class RegressionTest(ParametricTests):
     TESTDIR = '.'
 
     def assertSameAsReference(self):
