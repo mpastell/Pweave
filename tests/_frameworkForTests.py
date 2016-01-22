@@ -37,4 +37,4 @@ class RegressionTest(ParametricTests):
 
     def tearDown(self):
         os.remove(self.absPathTo(self.OUTFILE))
-        pass
+        #pass
