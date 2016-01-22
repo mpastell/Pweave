@@ -12,19 +12,11 @@ x = linspace(0, 2*pi, 1000)
 plot(x, sin(x))
 ~~~~~~~~~~~~~
 
-![](figures/formatters_test_REF_figure2_1.png)\
+![](figures/formatters_test_figure2_1.png)\
 
 
 
-![Sinc function](figures/formatters_test_REF_figure3_1.png)
-
-
-
-~~~~{.python}
-plot(x, sinc(x))
-~~~~~~~~~~~~~
-
-![Sinc function](figures/formatters_test_REF_sinc_1.png)
+![Sinc function](figures/formatters_test_figure3_1.png)
 
 
 
@@ -32,7 +24,7 @@ plot(x, sinc(x))
 plot(x, sinc(x))
 ~~~~~~~~~~~~~
 
-![Sinc function](figures/formatters_test_REF_sinc_1.png)
+![Sinc function](figures/formatters_test_sinc_1.png)
 
 
 
@@ -40,7 +32,7 @@ plot(x, sinc(x))
 plot(x, sinc(x))
 ~~~~~~~~~~~~~
 
-![Sinc function](figures/formatters_test_REF_figure6_1.png)
+![Sinc function](figures/formatters_test_sinc_1.png)
 
 
 
@@ -48,7 +40,15 @@ plot(x, sinc(x))
 plot(x, sinc(x))
 ~~~~~~~~~~~~~
 
-![Sinc function](figures/formatters_test_REF_figure7_1.png)
+![Sinc function](figures/formatters_test_figure6_1.png)
+
+
+
+~~~~{.python}
+plot(x, sinc(x))
+~~~~~~~~~~~~~
+
+![Sinc function](figures/formatters_test_figure7_1.png)
 
 
 
@@ -58,7 +58,7 @@ for i in range(5):
   plot(x, sinc(x*i))
 ~~~~~~~~~~~~~
 
-![Sinc function](figures/formatters_test_REF_figure8_1.png)
+![Sinc function](figures/formatters_test_figure8_1.png)
 
 
 
@@ -68,11 +68,11 @@ for i in range(5):
   plot(x, sinc(x*i))
 ~~~~~~~~~~~~~
 
-![](figures/formatters_test_REF_figure9_1.png)\
-![](figures/formatters_test_REF_figure9_1.png)\
-![](figures/formatters_test_REF_figure9_1.png)\
-![](figures/formatters_test_REF_figure9_1.png)\
-![](figures/formatters_test_REF_figure9_1.png)\
+![](figures/formatters_test_figure9_1.png)\
+![](figures/formatters_test_figure9_1.png)\
+![](figures/formatters_test_figure9_1.png)\
+![](figures/formatters_test_figure9_1.png)\
+![](figures/formatters_test_figure9_1.png)\
 
 
 

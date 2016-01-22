@@ -25,35 +25,26 @@ class WeaveFormatsTest(RegressionTest):
         return testMethod
 
     _tests = {'Tex': (['tex', 'tex', 'formatters_test_REF.tex'], {}),
-              'Rst': (['rst', 'rst', 'formatters_test_REF.rst'], {}),
+              'RST': (['rst', 'rst', 'formatters_test_REF.rst'], {}),
+              'Leanpub': (['leanpub', 'txt', 'formatters_test_REF.txt'], {}),
+              'Pandoc': (['pandoc', 'md', 'formatters_test_REF.md'], {}),
+              'HTML': (['html', 'html', 'formatters_test_REF.html'], {}),
               }
 
 
 #Inline code is hidden for cached docs
-# def test_tex_format():
+# def test_leanpub_format():
 #     """Test caching shell"""
-#     pweave.weave("tests/formats/formatters_test.pmd", doctype = "tex", informat = "markdown")
+#     pweave.weave("tests/formats/formatters_test.pmd", doctype = "leanpub", informat = "markdown")
 #     return(True)
-#
-# def test_rst_format():
+# def test_pandoc_format():
 #     """Test caching shell"""
-#     pweave.weave("tests/formats/formatters_test.pmd", doctype = "rst", informat = "markdown")
+#     pweave.weave("tests/formats/formatters_test.pmd", doctype = "pandoc", informat = "markdown")
 #     return(True)
-
-def test_leanpub_format():
-    """Test caching shell"""
-    pweave.weave("tests/formats/formatters_test.pmd", doctype = "leanpub", informat = "markdown")
-    return(True)
-
-def test_pandoc_format():
-    """Test caching shell"""
-    pweave.weave("tests/formats/formatters_test.pmd", doctype = "pandoc", informat = "markdown")
-    return(True)
-
-def test_html_format():
-    """Test caching shell"""
-    pweave.weave("tests/formats/formatters_test.pmd", doctype = "html", informat = "markdown")
-    return(True)
+# def test_html_format():
+#     """Test caching shell"""
+#     pweave.weave("tests/formats/formatters_test.pmd", doctype = "html", informat = "markdown")
+#     return(True)
 
 def test_md2html_format():
     """Test caching shell"""
