@@ -23,7 +23,7 @@ class RegressionTest(ParametricTests):
             self.assertEqual(self.contentOf(self.REFERENCE),
                              self.contentOf(self.OUTFILE))
         except AssertionError:
-            raise AssertionError("{ref} and {out} differs".format(
+            raise AssertionError("{ref} and {out} differs\ntry:\n$ vimdiff {ref} {out}".format(
                                  ref=self.absPathTo(self.REFERENCE),
                                  out=self.absPathTo(self.OUTFILE)))
 
@@ -33,7 +33,10 @@ class RegressionTest(ParametricTests):
                                             filename))
 
     def contentOf(self, filename):
-        return open(self.absPathTo(filename)).read()
+        fh = open(self.absPathTo(filename))
+        content = fh.read()
+        fh.close()
+        return content
 
     def tearDown(self):
         os.remove(self.absPathTo(self.OUTFILE))
