@@ -38,6 +38,12 @@ class RegressionTest(ParametricTests):
         fh.close()
         return content
 
-    def tearDown(self):
-        os.remove(self.absPathTo(self.OUTFILE))
-        #pass
+    def setUp(self):
+        try:
+            os.remove(self.absPathTo(self.OUTFILE))
+
+        except OSError:
+            pass
+
+    # def tearDown(self):
+    #     os.remove(self.absPathTo(self.OUTFILE))
