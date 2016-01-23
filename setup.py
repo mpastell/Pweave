@@ -22,7 +22,7 @@ setup(name='Pweave',
       author='Matti Pastell',
       author_email='matti.pastell@helsinki.fi',
       url='http://mpastell.com/pweave',
-      packages=['pweave'],
+      packages=['pweave', 'pweave.themes'],
       license='LICENSE.txt',
       long_description = read('README.rst'),
       classifiers=[
@@ -32,7 +32,7 @@ setup(name='Pweave',
         'Topic :: Scientific/Engineering',
         'Topic :: Software Development :: Documentation',
         'Topic :: Documentation :: Sphinx',
-        
+
         'License :: OSI Approved :: BSD License',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.4'

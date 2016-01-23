@@ -5,6 +5,7 @@ import textwrap
 import io
 from .config import *
 from distutils.version import LooseVersion
+from . import themes
 
 # Pweave output formatters
 
@@ -547,8 +548,9 @@ class PwebHTMLFormatter(PwebFormatter):
 
 class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
 
-    def __init__(self, source = None):
+    def __init__(self, source = None, theme = "bootstrap"):
         from .templates import htmltemplate
+        from pygments.formatters import HtmlFormatter
         from . import __version__
         import time
         PwebHTMLFormatter.__init__(self, source)
@@ -558,7 +560,18 @@ class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
         else:
              self.path = "."
 
-        self.header = htmltemplate["header"]
+        theme_css = ""
+        try:
+            theme_css += getattr(themes, theme)
+        except:
+            theme_css += getattr(themes, "bootstrap")
+
+        self.header = (htmltemplate["header"] %
+            {
+                "pygments_css"  : HtmlFormatter().get_style_defs(),
+                "theme_css" : theme_css
+            })
+
         self.footer = (htmltemplate["footer"] %
                        {"source": self.source, "version": __version__,
                         "time": time.strftime("%d-%m-%Y", time.localtime())})
