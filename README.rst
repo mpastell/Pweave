@@ -44,14 +44,24 @@ Features:
 Install
 -----------------------
 
-with pip::
+**Note: pip install fails in Python 3 due to a bug in pip. You'll need to use one of the other options.**
+
+From PyPi::
 
   pip install --upgrade Pweave
+
+or::
+
+  easy_install -U Pweave
 
 with conda::
 
   conda config --add channels mpastell
   conda install pweave
+
+or download the source and run::
+
+  python setup.py install
 
 
 Pweave documentation can be found from the website http://mpastell.com/pweave
