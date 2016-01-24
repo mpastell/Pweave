@@ -5,7 +5,7 @@ import textwrap
 import io
 from .config import *
 from distutils.version import LooseVersion
-from . import themes
+
 
 # Pweave output formatters
 
@@ -550,6 +550,7 @@ class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
 
     def __init__(self, source = None, theme = "skeleton"):
         from .templates import htmltemplate
+        from . import themes
         from pygments.formatters import HtmlFormatter
         from . import __version__
         import time
