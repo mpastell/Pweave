@@ -3,10 +3,12 @@
 from . import bootstrap
 from . import cerulean
 from . import skeleton
+from . import journal
 
 bootstrap = bootstrap.css
 cerulean = cerulean.css
 skeleton = skeleton.css
+journal = journal.css
 
 pweave = u"""
       body
