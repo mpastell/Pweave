@@ -548,7 +548,7 @@ class PwebHTMLFormatter(PwebFormatter):
 
 class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
 
-    def __init__(self, source = None, theme = "bootstrap"):
+    def __init__(self, source = None, theme = "skeleton"):
         from .templates import htmltemplate
         from pygments.formatters import HtmlFormatter
         from . import __version__
@@ -564,7 +564,8 @@ class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
         try:
             theme_css += getattr(themes, theme)
         except:
-            theme_css += getattr(themes, "bootstrap")
+            print("Can't find requested theme. Using Skeleton")
+            theme_css += getattr(themes, "skeleton")
 
         self.header = (htmltemplate["header"] %
                 {"pygments_css"  : HtmlFormatter().get_style_defs(),

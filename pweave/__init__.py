@@ -98,7 +98,7 @@ def tangle(file):
     doc.tangle()
 
 
-def publish(file, doc_format="html", theme = "bootstrap", latex_engine = "pdflatex"):
+def publish(file, doc_format="html", theme = "skeleton", latex_engine = "pdflatex"):
     """Publish python script and results to html or pdf, expects that doc
     chunks are  written in markdown.
 

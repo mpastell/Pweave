@@ -190,19 +190,10 @@ textarea {
 optgroup {
   font-weight: bold;
 }
-
-/* Tables
-   ========================================================================== */
-
-/**
- * Remove most spacing between table cells.
- */
-
 table {
   border-collapse: collapse;
   border-spacing: 0;
 }
-
 td,
 th {
   padding: 0;
@@ -217,28 +208,6 @@ th {
 * http://www.opensource.org/licenses/mit-license.php
 * 12/29/2014
 */
-
-
-/* Table of contents
-––––––––––––––––––––––––––––––––––––––––––––––––––
-- Grid
-- Base Styles
-- Typography
-- Links
-- Buttons
-- Forms
-- Lists
-- Code
-- Tables
-- Spacing
-- Utilities
-- Clearing
-- Media Queries
-*/
-
-
-/* Grid
-–––––––––––––––––––––––––––––––––––––––––––––––––– */
 .container {
   position: relative;
   width: 100%;
@@ -251,15 +220,11 @@ th {
   width: 100%;
   float: left;
   box-sizing: border-box; }
-
-/* For devices larger than 400px */
 @media (min-width: 400px) {
   .container {
     width: 85%;
     padding: 0; }
 }
-
-/* For devices larger than 550px */
 @media (min-width: 550px) {
   .container {
     width: 80%; }
@@ -322,13 +287,6 @@ th {
   .offset-by-one-half.columns     { margin-left: 52%; }
 
 }
-
-
-/* Base Styles
-–––––––––––––––––––––––––––––––––––––––––––––––––– */
-/* NOTE
-html is set to 62.5% so that all the REM measurements throughout Skeleton
-are based on 10px sizing. So basically 1.5rem = 15px :) */
 html {
   font-size: 62.5%; }
 body {
@@ -337,10 +295,6 @@ body {
   font-weight: 400;
   font-family: "Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: #222; }
-
-
-/* Typography
-–––––––––––––––––––––––––––––––––––––––––––––––––– */
 h1, h2, h3, h4, h5, h6 {
   margin-top: 0;
   margin-bottom: 2rem;
@@ -472,10 +426,6 @@ label > .label-body {
   display: inline-block;
   margin-left: .5rem;
   font-weight: normal; }
-
-
-/* Lists
-–––––––––––––––––––––––––––––––––––––––––––––––––– */
 ul {
   list-style: circle inside; }
 ol {
@@ -491,11 +441,6 @@ ol ul {
   font-size: 90%; }
 li {
   margin-bottom: 1rem; }
-
-
-
-/* Tables
-–––––––––––––––––––––––––––––––––––––––––––––––––– */
 th,
 td {
   padding: 12px 15px;
@@ -507,10 +452,6 @@ td:first-child {
 th:last-child,
 td:last-child {
   padding-right: 0; }
-
-
-/* Spacing
-–––––––––––––––––––––––––––––––––––––––––––––––––– */
 button,
 .button {
   margin-bottom: 1rem; }
@@ -529,10 +470,6 @@ ul,
 ol,
 form {
   margin-bottom: 2.5rem; }
-
-
-/* Utilities
-–––––––––––––––––––––––––––––––––––––––––––––––––– */
 .u-full-width {
   width: 100%;
   box-sizing: border-box; }
@@ -543,28 +480,17 @@ form {
   float: right; }
 .u-pull-left {
   float: left; }
-
-
-/* Misc
-–––––––––––––––––––––––––––––––––––––––––––––––––– */
 hr {
   margin-top: 3rem;
   margin-bottom: 3.5rem;
   border-width: 0;
   border-top: 1px solid #E1E1E1; }
-
-
-/* Clearing
-–––––––––––––––––––––––––––––––––––––––––––––––––– */
-
-/* Self Clearing Goodness */
 .container:after,
 .row:after,
 .u-cf {
   content: "";
   display: table;
   clear: both; }
-
 
 pre {
   display: block;

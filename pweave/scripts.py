@@ -63,7 +63,7 @@ def publish():
                       help="Output format html or pdf, pdf output requires pandoc and pdflatex")
     parser.add_option("-e", "--latex_engine", dest = "latex_engine", default = "pdflatex",
                       help = "The command for running latex.")
-    parser.add_option("-t", "--theme", dest = "theme", default = "bootstrap",
+    parser.add_option("-t", "--theme", dest = "theme", default = None,
                       help = "Theme for HTML output")
 
     (options, args) = parser.parse_args()
