@@ -1,7 +1,5 @@
 from __future__ import print_function, division, absolute_import, unicode_literals
 
-
-
 htmltemplate = {}
 
 htmltemplate["header"] = \
@@ -32,12 +30,18 @@ htmltemplate["header"] = \
 <style>
 %(pygments_css)s
 </style>
+
+<style>
+h1.title {margin-top : 20px}
+img {max-width : 100%%}
+</style>
+
 </HEAD>
 <BODY>
-<div class ="container">
-<div class = "row col-md-12">
+    <div class ="container">
+        <div class = "row">
+            <div class = "col-md-12 twelve columns">
 """
-#TODO ADD BOOTSRAP TO TEMPLATE
 
 htmltemplate["footer"]="""
     <HR/>
@@ -45,7 +49,9 @@ htmltemplate["footer"]="""
       <p>Published from <a href="%(source)s">%(source)s</a>
     using <a href="http://mpastell.com/pweave">Pweave</a> %(version)s
     on %(time)s.<p></div>
-    </div>
+
+            </div>
+        </div>
     </div>
   </BODY>
 </HTML>

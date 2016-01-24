@@ -567,10 +567,9 @@ class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
             theme_css += getattr(themes, "bootstrap")
 
         self.header = (htmltemplate["header"] %
-            {
-                "pygments_css"  : HtmlFormatter().get_style_defs(),
-                "theme_css" : theme_css
-            })
+                {"pygments_css"  : HtmlFormatter().get_style_defs(),
+                "theme_css" : theme_css})
+
 
         self.footer = (htmltemplate["footer"] %
                        {"source": self.source, "version": __version__,

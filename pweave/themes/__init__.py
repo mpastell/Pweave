@@ -2,9 +2,11 @@
 
 from . import bootstrap
 from . import cerulean
+from . import skeleton
 
 bootstrap = bootstrap.css
 cerulean = cerulean.css
+skeleton = skeleton.css
 
 pweave = u"""
       body
