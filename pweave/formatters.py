@@ -583,9 +583,9 @@ class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
         try:
             import markdown
         except ImportError:
-            print(
-                "You'll need to install python markdown in order to use markdown to html formatter\nrun 'pip install markdown' to install")
-            return
+            message = "You'll need to install python markdown in order to use markdown to html formatter\nrun 'pip install markdown' to install"
+            print(message)
+            return message # was returning None, which was passed to join method
         from .markdownmath import MathExtension
 
         chunk["content"] = markdown.markdown(chunk["content"], extensions=[MathExtension()])
