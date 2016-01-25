@@ -1,42 +1,47 @@
+"""Integration test pweave by comparing output to a known good
+reference.
+
+N.B. can't use anything in the .mdw that will give different
+outputs each time. For example, setting term=True and then
+calling figure() will output a matplotlib figure reference. This
+has a memory pointer that changes every time.
+"""
+
 import unittest
+import sys
 
 import pweave
 from tests._frameworkForTests import RegressionTest
 
 
 class PandocTest(RegressionTest):
-    """Integration test pweave by comparing output to a known good
-    reference.
-
-    N.B. can't use anything in the .mdw that will give different
-    outputs each time. For example, setting term=True and then
-    calling figure() will output a matplotlib figure reference. This
-    has a memory pointer that changes every time.
-    """
     TESTDIR = 'pandoc'
-    REFERENCE = 'simple_REF.md'
-    INFILE = 'simple.mdw'
-    OUTFILE = 'simple.md'
 
-    def testPandoc(self):
-        pweave.weave(file=self.absPathTo(self.INFILE),
-                     doctype="pandoc")
-        self.assertSameAsReference()
+    def _testGenerator(name, infile, reference, python={2, 3}):
+        def testMethod(self):
+            infilePath = self.absPathTo(infile)
+            self.setNewOutfile(infilePath[:-1])
 
+            pweave.weave(infilePath,
+                         doctype="pandoc")
 
-class PandocContinueOptionTest(PandocTest):
-    """Test documenting a class in multiple chunks using continue option
-    """
-    REFERENCE = 'ar_yw_ref.md'
-    INFILE = 'ar_yw.mdw'
-    OUTFILE = 'ar_yw.md'
+            self.REFERENCE = self.absPathTo(reference)
+            self.assertSameAsReference()
 
+        testMethod.__name__ = name
+        version = sys.version_info[0]
+        if version not in python:
+            return unittest.skip('{test} skipped beacause of inappropriate Python version ({v})'.format(
+                test = name,
+                v = version))(testMethod)
 
-class PandocInlineChunksTest(PandocTest):
-    """Test inline code"""
-    REFERENCE = 'inline_chunks_ref.md'
-    INFILE = 'inline_chunks.mdw'
-    OUTFILE = 'inline_chunks.md'
+        return testMethod
+
+    _tests = {
+              'Simple': (['simple.mdw', 'simple_REF.md'], {}),
+              'ClassInMultipleChunksUsingContinueOption': (['ar_yw.mdw', 'ar_yw_ref.md'], {}),
+              'InlineCode': (['inline_chunks.mdw', 'inline_chunks_ref.md'], {}),
+              }
 
 
 class ConvertTest(RegressionTest):

@@ -37,3 +37,14 @@ class RegressionTest(ParametricTests):
         content = fh.read()
         fh.close()
         return content
+
+    def removeFile(self, name):
+        try:
+            os.remove(self.absPathTo(name))
+
+        except OSError:
+            pass
+
+    def setNewOutfile(self, name):
+        self.removeFile(name)
+        self.OUTFILE = name
