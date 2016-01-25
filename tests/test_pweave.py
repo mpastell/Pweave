@@ -52,27 +52,33 @@ class ConvertTest(RegressionTest):
     """Test pweave-convert
     """
     TESTDIR = 'convert'
-    REFERENCE = 'convert_test_REF.Pnw'
-    INFILE = 'convert_test.txt'
-    OUTFILE = 'convert_test.Pnw'
-    INFORMAT = 'script'
-    OUTFORMAT = 'noweb'
 
-    def testConvert(self):
-        pweave.convert(self.absPathTo(self.INFILE),
-                       informat=self.INFORMAT,
-                       outformat=self.OUTFORMAT)
-        self.assertSameAsReference()
+    def _testGenerator(name, infile, informat, outformat, outext, python={2, 3}):
+        def testMethod(self):
+            basename, _, _ = infile.rpartition('.')
+            outfile = basename + '.' + outext
+            self.setNewOutfile(outfile)
 
+            pweave.convert(self.absPathTo(infile),
+                           informat=informat,
+                           outformat=outformat)
 
-class NbformatTest(ConvertTest):
-    """Test whether we can write an IPython Notebook.
-    """
-    REFERENCE = 'simple_REF.ipynb'
-    INFILE = 'simple.mdw'
-    OUTFILE = 'simple.ipynb'
-    INFORMAT = 'noweb'
-    OUTFORMAT = 'notebook'
+            self.REFERENCE = self.absPathTo(basename + '_REF.' + outext)
+            self.assertSameAsReference()
+
+        testMethod.__name__ = name
+        version = sys.version_info[0]
+        if version not in python:
+            return unittest.skip('{test} skipped beacause of inappropriate Python version ({v})'.format(
+                test = name,
+                v = version))(testMethod)
+
+        return testMethod
+
+    _tests = {
+              'Convert': (['convert_test.txt', 'script', 'noweb', 'Pnw'], {}),
+              'Nbformat': (['simple.mdw', 'noweb', 'notebook', 'ipynb'], {}),
+             }
 
 
 
