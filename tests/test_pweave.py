@@ -15,14 +15,14 @@ from tests._frameworkForTests import RegressionTest
 
 
 class PandocTest(RegressionTest):
-    def _testGenerator(name, testdir, doctype, filename, python={2, 3}):
+    def _testGenerator(name, testdir, doctype, filename, kwargs={}, python={2, 3}):
         def testMethod(self):
             self.TESTDIR = testdir
             infile = self.absPathTo(filename + 'w')
             self.setNewOutfile(filename)
 
-            pweave.weave(infile, doctype=doctype)
-            
+            pweave.weave(infile, doctype=doctype, **kwargs)
+
             basename, _, ext = filename.rpartition('.')
             self.REFERENCE = self.absPathTo(basename + '_REF.' + ext)
             self.assertSameAsReference()
@@ -40,6 +40,8 @@ class PandocTest(RegressionTest):
               'Simple': (['pandoc', 'pandoc', 'simple.md'], {}),
               'ClassInMultipleChunksUsingContinueOption': (['pandoc', 'pandoc', 'ar_yw.md'], {}),
               'InlineCode': (['pandoc', 'pandoc', 'inline_chunks.md'], {}),
+              'TerminalEmulation': (['term', 'tex', 'term_test.tex'], {'kwargs': {'shell': 'python'}}),
+              'WrapAndCodeOutput': (['wrap', 'texminted', 'wrap_test.tex'], {}),
               }
 
 
@@ -78,35 +80,6 @@ class NbformatTest(ConvertTest):
 #    outfile = 'tests/octave_test.md'
 #    pweave.weave(file=infile, doctype="pandoc", shell="octave")
 #    assertSameContent(REF, outfile)
-
-
-class TermTest(RegressionTest):
-    """Test Python terminal emulation
-
-    Eval statements might not work with ipython properly (code compiled differently)"""
-    TESTDIR = 'term'
-    REFERENCE = 'term_test_REF.tex'
-    INFILE = 'term_test.texw'
-    OUTFILE = 'term_test.tex'
-
-    def testTerm(self):
-        pweave.weave(file=self.absPathTo(self.INFILE),
-                     doctype="tex",
-                     shell="python")
-        self.assertSameAsReference()
-
-
-class WrapTest(RegressionTest):
-    """Test wrap and code output. Issues #18 and #21"""
-    TESTDIR = 'wrap'
-    REFERENCE = 'wrap_test_REF.tex'
-    INFILE = 'wrap_test.texw'
-    OUTFILE = 'wrap_test.tex'
-
-    def testWrap(self):
-        pweave.weave(file=self.absPathTo(self.INFILE),
-                     doctype="texminted")
-        self.assertSameAsReference()
 
 
 #Output contains date and version number, test needs to be fixed
