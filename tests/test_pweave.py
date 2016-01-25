@@ -9,15 +9,16 @@ has a memory pointer that changes every time.
 
 import unittest
 import sys
+import os
 
 import pweave
 from tests._frameworkForTests import RegressionTest
 
 
 class PandocTest(RegressionTest):
-    def _testGenerator(name, testdir, doctype, filename, kwargs={}, python={2, 3}):
+    def _testGenerator(name, doctype, filename, kwargs={}, python={2, 3}):
         def testMethod(self):
-            self.TESTDIR = testdir
+            self.TESTDIR = os.path.join('weave', doctype)
             infile = self.absPathTo(filename + 'w')
             self.setNewOutfile(filename)
 
@@ -37,11 +38,11 @@ class PandocTest(RegressionTest):
         return testMethod
 
     _tests = {
-              'Simple': (['pandoc', 'pandoc', 'simple.md'], {}),
-              'ClassInMultipleChunksUsingContinueOption': (['pandoc', 'pandoc', 'ar_yw.md'], {}),
-              'InlineCode': (['pandoc', 'pandoc', 'inline_chunks.md'], {}),
-              'TerminalEmulation': (['term', 'tex', 'term_test.tex'], {'kwargs': {'shell': 'python'}}),
-              'WrapAndCodeOutput': (['wrap', 'texminted', 'wrap_test.tex'], {}),
+              'Simple': (['pandoc', 'simple.md'], {}),
+              'ClassInMultipleChunksUsingContinueOption': (['pandoc', 'ar_yw.md'], {}),
+              'InlineCode': (['pandoc', 'inline_chunks.md'], {}),
+              'TerminalEmulation': (['tex', 'term_test.tex'], {'kwargs': {'shell': 'python'}}),
+              'WrapAndCodeOutput': (['texminted', 'wrap_test.tex'], {}),
               }
 
 
