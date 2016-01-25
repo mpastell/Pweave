@@ -13,17 +13,6 @@ class WeaveFormatsTest(RegressionTest):
     TESTDIR = 'formats'
     INFILE = 'formatters_test.pmd'
 
-    def removeFile(self, name):
-        try:
-            os.remove(self.absPathTo(name))
-
-        except OSError:
-            pass
-
-    def setNewOutfile(self, name):
-        self.removeFile(name)
-        self.OUTFILE = name
-
     def _testGenerator(name, doctype, ext, reference, python={2, 3}):
         def testMethod(self):
             infile = self.absPathTo(self.INFILE)
