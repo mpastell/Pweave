@@ -48,7 +48,7 @@ class ConvertTest(RegressionTest):
     """Test pweave-convert
     """
     TESTDIR = 'convert'
-    REFERENCE = 'convert_test_ref.Pnw'
+    REFERENCE = 'convert_test_REF.Pnw'
     INFILE = 'convert_test.txt'
     OUTFILE = 'convert_test.Pnw'
     INFORMAT = 'script'
@@ -86,7 +86,7 @@ class TermTest(RegressionTest):
 
     Eval statements might not work with ipython properly (code compiled differently)"""
     TESTDIR = 'term'
-    REFERENCE = 'term_test_ref.tex'
+    REFERENCE = 'term_test_REF.tex'
     INFILE = 'term_test.texw'
     OUTFILE = 'term_test.tex'
 
@@ -100,7 +100,7 @@ class TermTest(RegressionTest):
 class WrapTest(RegressionTest):
     """Test wrap and code output. Issues #18 and #21"""
     TESTDIR = 'wrap'
-    REFERENCE = 'wrap_test_ref.tex'
+    REFERENCE = 'wrap_test_REF.tex'
     INFILE = 'wrap_test.texw'
     OUTFILE = 'wrap_test.tex'
 
