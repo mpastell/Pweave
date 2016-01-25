@@ -15,7 +15,7 @@ import pweave
 from tests._frameworkForTests import RegressionTest
 
 
-class PandocTest(RegressionTest):
+class WeaveTest(RegressionTest):
     def _testGenerator(name, doctype, filename, kwargs={}, python={2, 3}):
         def testMethod(self):
             self.TESTDIR = os.path.join('weave', doctype)
@@ -41,7 +41,9 @@ class PandocTest(RegressionTest):
               'Simple': (['pandoc', 'simple.md'], {}),
               'ClassInMultipleChunksUsingContinueOption': (['pandoc', 'ar_yw.md'], {}),
               'InlineCode': (['pandoc', 'inline_chunks.md'], {}),
+
               'TerminalEmulation': (['tex', 'term_test.tex'], {'kwargs': {'shell': 'python'}}),
+
               'WrapAndCodeOutput': (['texminted', 'wrap_test.tex'], {}),
               }
 
