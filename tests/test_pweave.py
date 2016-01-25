@@ -15,17 +15,16 @@ from tests._frameworkForTests import RegressionTest
 
 
 class PandocTest(RegressionTest):
-    TESTDIR = 'pandoc'
-
-    def _testGenerator(name, filename, python={2, 3}):
+    def _testGenerator(name, testdir, doctype, filename, python={2, 3}):
         def testMethod(self):
-            infile = self.absPathTo(filename + '.mdw')
-            self.setNewOutfile(filename + '.md')
+            self.TESTDIR = testdir
+            infile = self.absPathTo(filename + 'w')
+            self.setNewOutfile(filename)
 
-            pweave.weave(infile,
-                         doctype="pandoc")
-
-            self.REFERENCE = self.absPathTo(filename + '_REF.md')
+            pweave.weave(infile, doctype=doctype)
+            
+            basename, _, ext = filename.rpartition('.')
+            self.REFERENCE = self.absPathTo(basename + '_REF.' + ext)
             self.assertSameAsReference()
 
         testMethod.__name__ = name
@@ -38,9 +37,9 @@ class PandocTest(RegressionTest):
         return testMethod
 
     _tests = {
-              'Simple': (['simple'], {}),
-              'ClassInMultipleChunksUsingContinueOption': (['ar_yw'], {}),
-              'InlineCode': (['inline_chunks'], {}),
+              'Simple': (['pandoc', 'pandoc', 'simple.md'], {}),
+              'ClassInMultipleChunksUsingContinueOption': (['pandoc', 'pandoc', 'ar_yw.md'], {}),
+              'InlineCode': (['pandoc', 'pandoc', 'inline_chunks.md'], {}),
               }
 
 
