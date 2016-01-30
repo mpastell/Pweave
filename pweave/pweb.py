@@ -62,7 +62,7 @@ class Pweb(object):
         self.Reader = readers.PwebReader
         self.setformat(self.doctype)
 
-    def setformat(self, doctype='tex', Formatter=None):
+    def setformat(self, doctype='tex', Formatter=None, theme = None):
         """Set output format for the document
 
         :param doctype: ``string`` output format from supported formats. See: http://mpastell.com/pweave/formats.html
@@ -75,7 +75,10 @@ class Pweb(object):
             return
         #Get formatter class from available formatters
         try:
-            self.formatter = formatters.PwebFormats.formats[doctype]['class'](self.source)
+            if theme is None:
+                self.formatter = formatters.PwebFormats.formats[doctype]['class'](self.source)
+            else:
+                self.formatter = formatters.PwebFormats.formats[doctype]['class'](self.source, theme)
         except KeyError as e:
             raise Exception("Pweave: Unknown output format")
 

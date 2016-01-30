@@ -6,6 +6,7 @@ import io
 from .config import *
 from distutils.version import LooseVersion
 
+
 # Pweave output formatters
 
 class PwebFormatter(object):
@@ -547,8 +548,10 @@ class PwebHTMLFormatter(PwebFormatter):
 
 class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
 
-    def __init__(self, source = None):
+    def __init__(self, source = None, theme = "skeleton"):
         from .templates import htmltemplate
+        from . import themes
+        from pygments.formatters import HtmlFormatter
         from . import __version__
         import time
         PwebHTMLFormatter.__init__(self, source)
@@ -558,7 +561,18 @@ class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
         else:
              self.path = "."
 
-        self.header = htmltemplate["header"]
+        theme_css = ""
+        try:
+            theme_css += getattr(themes, theme)
+        except:
+            print("Can't find requested theme. Using Skeleton")
+            theme_css += getattr(themes, "skeleton")
+
+        self.header = (htmltemplate["header"] %
+                {"pygments_css"  : HtmlFormatter().get_style_defs(),
+                "theme_css" : theme_css})
+
+
         self.footer = (htmltemplate["footer"] %
                        {"source": self.source, "version": __version__,
                         "time": time.strftime("%d-%m-%Y", time.localtime())})

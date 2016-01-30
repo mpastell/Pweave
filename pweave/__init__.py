@@ -13,7 +13,7 @@ from .processors import *
 from .config import *
 import copy
 
-__version__ = '0.24'
+__version__ = '0.24+'
 
 
 def weave(file, doctype=None, informat=None, shell="python", shell_path=None, plot=True,
@@ -98,7 +98,7 @@ def tangle(file):
     doc.tangle()
 
 
-def publish(file, doc_format="html", latex_engine = "pdflatex"):
+def publish(file, doc_format="html", theme = "skeleton", latex_engine = "pdflatex"):
     """Publish python script and results to html or pdf, expects that doc
     chunks are  written in markdown.
 
@@ -117,7 +117,7 @@ def publish(file, doc_format="html", latex_engine = "pdflatex"):
         return
 
     doc = Pweb(file)
-    doc.setformat(pformat)
+    doc.setformat(pformat, theme = theme)
     doc.setreader(readers.PwebScriptReader)
     doc.parse()
     doc.run()
