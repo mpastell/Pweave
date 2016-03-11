@@ -44,7 +44,7 @@ class WeaveFormatsTest(RegressionTest):
               # 'MdToHTML': (['md2html', 'html', 'formatters_test_md_REF.html'], {}),
               # 'PandocToHTML': (['pandoc2html', 'html', 'formatters_test_pandoc_REF.html'], {}),
               'PandocToLaTeX': (['pandoc2latex', 'tex', 'formatters_test_pandoc_REF.tex'],
-                                {'python': {2}}),
+                                {'python': {2}}),# output differs substantially depending on Python version
               'Sphinx': (['sphinx', 'rst', 'formatters_test_sphinx_REF.rst'], {}),
               }
 
