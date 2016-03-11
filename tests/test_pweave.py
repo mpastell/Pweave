@@ -44,6 +44,8 @@ class WeaveTest(RegressionTest):
 
               'TerminalEmulation': (['tex', 'term_test.tex'], {'kwargs': {'shell': 'python'}}),
 
+              'FIR_FilterExampleTex': (['tex', 'FIR_design_verb.tex'], {}),
+
               'WrapAndCodeOutput': (['texminted', 'wrap_test.tex'], {}),
               }
 
