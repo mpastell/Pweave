@@ -1,0 +1,82 @@
+
+`````python
+from pylab import *
+x = linspace(0, 2*pi, 1000)
+
+`````
+
+```python
+plot(x, sin(x))
+```
+
+```{python, caption="Sinc function", echo=False}
+plot(x, sinc(x))
+```
+
+```{python, name = "sinc", caption="Sinc function"}
+plot(x, sinc(x))
+```
+
+```{python, name = "sinc", caption="Sinc function", width="50%"}
+plot(x, sinc(x))
+```
+
+```{python, caption="Sinc function", width = "50%"}
+plot(x, sinc(x))
+```
+
+```{python, caption="Sinc function", width = "50%", f_env = "sidefigure"}
+plot(x, sinc(x))
+```
+
+```{python, caption="Sinc function", width = "50%", f_env = "sidefigure"}
+for i in range(5):
+  figure()
+  plot(x, sinc(x*i))
+```
+
+```{python}
+for i in range(5):
+  figure()
+  plot(x, sinc(x*i))
+```
+
+
+```{python, results = "verbatim"}
+print("Verbatim output")
+```
+
+```{python, results = "hidden"}
+print("Hidden results!")
+```
+
+```
+
+```{python, results = "verbatim", echo = False}
+print("No echo!")
+```
+
+```{python, results = "tex", echo = False}
+print("No echo!")
+```
+
+```{python term=True}
+for i in range(10):
+  print(i)
+```
+
+```{.python, wrap = True}
+print("pweave " * 20)
+```
+
+```{.python, wrap = False}
+print("pweave " * 20)
+```
+
+```{.python, wrap = "code"}
+print("pweave " * 20)
+```
+
+```{.python, wrap = "results"}
+print("pweave " * 20)
+```

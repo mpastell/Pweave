@@ -23,7 +23,7 @@ $$r_k = \frac{1}{(n-k)\sigma^2}\sum_{t=1}^{n-k}(X_t - \mu)(X_{t+k} - \mu)$$
 <<complete=False>>=
     def autocorr(self, lag=10):
         c = np.correlate(self.X, self.X, 'full')
-        mid = np.floor(len(c)/2)
+        mid = int(np.floor(len(c) * 0.5))
         acov = c[mid:mid+lag]
         acor = acov/acov[0]
         return(acor)
