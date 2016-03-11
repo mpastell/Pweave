@@ -24,7 +24,7 @@ plot(x, sin(x))
 plot(x, sinc(x))
 ~~~~~~~~~~~~~
 
-![Sinc function](figures/formatters_test_sinc_1.png)
+![Sinc function](figures/formatters_test_sinc_1.png){#sinc }
 
 
 
@@ -32,7 +32,7 @@ plot(x, sinc(x))
 plot(x, sinc(x))
 ~~~~~~~~~~~~~
 
-![Sinc function](figures/formatters_test_sinc_1.png)
+![Sinc function](figures/formatters_test_sinc_1.png){#sinc width=50%}
 
 
 
@@ -40,7 +40,7 @@ plot(x, sinc(x))
 plot(x, sinc(x))
 ~~~~~~~~~~~~~
 
-![Sinc function](figures/formatters_test_figure6_1.png)
+![Sinc function](figures/formatters_test_figure6_1.png){width=50%}
 
 
 
@@ -48,7 +48,7 @@ plot(x, sinc(x))
 plot(x, sinc(x))
 ~~~~~~~~~~~~~
 
-![Sinc function](figures/formatters_test_figure7_1.png)
+![Sinc function](figures/formatters_test_figure7_1.png){width=50%}
 
 
 
@@ -58,7 +58,7 @@ for i in range(5):
   plot(x, sinc(x*i))
 ~~~~~~~~~~~~~
 
-![Sinc function](figures/formatters_test_figure8_1.png)
+![Sinc function](figures/formatters_test_figure8_1.png){width=50%}
 
 
 
