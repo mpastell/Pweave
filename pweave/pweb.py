@@ -33,11 +33,11 @@ class Pweb(object):
 
     _mpl_imported = False
 
-    def __init__(self, file=None, format="tex", shell="python"):
+    def __init__(self, file=None, format="tex", shell="python", output=None):
 
         #The source document
         self.source = file
-        self.sink = None
+        self.sink = output
         self.doctype = format
         self.parsed = None
         self.executed = None
@@ -161,6 +161,7 @@ class Pweb(object):
             self.format()
         if self.sink is None:
             self.sink = self._basename() + '.' + self.formatter.getformatdict()['extension']
+
         f = io.open(self.sink, 'wt', encoding='utf-8')
         data = self.formatted.replace("\r", "")
         f.write(data)

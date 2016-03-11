@@ -16,13 +16,13 @@ from tests._frameworkForTests import RegressionTest
 
 
 class WeaveTest(RegressionTest):
-    def _testGenerator(name, doctype, filename, kwargs={}, python={2, 3}):
+    def _testGenerator(name, doctype, filename, source=None, kwargs={}, python={2, 3}):
         def testMethod(self):
             self.TESTDIR = os.path.join('weave', doctype)
-            infile = self.absPathTo(filename + 'w')
+            infile = self.absPathTo((filename + 'w') if source is None else source)
             self.setNewOutfile(filename)
 
-            pweave.weave(infile, doctype=doctype, **kwargs)
+            pweave.weave(infile, output=self.absPathTo(filename), doctype=doctype, **kwargs)
 
             basename, _, ext = filename.rpartition('.')
             self.REFERENCE = self.absPathTo(basename + '_REF.' + ext)
@@ -44,7 +44,7 @@ class WeaveTest(RegressionTest):
 
               'TerminalEmulation': (['tex', 'term_test.tex'], {'kwargs': {'shell': 'python'}}),
 
-              'FIR_FilterExampleTex': (['tex', 'FIR_design_verb.tex'], {}),
+              'FIR_FilterExampleTex': (['tex', 'FIR_design.tex', 'FIR_design_verb.texw'], {}),
 
               'WrapAndCodeOutput': (['texminted', 'wrap_test.tex'], {}),
               }
