@@ -739,6 +739,26 @@ class PwebFormats(object):
                 }
 
     @classmethod
+    def getFormatter(cls, doctype):
+        return cls.formats[doctype]['class']
+
+    @classmethod
+    def guessFromFilename(cls, filename):
+        _, ext = os.path.splitext(filename)
+        return cls.guessFromExtension(ext.lower())
+
+    @staticmethod
+    def guessFromExtension(ext):
+        if ext in ('.pmd', ',py'): return 'markdown'
+        if 'md' in ext: return 'markdown'
+        if 'tex' in ext: return 'texpygments'
+        if 'rst' in ext: return 'rst'
+        if 'htm' in ext: return 'html'
+
+        print("Can't autodetect output format, defaulting to reStructured text")
+        return 'rst'
+
+    @classmethod
     def shortformats(cls):
         fmtstring = ""
         names = list(cls.formats.keys())
