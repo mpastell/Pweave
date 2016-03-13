@@ -10,11 +10,9 @@ from . import formatters
 from .processors import PwebProcessors
 from .config import rcParams
 
-# unicode string type (from the six library)
-if sys.version_info[0] == 2:
-    text_type = unicode
-else:
-    text_type = str
+# Python2 compatibility fix
+if sys.version_info[0] == 3:
+    basestring = str
 
 
 class Pweb(object):
@@ -88,7 +86,7 @@ class Pweb(object):
     def setreader(self, Reader=readers.PwebReader):
         """Set class reading for reading documents,
         readers can be used to implement different input markups"""
-        if type(Reader) == str or type(Reader) == text_type:
+        if isinstance(Reader, basestring):
             self.Reader = readers.PwebReaders.formats[Reader]['class']
         else:
             self.Reader = Reader
@@ -139,7 +137,7 @@ class Pweb(object):
 
     def run(self, shell="python"):
         """Execute code in the document"""
-        if type(shell) == str or type(shell) == text_type:
+        if isinstance(shell, basestring):
             Runner = PwebProcessors.formats[shell]['class']
         else:
             Runner = shell
