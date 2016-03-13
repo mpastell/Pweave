@@ -5,8 +5,8 @@ import re
 import copy
 import io
 
-from . import readers
-from . import formatters
+from .readers import PwebReader, PwebReaders
+from .formatters import PwebFormats
 from .processors import PwebProcessors
 from .config import rcParams
 
@@ -76,18 +76,17 @@ class Pweb(object):
             return
         #Get formatter class from available formatters
         try:
-            if theme is None:
-                self.formatter = formatters.PwebFormats.formats[doctype]['class'](self.source)
-            else:
-                self.formatter = formatters.PwebFormats.formats[doctype]['class'](self.source, theme)
+            Formatter = PwebFormats.getFormatter(doctype)
+            self.formatter = Formatter(self.source) if theme is None else Formatter(self.source, theme)
+
         except KeyError as e:
             raise Exception("Pweave: Unknown output format")
 
-    def setreader(self, Reader=readers.PwebReader):
+    def setreader(self, Reader=PwebReader):
         """Set class reading for reading documents,
         readers can be used to implement different input markups"""
         if isinstance(Reader, basestring):
-            self.Reader = readers.PwebReaders.formats[Reader]['class']
+            self.Reader = PwebReaders.getReader(Reader)
         else:
             self.Reader = Reader
 
@@ -138,7 +137,7 @@ class Pweb(object):
     def run(self, shell="python"):
         """Execute code in the document"""
         if isinstance(shell, basestring):
-            Runner = PwebProcessors.formats[shell]['class']
+            Runner = PwebProcessors.getProcessor(shell)
         else:
             Runner = shell
 
@@ -173,12 +172,18 @@ class Pweb(object):
             self.format()
 
         self._determineOutputFile(self.destination)
+        self._writeToSink(self.formatted.replace("\r", ""))
+        self._print('{action} {src} to {dst}\n'.format(action=action,
+                                                       src=self.source,
+                                                       dst=self.sink))
 
+    def _print(self, msg):
+        sys.stdout.write(msg)
+
+    def _writeToSink(self, data):
         f = io.open(self.sink, 'wt', encoding='utf-8')
-        data = self.formatted.replace("\r", "")
         f.write(data)
         f.close()
-        sys.stdout.write('%s %s to %s\n' % (action, self.source, self.sink))
 
     def _basename(self):
         return self._getBaseName(self.source)
@@ -203,4 +208,5 @@ class Pweb(object):
         f = open(target, 'w')
         f.write('\n'.join(code))
         f.close()
-        sys.stdout.write('Tangled code from %s to %s\n' % (self.source, target))
+        self._print('Tangled code from {src} to {dst}'.format(src=self.source,
+                                                              dst=target))

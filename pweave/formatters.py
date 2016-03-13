@@ -739,6 +739,10 @@ class PwebFormats(object):
                 }
 
     @classmethod
+    def getFormatter(cls, doctype):
+        return cls.formats[doctype]['class']
+
+    @classmethod
     def shortformats(cls):
         fmtstring = ""
         names = list(cls.formats.keys())

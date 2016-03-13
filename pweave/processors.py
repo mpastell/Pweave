@@ -823,12 +823,21 @@ class PwebIPythonProcessor(PwebProcessor):
 
 class PwebProcessors(object):
     """Lists available input formats"""
-    formats = {'python': {'class': PwebProcessor, 'description': 'Python shell'},
-               'ipython': {'class': PwebIPythonProcessor, 'description': 'IPython shell'},
-               'epython': {'class': PwebSubProcessor, 'description': 'Python as separate process'},
-               'octave': {'class': OctaveProcessor, 'description': 'Run code using Octave'},
-               'matlab': {'class': MatlabProcessor, 'description': 'Run code using Matlab'}
+    formats = {'python': {'class': PwebProcessor,
+                          'description': 'Python shell'},
+               'ipython': {'class': PwebIPythonProcessor,
+                           'description': 'IPython shell'},
+               'epython': {'class': PwebSubProcessor,
+                           'description': 'Python as separate process'},
+               'octave': {'class': OctaveProcessor,
+                          'description': 'Run code using Octave'},
+               'matlab': {'class': MatlabProcessor,
+                          'description': 'Run code using Matlab'}
     }
+
+    @classmethod
+    def getProcessor(cls, shell):
+        return cls.formats[shell]['class']
 
     @classmethod
     def shortformats(cls):
