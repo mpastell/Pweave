@@ -33,12 +33,14 @@ class Pweb(object):
 
     _mpl_imported = False
 
-    def __init__(self, file=None, format="tex", shell="python", output=None):
+    def __init__(self, file=None, format="tex", shell="python",
+                 output=None, figdir='figures'):
 
         #The source document
         self.source = file
         self.sink = None
         self.destination = output
+        self.figdir = figdir
         self.doctype = format
         self.parsed = None
         self.executed = None
@@ -142,7 +144,11 @@ class Pweb(object):
         else:
             Runner = shell
 
-        runner = Runner(copy.deepcopy(self.parsed), self.source, self.documentationmode, self.formatter.getformatdict())
+        runner = Runner(copy.deepcopy(self.parsed), self.source,
+                        self.documentationmode,
+                        self.formatter.getformatdict(),
+                        self.figdir,
+                        os.path.dirname(self.destination if self.destination is not None else self.source))
         runner.run()
         self.executed = runner.getresults()
         self.isexecuted = True
@@ -156,8 +162,7 @@ class Pweb(object):
         self.formatted = self.formatter.getformatted()
         self.isformatted = True
 
-    def _determineOutputFile(self):
-        dst = self.destination
+    def _determineOutputFile(self, dst):
         self.sink = dst if dst is not None else \
             (self._basename() + '.' + self._getDstExtension())
 
@@ -169,7 +174,7 @@ class Pweb(object):
         if not self.isformatted:
             self.format()
 
-        self._determineOutputFile()
+        self._determineOutputFile(self.destination)
 
         f = io.open(self.sink, 'wt', encoding='utf-8')
         data = self.formatted.replace("\r", "")

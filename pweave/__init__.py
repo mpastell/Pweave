@@ -46,7 +46,7 @@ def weave(file, doctype=None, informat=None, shell="python", shell_path=None, pl
 
     assert file != "" is not None, "No input specified"
 
-    doc = Pweb(file, shell=shell, output=output)
+    doc = Pweb(file, shell=shell, output=output, figdir=figdir)
     if doctype == None:
         doc.detect_format()
     else:
@@ -58,7 +58,7 @@ def weave(file, doctype=None, informat=None, shell="python", shell_path=None, pl
         doc.setreader(informat)
 
     rcParams["usematplotlib"] = plot
-    rcParams["figdir"] = figdir
+    #rcParams["figdir"] = figdir
     rcParams["cachedir"] = cachedir
     doc.documentationmode = docmode
     rcParams["storeresults"] = cache

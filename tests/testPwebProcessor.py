@@ -8,7 +8,9 @@ class LoadTermTest(unittest.TestCase):
         self.processor = pweave.PwebProcessor('DummyParse',
                                               'DummySource',
                                               'DummyMode',
-                                              'DummyFormatdict')
+                                              'DummyFormatdict',
+                                              'DummyFigDir',
+                                              'DummyOutDir')
         
     def testOneLiner(self):
         self.checkOutput('print(123)\n',
