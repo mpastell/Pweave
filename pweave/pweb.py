@@ -37,7 +37,8 @@ class Pweb(object):
 
         #The source document
         self.source = file
-        self.sink = output
+        self.sink = None
+        self.destination = output
         self.doctype = format
         self.parsed = None
         self.executed = None
@@ -59,7 +60,7 @@ class Pweb(object):
         #: Use documentation mode?
         self.documentationmode = False
 
-        self.Reader = readers.PwebReader
+        self.setreader()
         self.setformat(self.doctype)
 
     def setformat(self, doctype='tex', Formatter=None, theme = None):
@@ -129,7 +130,7 @@ class Pweb(object):
             parser = self.Reader(file=self.source)
         else:
             parser = self.Reader(string=string)
-            self.source = basename
+            self.source = basename # XXX non-trivial implications possible
         parser.parse()
         self.parsed = parser.getparsed()
         self.isparsed = True
@@ -155,12 +156,20 @@ class Pweb(object):
         self.formatted = self.formatter.getformatted()
         self.isformatted = True
 
+    def _determineOutputFile(self):
+        dst = self.destination
+        self.sink = dst if dst is not None else \
+            (self._basename() + '.' + self._getDstExtension())
+
+    def _getDstExtension(self):
+        return self.formatter.getformatdict()['extension']
+
     def write(self, action="Pweaved"):
         """Write formatted code to file"""
         if not self.isformatted:
             self.format()
-        if self.sink is None:
-            self.sink = self._basename() + '.' + self.formatter.getformatdict()['extension']
+
+        self._determineOutputFile()
 
         f = io.open(self.sink, 'wt', encoding='utf-8')
         data = self.formatted.replace("\r", "")
@@ -169,7 +178,10 @@ class Pweb(object):
         sys.stdout.write('%s %s to %s\n' % (action, self.source, self.sink))
 
     def _basename(self):
-        return re.split("\.+[^\.]+$", self.source)[0]
+        return self._getBaseName(self.source)
+
+    def _getBaseName(self, filename):
+        return re.split("\.+[^\.]+$", filename)[0]
 
     def weave(self, shell="python"):
         """Weave the document, equals -> parse, run, format, write"""
