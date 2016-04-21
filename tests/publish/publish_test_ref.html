@@ -550,8 +550,10 @@ code {
 .err { border: 1px solid #FF0000 } /* Error */
 .k { color: #008000; font-weight: bold } /* Keyword */
 .o { color: #666666 } /* Operator */
+.ch { color: #408080; font-style: italic } /* Comment.Hashbang */
 .cm { color: #408080; font-style: italic } /* Comment.Multiline */
 .cp { color: #BC7A00 } /* Comment.Preproc */
+.cpf { color: #408080; font-style: italic } /* Comment.PreprocFile */
 .c1 { color: #408080; font-style: italic } /* Comment.Single */
 .cs { color: #408080; font-style: italic } /* Comment.Special */
 .gd { color: #A00000 } /* Generic.Deleted */
@@ -622,28 +624,28 @@ img {max-width : 100%}
 <h2>Functions for frequency, phase, impulse and step response</h2>
 <p>Let's first define functions to plot filter
 properties.</p>
-<div class="highlight"><pre><span class="kn">from</span> <span class="nn">pylab</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pylab</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">import</span> <span class="nn">scipy.signal</span> <span class="kn">as</span> <span class="nn">signal</span>
 
-<span class="c">#Plot frequency and phase response</span>
+<span class="c1">#Plot frequency and phase response</span>
 <span class="k">def</span> <span class="nf">mfreqz</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="n">w</span><span class="p">,</span><span class="n">h</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">freqz</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="n">a</span><span class="p">)</span>
     <span class="n">h_dB</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">*</span> <span class="n">log10</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">h</span><span class="p">))</span>
     <span class="n">subplot</span><span class="p">(</span><span class="mi">211</span><span class="p">)</span>
     <span class="n">plot</span><span class="p">(</span><span class="n">w</span><span class="o">/</span><span class="nb">max</span><span class="p">(</span><span class="n">w</span><span class="p">),</span><span class="n">h_dB</span><span class="p">)</span>
     <span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">150</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
-    <span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;Magnitude (db)&#39;</span><span class="p">)</span>
-    <span class="n">xlabel</span><span class="p">(</span><span class="s">r&#39;Normalized Frequency (x$\pi$rad/sample)&#39;</span><span class="p">)</span>
-    <span class="n">title</span><span class="p">(</span><span class="s">r&#39;Frequency response&#39;</span><span class="p">)</span>
+    <span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Magnitude (db)&#39;</span><span class="p">)</span>
+    <span class="n">xlabel</span><span class="p">(</span><span class="s1">r&#39;Normalized Frequency (x$\pi$rad/sample)&#39;</span><span class="p">)</span>
+    <span class="n">title</span><span class="p">(</span><span class="s1">r&#39;Frequency response&#39;</span><span class="p">)</span>
     <span class="n">subplot</span><span class="p">(</span><span class="mi">212</span><span class="p">)</span>
     <span class="n">h_Phase</span> <span class="o">=</span> <span class="n">unwrap</span><span class="p">(</span><span class="n">arctan2</span><span class="p">(</span><span class="n">imag</span><span class="p">(</span><span class="n">h</span><span class="p">),</span><span class="n">real</span><span class="p">(</span><span class="n">h</span><span class="p">)))</span>
     <span class="n">plot</span><span class="p">(</span><span class="n">w</span><span class="o">/</span><span class="nb">max</span><span class="p">(</span><span class="n">w</span><span class="p">),</span><span class="n">h_Phase</span><span class="p">)</span>
-    <span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;Phase (radians)&#39;</span><span class="p">)</span>
-    <span class="n">xlabel</span><span class="p">(</span><span class="s">r&#39;Normalized Frequency (x$\pi$rad/sample)&#39;</span><span class="p">)</span>
-    <span class="n">title</span><span class="p">(</span><span class="s">r&#39;Phase response&#39;</span><span class="p">)</span>
+    <span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Phase (radians)&#39;</span><span class="p">)</span>
+    <span class="n">xlabel</span><span class="p">(</span><span class="s1">r&#39;Normalized Frequency (x$\pi$rad/sample)&#39;</span><span class="p">)</span>
+    <span class="n">title</span><span class="p">(</span><span class="s1">r&#39;Phase response&#39;</span><span class="p">)</span>
     <span class="n">subplots_adjust</span><span class="p">(</span><span class="n">hspace</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 
-<span class="c">#Plot step and impulse response</span>
+<span class="c1">#Plot step and impulse response</span>
 <span class="k">def</span> <span class="nf">impz</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
     <span class="n">impulse</span> <span class="o">=</span> <span class="n">repeat</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span><span class="n">l</span><span class="p">);</span> <span class="n">impulse</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span><span class="mf">1.</span>
@@ -651,15 +653,15 @@ properties.</p>
     <span class="n">response</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">lfilter</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">impulse</span><span class="p">)</span>
     <span class="n">subplot</span><span class="p">(</span><span class="mi">211</span><span class="p">)</span>
     <span class="n">stem</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
-    <span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;Amplitude&#39;</span><span class="p">)</span>
-    <span class="n">xlabel</span><span class="p">(</span><span class="s">r&#39;n (samples)&#39;</span><span class="p">)</span>
-    <span class="n">title</span><span class="p">(</span><span class="s">r&#39;Impulse response&#39;</span><span class="p">)</span>
+    <span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Amplitude&#39;</span><span class="p">)</span>
+    <span class="n">xlabel</span><span class="p">(</span><span class="s1">r&#39;n (samples)&#39;</span><span class="p">)</span>
+    <span class="n">title</span><span class="p">(</span><span class="s1">r&#39;Impulse response&#39;</span><span class="p">)</span>
     <span class="n">subplot</span><span class="p">(</span><span class="mi">212</span><span class="p">)</span>
     <span class="n">step</span> <span class="o">=</span> <span class="n">cumsum</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
     <span class="n">stem</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
-    <span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;Amplitude&#39;</span><span class="p">)</span>
-    <span class="n">xlabel</span><span class="p">(</span><span class="s">r&#39;n (samples)&#39;</span><span class="p">)</span>
-    <span class="n">title</span><span class="p">(</span><span class="s">r&#39;Step response&#39;</span><span class="p">)</span>
+    <span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Amplitude&#39;</span><span class="p">)</span>
+    <span class="n">xlabel</span><span class="p">(</span><span class="s1">r&#39;n (samples)&#39;</span><span class="p">)</span>
+    <span class="n">title</span><span class="p">(</span><span class="s1">r&#39;Step response&#39;</span><span class="p">)</span>
     <span class="n">subplots_adjust</span><span class="p">(</span><span class="n">hspace</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 </pre></div>
 
@@ -671,18 +673,18 @@ window.</p>
 <span class="math">\(w(n) = \alpha - \beta\cos\frac{2\pi n}{N-1}\)</span class="math">, where <span class="math">\(\alpha=0.54\)</span class="math"> and <span class="math">\(\beta=0.46\)</span class="math"></p>
 <p>The next code chunk is executed in term mode, see the <a href="FIR_design.py">Python script</a> for syntax.
 Notice also that Pweave can now catch multiple figures/code chunk.</p>
-<div class="highlight"><pre><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="s">&quot;I&#39;m publishing a term chunk&quot;</span><span class="p">)</span>
-<span class="n">I</span><span class="s">&#39;m publishing a term chunk</span>
+<div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="s2">&quot;I&#39;m publishing a term chunk&quot;</span><span class="p">)</span>
+<span class="n">I</span><span class="s1">&#39;m publishing a term chunk</span>
 </pre></div>
 
 <p>Let's define a highpass FIR filter, if you compare to original blog
 post you'll notice that it has become easier since 2009. You don't
 need to do ' spectral inversion "manually" anymore!</p>
-<div class="highlight"><pre><span class="n">a</span> <span class="o">=</span> <span class="mi">12</span>
+<div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="mi">12</span>
 <span class="n">b</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="k">print</span><span class="p">(</span><span class="n">a</span><span class="o">+</span><span class="n">b</span><span class="p">)</span>
 </pre></div>
-<div class="highlight"><pre>22
+<div class="highlight"><pre><span></span>22
 </pre></div>
 
 <p><span class="math">\[
@@ -690,9 +692,9 @@ need to do ' spectral inversion "manually" anymore!</p>
 \]</span class="math"></p>
     <HR/>
     <div class="footer">
-      <p>Published from <a href="tests/publish/publish_test.txt">tests/publish/publish_test.txt</a>
+      <p>Published from <a href="tests/publish/publish_test_cell.txt">tests/publish/publish_test_cell.txt</a>
     using <a href="http://mpastell.com/pweave">Pweave</a> 0.24+
-    on 24-01-2016.<p></div>
+    on 21-04-2016.<p></div>
 
             </div>
         </div>
