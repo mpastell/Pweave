@@ -460,6 +460,41 @@ class PwebLeanpubFormatter(PwebFormatter):
         return result
 
 
+class PwebSoftCoverFormatter(PwebLeanpubFormatter):
+    def initformat(self):
+        self.formatdict = dict(codestart='\n```python',
+                               codeend='```\n\n',
+                               outputstart='```\n',
+                               outputend='```\n\n',
+                               indent='',
+                               termindent='',
+                               figfmt='.png',
+                               extension='md',
+                               width='15cm',
+                               doctype='softcover')
+
+    def formatfigure(self, chunk):
+        fignames = chunk['figure']
+        caption = chunk['caption']
+        width = chunk['width']
+        label = chunk['name']
+        result = ""
+        figstring = ""
+
+        if chunk['caption']:
+            if fignames:
+                result += '![%s \\label{fig:%s}](%s)\n' % (caption, label, fignames[0])
+                if len(fignames) > 1:
+                    for fig in fignames[1:]:
+                        figstring += '![](%s)\n' % fig
+                        sys.stderr.write("Warning, only the first figure gets a caption\n")
+        else:
+            for fig in fignames:
+                figstring += '![](%s)\n' % fig
+            result += figstring
+        return result
+
+
 class PwebSphinxFormatter(PwebRstFormatter):
     def initformat(self):
         self.formatdict = dict(codestart='.. code-block:: %s\n',
@@ -729,6 +764,7 @@ class PwebFormats(object):
                'pandoc': {'class': PwebPandocFormatter, 'description': 'Pandoc markdown'},
                'markdown': {'class': PwebPandocFormatter, 'description': 'Pandoc markdown, same as format pandoc'},
                'leanpub': {'class': PwebLeanpubFormatter, 'description': 'Leanpub markdown'},
+               'softcover': {'class': PwebSoftCoverFormatter, 'description': 'SoftCover markdown'},
                'sphinx': {'class': PwebSphinxFormatter, 'description': 'reStructuredText for Sphinx'},
                'html': {'class': PwebHTMLFormatter, 'description': 'HTML with pygments highlighting'},
                'md2html': {'class': PwebMDtoHTMLFormatter, 'description': 'Markdown to HTML using Python-Markdown'},
