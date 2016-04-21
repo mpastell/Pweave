@@ -4,7 +4,7 @@ package:
 
 source:
   fn: Pweave-0.25.tar.gz
-  url: https://pypi.python.org/packages/source/P/Pweave/Pweave-0.25.tar.gz
+  url: https://pypi.python.org/packages/f6/2f/e9735b04747ae5ef29d64e0b215fb0e11f1c89826097ac17342efebbbb84/Pweave-0.25.tar.gz#md5=d406395ee4a578c30ad498426402b8e6
   md5: d406395ee4a578c30ad498426402b8e6
 #  patches:
    # List any patch files here
