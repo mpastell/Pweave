@@ -295,6 +295,17 @@ class PwebReaders(object):
         return cls.formats[doctype]['class']
 
     @classmethod
+    def guessFromFilename(cls, filename):
+        _, ext = os.path.splitext(filename)
+        return cls.guessFromExtension(ext.lower())
+
+    @staticmethod
+    def guessFromExtension(ext):
+        if ext == '.pmd': return 'markdown'
+        if ext == '.py': return 'script'
+        return 'noweb'
+
+    @classmethod
     def shortformats(cls):
         fmtstring = ""
         names = list(cls.formats.keys())
