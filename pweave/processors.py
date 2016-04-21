@@ -446,11 +446,14 @@ class PwebProcessor(object):
 class PwebSubProcessor(PwebProcessor):
     """Runs code in external Python shell using subprocess.Popen"""
 
-    def __init__(self, parsed, source, mode, formatdict):
-        err_file = open(os.path.dirname(os.path.abspath(source)) + "/epython_stderr.log", "wt")
+    def __init__(self, parsed, source, mode, formatdict,
+                        figdir, outdir):
+        err_file = open(os.path.dirname(os.path.abspath(source))
+                    + "/epython_stderr.log", "wt")
         shell = rcParams["shell_path"]
         self.shell = Popen([shell, "-i", "-u"], stdin=PIPE, stdout=PIPE, stderr=err_file)
-        PwebProcessor.__init__(self, parsed, source, mode, formatdict)
+        PwebProcessor.__init__(self, parsed, source,
+                mode, formatdict, figdir, outdir)
         self.run_string("__pweave_data__ = {}\n")
         self.send_data({"rcParams": rcParams, "cwd": self.cwd, "formatdict": self.formatdict})
         self.inline_count = 1  # Count inline code blocks
