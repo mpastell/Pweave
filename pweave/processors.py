@@ -275,11 +275,12 @@ class PwebProcessor(object):
                         print(str(e))
                 else:
                     try:
-                        content = cmd.communicate(timeout=10)[0].decode('utf-8').replace("\r", "") + "\n"
+                        content = cmd.communicate(timeout=20)[0].decode('utf-8').replace("\r", "") + "\n"
                     except TimeoutExpired:
                         cmd.kill()
                         content, errs = cmd.communicate()
-
+                        sys.stdout.write("Shell command timeout:\n %s\n" % line)
+                        content = content.decode('utf-8').replace("\r", "") + "\n"
                 if chunk['term']:
                     result += "$ %s\n" % line
                 result += content
