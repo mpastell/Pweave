@@ -281,10 +281,18 @@ class PwebNBReader(object):
 
 class PwebReaders(object):
     """Lists available input formats"""
-    formats = {'noweb': {'class': PwebReader, 'description': 'Noweb document'},
-               'script': {'class': PwebScriptReader, 'description': 'Python script with rogyxen markup'},
-               'markdown' : {'class': PwebMarkdownReader, 'description': 'Markdown document'},
-               'notebook': {'class': PwebNBReader, 'description': 'IPython notebook'}}
+    formats = {'noweb': {'class': PwebReader,
+                         'description': 'Noweb document'},
+               'script': {'class': PwebScriptReader,
+                          'description': 'Python script with rogyxen markup'},
+               'markdown': {'class': PwebMarkdownReader,
+                            'description': 'Markdown document'},
+               'notebook': {'class': PwebNBReader,
+                            'description': 'IPython notebook'}}
+
+    @classmethod
+    def getReader(cls, doctype):
+        return cls.formats[doctype]['class']
 
     @classmethod
     def shortformats(cls):

@@ -32,6 +32,8 @@ def weave():
     parser.add_option("-c", "--cache-results", dest="cache",
                       action="store_true", default=False,
                       help="Cache results to disk for documentation mode")
+    parser.add_option("-o", "--output", dest="output", default=None,
+                      help="Name of the output file")
     parser.add_option("-F", "--figure-directory", dest="figdir", default='figures',
                       help="Directory path for matplolib graphics: Default 'figures'")
     parser.add_option("--cache-directory", dest="cachedir", default='cache',

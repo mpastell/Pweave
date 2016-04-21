@@ -19,7 +19,8 @@ __version__ = '0.24+'
 def weave(file, doctype=None, informat=None, shell="python", shell_path=None, plot=True,
           docmode=False, cache=False,
           figdir='figures', cachedir='cache',
-          figformat=None, returnglobals=True, listformats=False):
+          figformat=None, returnglobals=True, listformats=False,
+          output=None):
     """
     Processes a Pweave document and writes output to a file
 
@@ -36,6 +37,7 @@ def weave(file, doctype=None, informat=None, shell="python", shell_path=None, pl
     :param figformat: ``string`` format for saved figures (e.g. '.png'), if None then the default for each format is used
     :param returnglobals: ``bool`` if True the namespace of the executed document is added to callers global dictionary. Then it is possible to work interactively with the data while writing the document. IronPython needs to be started with -X:Frames or this won't work.
     :param listformats: ``bool`` List available formats and exit
+    :param output: ``string`` output file
     """
 
     if listformats:
@@ -44,7 +46,7 @@ def weave(file, doctype=None, informat=None, shell="python", shell_path=None, pl
 
     assert file != "" is not None, "No input specified"
 
-    doc = Pweb(file, shell=shell)
+    doc = Pweb(file, shell=shell, output=output, figdir=figdir)
     if doctype == None:
         doc.detect_format()
     else:
@@ -56,7 +58,7 @@ def weave(file, doctype=None, informat=None, shell="python", shell_path=None, pl
         doc.setreader(informat)
 
     rcParams["usematplotlib"] = plot
-    rcParams["figdir"] = figdir
+    #rcParams["figdir"] = figdir
     rcParams["cachedir"] = cachedir
     doc.documentationmode = docmode
     rcParams["storeresults"] = cache

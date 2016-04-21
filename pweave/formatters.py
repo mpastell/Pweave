@@ -632,9 +632,9 @@ class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
         try:
             import markdown
         except ImportError:
-            print(
-                "You'll need to install python markdown in order to use markdown to html formatter\nrun 'pip install markdown' to install")
-            return
+            message = "You'll need to install python markdown in order to use markdown to html formatter\nrun 'pip install markdown' to install"
+            print(message)
+            return message # was returning None, which was passed to join method
         from .markdownmath import MathExtension
 
         chunk["content"] = markdown.markdown(chunk["content"], extensions=[MathExtension()])
@@ -753,26 +753,39 @@ class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
 
 class PwebFormats(object):
     """Contains a dictionary of available output formats"""
-    formats = {'tex': {'class': PwebTexFormatter, 'description': 'Latex with verbatim for code and results'},
+    formats = {'tex': {'class': PwebTexFormatter,
+                       'description': 'Latex with verbatim for code and results'},
                'texminted': {'class': PwebMintedFormatter,
                              'description': 'Latex with predefined minted environment for codeblocks'},
                'texpweave': {'class': PwebTexPweaveFormatter,
                              'description': 'Latex output with user defined formatting using named environments (in latex header)'},
                'texpygments': {'class': PwebTexPygmentsFormatter,
                                'description': 'Latex output with pygments highlighted output'},
-               'rst': {'class': PwebRstFormatter, 'description': 'reStructuredText'},
-               'pandoc': {'class': PwebPandocFormatter, 'description': 'Pandoc markdown'},
-               'markdown': {'class': PwebPandocFormatter, 'description': 'Pandoc markdown, same as format pandoc'},
-               'leanpub': {'class': PwebLeanpubFormatter, 'description': 'Leanpub markdown'},
-               'softcover': {'class': PwebSoftCoverFormatter, 'description': 'SoftCover markdown'},
-               'sphinx': {'class': PwebSphinxFormatter, 'description': 'reStructuredText for Sphinx'},
-               'html': {'class': PwebHTMLFormatter, 'description': 'HTML with pygments highlighting'},
-               'md2html': {'class': PwebMDtoHTMLFormatter, 'description': 'Markdown to HTML using Python-Markdown'},
+               'rst': {'class': PwebRstFormatter,
+                       'description': 'reStructuredText'},
+               'pandoc': {'class': PwebPandocFormatter,
+                          'description': 'Pandoc markdown'},
+               'markdown': {'class': PwebPandocFormatter, 'description':
+                   'Pandoc markdown, same as format pandoc'},
+               'leanpub': {'class': PwebLeanpubFormatter,
+                           'description': 'Leanpub markdown'},
+               'sphinx': {'class': PwebSphinxFormatter,
+                          'description': 'reStructuredText for Sphinx'},
+               'html': {'class': PwebHTMLFormatter,
+                        'description': 'HTML with pygments highlighting'},
+               'md2html': {'class': PwebMDtoHTMLFormatter,
+                           'description': 'Markdown to HTML using Python-Markdown'},
+               'softcover': {'class': PwebSoftCoverFormatter,
+                            'description': 'SoftCover markdown'},
                'pandoc2latex': {'class': PwebPandoctoTexFormatter,
                                 'description': 'Markdown to Latex using Pandoc, requires Pandoc in path'},
                'pandoc2html': {'class': PwebPandocMDtoHTMLFormatter,
                                'description': 'Markdown to HTML using Pandoc, requires Pandoc in path'}
                 }
+
+    @classmethod
+    def getFormatter(cls, doctype):
+        return cls.formats[doctype]['class']
 
     @classmethod
     def shortformats(cls):

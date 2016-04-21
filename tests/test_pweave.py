@@ -1,93 +1,153 @@
-import pweave
+"""Integration test pweave by comparing output to a known good
+reference.
+
+N.B. can't use anything in the .mdw that will give different
+outputs each time. For example, setting term=True and then
+calling figure() will output a matplotlib figure reference. This
+has a memory pointer that changes every time.
+"""
 
 import unittest
+import sys
 import os
 
-class RegressionTest(unittest.TestCase):
-    TESTDIR = '.'
-
-    def assertSameAsReference(self):
-        try:
-            self.assertEqual(self.contentOf(self.REFERENCE),
-                             self.contentOf(self.OUTFILE))
-        except AssertionError:
-            raise AssertionError("{ref} and {out} differs".format(
-                                 ref=self.absPathTo(self.REFERENCE),
-                                 out=self.absPathTo(self.OUTFILE)))
-
-    def absPathTo(self, filename):
-        return os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                            self.TESTDIR,
-                                            filename))
-
-    def contentOf(self, filename):
-        return open(self.absPathTo(filename)).read()
-
-    def tearDown(self):
-        os.remove(self.absPathTo(self.OUTFILE))
-        pass
+import pweave
+from tests._frameworkForTests import RegressionTest
 
 
-class PandocTest(RegressionTest):
-    """Integration test pweave by comparing output to a known good
-    reference.
+class WeaveTest(RegressionTest):
+    def _testGenerator(name, doctype, filename, kwargs={}, python={2, 3}):
+        def testMethod(self):
+            self.TESTDIR = os.path.join('weave', doctype)
+            infile = self.absPathTo(filename + 'w')
+            self.setNewOutfile(filename)
 
-    N.B. can't use anything in the .mdw that will give different
-    outputs each time. For example, setting term=True and then
-    calling figure() will output a matplotlib figure reference. This
-    has a memory pointer that changes every time.
-    """
-    TESTDIR = 'pandoc'
-    REFERENCE = 'simple_REF.md'
-    INFILE = 'simple.mdw'
-    OUTFILE = 'simple.md'
+            pweave.weave(infile, doctype=doctype, **kwargs)
 
-    def testPandoc(self):
-        pweave.weave(file=self.absPathTo(self.INFILE),
-                     doctype="pandoc")
-        self.assertSameAsReference()
+            basename, _, ext = filename.rpartition('.')
+            self.REFERENCE = self.absPathTo(basename + '_REF.' + ext)
+            self.assertSameAsReference()
+
+        testMethod.__name__ = name
+        version = sys.version_info[0]
+        if version not in python:
+            return unittest.skip('{test} skipped beacause of inappropriate Python version ({v})'.format(
+                test = name,
+                v = version))(testMethod)
+
+        return testMethod
+
+    _tests = {
+              'Simple': (['pandoc', 'simple.md'], {}),
+              'ClassInMultipleChunksUsingContinueOption': (['pandoc', 'ar_yw.md'], {}),
+              'InlineCode': (['pandoc', 'inline_chunks.md'], {}),
+
+              'TerminalEmulation': (['tex', 'term_test.tex'], {'kwargs': {'shell': 'python'}}),
+
+              'FIR_FilterExampleTex': (['tex', 'FIR_design_verb.tex'], {}),
+
+              'WrapAndCodeOutput': (['texminted', 'wrap_test.tex'], {}),
+              }
 
 
-class PandocContinueOptionTest(PandocTest):
-    """Test documenting a class in multiple chunks using continue option
-    """
-    REFERENCE = 'ar_yw_ref.md'
-    INFILE = 'ar_yw.mdw'
-    OUTFILE = 'ar_yw.md'
+class GivenTexDocumentWithPythonCodeGeneratingFigure(RegressionTest):
+    TESTDIR = 'weave/tex/'
+    INFILE = 'FIR_design_verb.texw'
+    FIGURES = [(2, 1), (2, 2), (3, 1), (4, 1)]
+    FIGURE_PATTERN = 'FIR_design_verb_figure{chunk}_{n}.pdf'
 
+    def testWhenOutputInDifferentDirectoryFiguresDirectoryIsWritenThere(self):
+        filename = 'FIR_design_verb/FIR_design.tex'
+        self.removeFigures('FIR_design_verb/figures')
 
-class PandocInlineChunksTest(PandocTest):
-    """Test inline code"""
-    REFERENCE = 'inline_chunks_ref.md'
-    INFILE = 'inline_chunks.mdw'
-    OUTFILE = 'inline_chunks.md'
+        self.setNewOutfile(filename)
+
+        pweave.weave(self.absPathTo(self.INFILE),
+                     output=self.absPathTo(filename),
+                     doctype='tex')
+
+        self.assertSameAsPattern('FIR_design_verb/REF_tex.pattern',
+                                 figdir='figures')
+        self.checkFiguresExist('FIR_design_verb/figures')
+
+    def testWhenFigdirGivenFiguresAreWritenThere(self):
+      filename = 'FIR_design_verb/FIR_design_figdir.tex'
+      self.removeFigures('FIR_design_verb/figs')
+      self.setNewOutfile(filename)
+
+      pweave.weave(self.absPathTo(self.INFILE),
+                   output=self.absPathTo(filename),
+                   figdir='figs',
+                   doctype='tex')
+
+      self.assertSameAsPattern('FIR_design_verb/REF_tex.pattern',
+                               figdir='figs')
+      self.checkFiguresExist('FIR_design_verb/figs')
+
+    def testWhenAbsoluteFigdirGivenFiguresAreWritenThere(self):
+      filename = 'FIR_design_verb/FIR_design_AbsoluteFigdir.tex'
+      relativeFigDir = 'absFigs'
+      figdir = self.absPathTo(relativeFigDir)
+      self.removeFigures(relativeFigDir)
+
+      self.setNewOutfile(filename)
+
+      pweave.weave(self.absPathTo(self.INFILE),
+                   output=self.absPathTo(filename),
+                   figdir=figdir,
+                   doctype='tex')
+
+      self.assertSameAsPattern('FIR_design_verb/REF_tex.pattern',
+                               figdir=figdir)
+
+      self.checkFiguresExist(relativeFigDir)
+
+    def removeFigures(self, relativeFigDir):
+      for figure in self.__getFigures(relativeFigDir):
+        self.removeFile(figure)
+
+    def checkFiguresExist(self, relativeFigDir):
+      for figure in self.__getFigures(relativeFigDir):
+        self.assertTrue(os.path.exists(self.absPathTo(figure)))
+
+    def __getFigures(self, figdir='figures'):
+      for chunk, n in self.FIGURES:
+        yield os.path.join(figdir,
+                           self.FIGURE_PATTERN.format(chunk=chunk,
+                                                      n=n))
 
 
 class ConvertTest(RegressionTest):
     """Test pweave-convert
     """
     TESTDIR = 'convert'
-    REFERENCE = 'convert_test_ref.Pnw'
-    INFILE = 'convert_test.txt'
-    OUTFILE = 'convert_test.Pnw'
-    INFORMAT = 'script'
-    OUTFORMAT = 'noweb'
 
-    def testConvert(self):
-        pweave.convert(self.absPathTo(self.INFILE),
-                       informat=self.INFORMAT,
-                       outformat=self.OUTFORMAT)
-        self.assertSameAsReference()
+    def _testGenerator(name, infile, informat, outformat, outext, python={2, 3}):
+        def testMethod(self):
+            basename, _, _ = infile.rpartition('.')
+            outfile = basename + '.' + outext
+            self.setNewOutfile(outfile)
 
+            pweave.convert(self.absPathTo(infile),
+                           informat=informat,
+                           outformat=outformat)
 
-class NbformatTest(ConvertTest):
-    """Test whether we can write an IPython Notebook.
-    """
-    REFERENCE = 'simple_REF.ipynb'
-    INFILE = 'simple.mdw'
-    OUTFILE = 'simple.ipynb'
-    INFORMAT = 'noweb'
-    OUTFORMAT = 'notebook'
+            self.REFERENCE = self.absPathTo(basename + '_REF.' + outext)
+            self.assertSameAsReference()
+
+        testMethod.__name__ = name
+        version = sys.version_info[0]
+        if version not in python:
+            return unittest.skip('{test} skipped beacause of inappropriate Python version ({v})'.format(
+                test = name,
+                v = version))(testMethod)
+
+        return testMethod
+
+    _tests = {
+              'Convert': (['convert_test.txt', 'script', 'noweb', 'Pnw'], {}),
+              'Nbformat': (['simple.mdw', 'noweb', 'notebook', 'ipynb'], {}),
+             }
 
 
 
@@ -98,35 +158,6 @@ class NbformatTest(ConvertTest):
 #    outfile = 'tests/octave_test.md'
 #    pweave.weave(file=infile, doctype="pandoc", shell="octave")
 #    assertSameContent(REF, outfile)
-
-
-class TermTest(RegressionTest):
-    """Test Python terminal emulation
-
-    Eval statements might not work with ipython properly (code compiled differently)"""
-    TESTDIR = 'term'
-    REFERENCE = 'term_test_ref.tex'
-    INFILE = 'term_test.texw'
-    OUTFILE = 'term_test.tex'
-
-    def testTerm(self):
-        pweave.weave(file=self.absPathTo(self.INFILE),
-                     doctype="tex",
-                     shell="python")
-        self.assertSameAsReference()
-
-
-class WrapTest(RegressionTest):
-    """Test wrap and code output. Issues #18 and #21"""
-    TESTDIR = 'wrap'
-    REFERENCE = 'wrap_test_ref.tex'
-    INFILE = 'wrap_test.texw'
-    OUTFILE = 'wrap_test.tex'
-
-    def testWrap(self):
-        pweave.weave(file=self.absPathTo(self.INFILE),
-                     doctype="texminted")
-        self.assertSameAsReference()
 
 
 #Output contains date and version number, test needs to be fixed

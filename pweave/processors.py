@@ -32,10 +32,14 @@ from .config import *
 class PwebProcessor(object):
     """Runs code from parsed Pweave documents"""
 
-    def __init__(self, parsed, source, mode, formatdict):
+    def __init__(self, parsed, source, mode, formatdict,
+                       figdir, outdir):
         self.parsed = parsed
         self.source = source
         self.documentationmode = mode
+        self.figdir = figdir
+        self.outdir = outdir
+
         self.cwd = os.path.dirname(os.path.abspath(source))
         self.basename = os.path.basename(os.path.abspath(source)).split(".")[0]
         self._stdout = sys.stdout
@@ -45,9 +49,7 @@ class PwebProcessor(object):
 
     def run(self):
         # Create directory for figures
-        if not os.path.isdir(rcParams["figdir"]):
-            os.mkdir(rcParams["figdir"])
-
+        self.ensureDirectoryExists(self.getFigDirectory())
         # Documentation mode uses results from previous  executions
         # so that compilation is fast if you only work on doc chunks
         if self.documentationmode:
@@ -65,14 +67,17 @@ class PwebProcessor(object):
         if rcParams["storeresults"]:
             self.store(self.executed)
 
+    def ensureDirectoryExists(self, figdir):
+        if not os.path.isdir(figdir):
+            os.mkdir(figdir)
+
     def getresults(self):
         return copy.deepcopy(self.executed)
 
     def store(self, data):
         """A method used to pickle stuff for persistence"""
         cachedir = os.path.join(self.cwd, rcParams["cachedir"])
-        if not os.path.isdir(cachedir):
-            os.mkdir(cachedir)
+        self.ensureDirectoryExists(cachedir)
 
         name = cachedir + "/" + self.basename + ".pkl"
         f = open(name, 'wb')
@@ -193,9 +198,7 @@ class PwebProcessor(object):
         else:
             prefix = self.basename + '_' + chunk['name']
 
-        figdir = os.path.join(self.cwd, rcParams["figdir"])
-        if not os.path.isdir(figdir):
-            os.mkdir(figdir)
+        self.ensureDirectoryExists(self.getFigDirectory())
 
         fignames = []
 
@@ -215,10 +218,12 @@ class PwebProcessor(object):
                         ax.yaxis.set_ticks_position('left')
                         ax.xaxis.set_ticks_position('bottom')
 
-                name = rcParams["figdir"] + "/" + prefix + "_" + str(i) + self.formatdict['figfmt']
+                name = self.figdir + "/" + prefix + "_" + str(i) + \
+                       self.formatdict['figfmt']
 
                 for format in self.formatdict['savedformats']:
-                    f_name = os.path.join(self.cwd, rcParams["figdir"], prefix + "_" + str(i)) + format
+                    f_name = os.path.join(self.getFigDirectory(),
+                                          prefix + "_" + str(i)) + format
                     plt.savefig(f_name)
 
                     plt.draw()
@@ -226,6 +231,9 @@ class PwebProcessor(object):
                 plt.close()
 
         return fignames
+
+    def getFigDirectory(self):
+        return os.path.join(self.outdir, self.figdir)
 
     def _getoldresults(self):
         """Get the results of previous run for documentation mode"""
@@ -593,9 +601,8 @@ class PwebSubProcessor(PwebProcessor):
         else:
             prefix = self.basename + '_' + chunk['name']
 
-        figdir = os.path.join(self.cwd, rcParams["figdir"])
-        if not os.path.isdir(figdir):
-            os.mkdir(figdir)
+        figdir = self.getFigDirectory()
+        self.ensureDirectoryExists(figdir)
 
         self.send_data({"figdir": figdir, "prefix": prefix})
 
@@ -609,15 +616,14 @@ class PwebSubProcessor(PwebProcessor):
 
 
 class OctaveProcessor(PwebSubProcessor):
-
-    def __init__(self, parsed, source, mode, formatdict):
+    def __init__(self, parsed, source, *args, **kwargs):
+        super(OctaveProcessor, self).__init__(parsed, source, *args, **kwargs)
         err_file = open(os.path.dirname(os.path.abspath(source)) + "/octave_stderr.log", "wt")
         shell = "octave"
         #shell = rcParams["shell_path"]
 
         rcParams["chunk"]["defaultoptions"].update({"fig": False})
         self.shell = Popen([shell], stdin=PIPE, stdout=PIPE, stderr=err_file)
-        PwebProcessor.__init__(self, parsed, source, mode, formatdict)
         #self.run_string("__pweave_data__ = {}\n")
         #self.send_data({"rcParams": rcParams, "cwd": self.cwd, "formatdict": self.formatdict})
         self.inline_count = 1  # Count inline code blocks
@@ -655,15 +661,14 @@ class OctaveProcessor(PwebSubProcessor):
         else:
             prefix = self.basename + '_' + chunk['name']
 
-        figdir = os.path.join(self.cwd, rcParams["figdir"])
-        if not os.path.isdir(figdir):
-            os.mkdir(figdir)
+        self.ensureDirectoryExists(self.getFigDirectory())
 
         fignames = []
-        name = rcParams["figdir"] + "/" + prefix + "_" + self.formatdict['figfmt']
+        name = self.figdir + "/" + prefix + "_" + self.formatdict['figfmt']
         fignames.append(name)
         for fmt in self.formatdict['savedformats']:
-            f_name = os.path.join(self.cwd, rcParams["figdir"], prefix + "_" + fmt)
+            f_name = os.path.join(self.getFigDirectory(),
+                                  prefix + "_" + fmt)
             self.run_string("print -FHelvetica:12 -r200 -d%s %s" % (fmt[1:], f_name))
 
         return fignames
@@ -675,11 +680,11 @@ class OctaveProcessor(PwebSubProcessor):
 class MatlabProcessor(PwebProcessor):
     """Runs Matlab code usinng python-matlab-brigde"""
 
-    def __init__(self, parsed, source, mode, formatdict):
+    def __init__(self, *args, **kwargs):
+        super(MatlabProcessor, self).__init__(*args, **kwargs)
         from pymatbridge import Matlab
         self.matlab = Matlab()
         self.matlab.start()
-        PwebProcessor.__init__(self, parsed, source, mode, formatdict)
 
     def getresults(self):
         self.matlab.stop()
@@ -708,9 +713,8 @@ class MatlabProcessor(PwebProcessor):
         else:
             prefix = self.basename + '_' + chunk['name']
 
-        figdir = os.path.join(self.cwd, rcParams["figdir"])
-        if not os.path.isdir(figdir):
-            os.mkdir(figdir)
+        figdir = self.getFigDirectory()
+        self.ensureDirectoryExists(figdir)
 
         fignames = []
 
@@ -731,8 +735,9 @@ class MatlabProcessor(PwebProcessor):
 class PwebIPythonProcessor(PwebProcessor):
     """Runs code from parsed Pweave documents"""
 
-    def __init__(self, parsed, source, mode, formatdict):
-        PwebProcessor.__init__(self, parsed, source, mode, formatdict)
+    def __init__(self, *args, **kwargs):
+        super(PwebIPythonProcessor, self).__init__(*args, **kwargs)
+
         import IPython
 
         x = IPython.core.interactiveshell.InteractiveShell()
@@ -818,12 +823,21 @@ class PwebIPythonProcessor(PwebProcessor):
 
 class PwebProcessors(object):
     """Lists available input formats"""
-    formats = {'python': {'class': PwebProcessor, 'description': 'Python shell'},
-               'ipython': {'class': PwebIPythonProcessor, 'description': 'IPython shell'},
-               'epython': {'class': PwebSubProcessor, 'description': 'Python as separate process'},
-               'octave': {'class': OctaveProcessor, 'description': 'Run code using Octave'},
-               'matlab': {'class': MatlabProcessor, 'description': 'Run code using Matlab'}
+    formats = {'python': {'class': PwebProcessor,
+                          'description': 'Python shell'},
+               'ipython': {'class': PwebIPythonProcessor,
+                           'description': 'IPython shell'},
+               'epython': {'class': PwebSubProcessor,
+                           'description': 'Python as separate process'},
+               'octave': {'class': OctaveProcessor,
+                          'description': 'Run code using Octave'},
+               'matlab': {'class': MatlabProcessor,
+                          'description': 'Run code using Matlab'}
     }
+
+    @classmethod
+    def getProcessor(cls, shell):
+        return cls.formats[shell]['class']
 
     @classmethod
     def shortformats(cls):
