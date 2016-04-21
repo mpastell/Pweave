@@ -17,13 +17,13 @@ class WeaveFormatsTest(RegressionTest):
         def testMethod(self):
             infile = self.absPathTo(self.INFILE)
             self.setNewOutfile(infile[:-3] + ext)
-
+            print("")
             pweave.weave(infile,
                          doctype=doctype,
                          informat='markdown')
 
             self.REFERENCE = self.absPathTo(reference)
-            self.assertSameAsReference()
+            self.assertSameAsReference
 
         testMethod.__name__ = name
         version = sys.version_info[0]

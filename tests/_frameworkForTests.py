@@ -50,7 +50,6 @@ class RegressionTest(ParametricTests):
     def removeFile(self, name):
         try:
             os.remove(self.absPathTo(name))
-
         except OSError:
             pass
 

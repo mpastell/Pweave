@@ -7,6 +7,24 @@ tests/readers/markdown_reader.txt
 tests/octave/octave_test.txt
 tests/publish/publish_test.html
 tests/publish/publish_test_cell.html
+tests/convert/convert_test.Pnw
+tests/convert/simple.ipynb
+tests/formats/formatters_test.html
+tests/formats/formatters_test.md
+tests/formats/formatters_test.rst
+tests/formats/formatters_test.tex
+tests/formats/formatters_test.txt
+tests/weave/pandoc/ar_yw.md
+tests/weave/pandoc/inline_chunks.md
+tests/weave/pandoc/simple.md
+tests/weave/tex/FIR_design_verb.tex
+tests/weave/tex/FIR_design_verb/FIR_design.tex
+tests/weave/tex/FIR_design_verb/FIR_design_AbsoluteFigdir.tex
+tests/weave/tex/FIR_design_verb/FIR_design_figdir.tex
+tests/weave/tex/term_test.tex
+tests/weave/texminted/wrap_test.tex
+
+
 
 run_tests.sh
 koe.py

@@ -9,7 +9,9 @@ notifications:
 before_install:
   - sudo add-apt-repository ppa:octave/stable -y
   - sudo apt-get update -q
-  - sudo apt-get install octave -y
+  - sudo apt-get install octave gdebi -y
+  - wget https://github.com/jgm/pandoc/releases/download/1.17.0.2/pandoc-1.17.0.2-1-amd64.deb
+  - sudo gdebi pandoc-1.17.0.2-1-amd64.deb -n
   - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
   - chmod +x miniconda.sh
   - ./miniconda.sh -b
