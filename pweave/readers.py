@@ -129,7 +129,7 @@ class PwebMarkdownReader(PwebReader):
     def __init__(self, file=None, string=None):
         PwebReader.__init__(self, file, string)
         self.code_begin = r"(?:^(?:`|~){3,}\s*(?:\{|\{\.|)python(?:,|\s|"")(.*)\}\s*$)|(?:^(?:`|~){3,}\s*python\s*$)"
-        self.doc_begin = r"^`|~{3,}\s*$"
+        self.doc_begin = r"^(`|~){3,}\s*$"
 
 
 class PwebScriptReader(object):
