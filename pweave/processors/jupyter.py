@@ -30,16 +30,15 @@ class JupyterProcessor(PwebProcessorBase):
         self.kc.allow_stdin = False
         self.spec = self.km.kernel_spec.to_dict()
         #self.run_cell("%matplotlib inline\nfrom IPython.display import set_matplotlib_formats\nset_matplotlib_formats('svg', 'pdf')")
-		
-        
+
     def close(self):
         self.kc.stop_channels()
         self.km.shutdown_kernel(now = True)
         
     def run_cell(self, src):
         cell = {}
-        cell["source"] = src
-        msg_id = self.kc.execute(src)
+        cell["source"] = src.lstrip()
+        msg_id = self.kc.execute(src.lstrip())
         print(msg_id)
         #self.log.debug("Executing cell:\n%s", cell.source)
         

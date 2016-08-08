@@ -3,14 +3,14 @@ import nbformat
 
 class PwebNotebookFormatter(object):
 
-    def __init__(self, doc, kernel = "python", language = "Python 3"):
+    def __init__(self, doc):
         self.notebook = {"metadata" : {
                 "kernel_info" : {
-                    "name" : kernel
+                    "name" : doc.kernel
                 },
             "language_info": {
                 # if language_info is defined, its name field is required.
-                "name": language
+                "name": doc.language
             }
         },
         "nbformat": 4,
@@ -42,10 +42,11 @@ class PwebNotebookFormatter(object):
                         "cell_type": "code",
                         "execution_count" : self.execution_count,
                         "metadata": {
-                            "collapsed": False,  # whether the output of the cell is collapsed
-                            "autoscroll": "auto",  # any of true, false or "auto"
+                            "collapsed": False,
+                            "autoscroll": "auto",
+                            "options" : chunk["options"]
                         },
-                        "source": chunk["content"],
+                        "source": chunk["content"].lstrip(),
                         "outputs" : chunk["result"]
                     }
                 )

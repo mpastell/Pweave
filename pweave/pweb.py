@@ -157,6 +157,7 @@ class Pweb(object):
         runner.run()
         self.executed = runner.getresults()
         self.isexecuted = True
+        self.language = runner.spec["language"]
 
     def format(self):
         """Format the code for writing"""

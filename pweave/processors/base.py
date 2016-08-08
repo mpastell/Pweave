@@ -114,7 +114,11 @@ class PwebProcessorBase(object):
             defaults = rcParams["chunk"]["defaultoptions"].copy()
             defaults.update(chunk["options"])
             chunk.update(defaults)
-            del chunk['options']
+            # This is a bit redundant,
+            # it is added afterwards to support adding options as
+            # metadata to notebooks
+            chunk["options"] = defaults
+            #del chunk['options']
 
             # Read the content from file or object
         if 'source' in chunk:
