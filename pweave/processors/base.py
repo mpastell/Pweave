@@ -65,6 +65,10 @@ class PwebProcessorBase(object):
         self.isexecuted = True
         if rcParams["storeresults"]:
             self.store(self.executed)
+        self.close()
+
+    def close(self):
+        pass
 
     def ensureDirectoryExists(self, figdir):
         if not os.path.isdir(figdir):

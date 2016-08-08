@@ -33,7 +33,7 @@ class JupyterProcessor(PwebProcessorBase):
         
     def close(self):
         self.kc.stop_channels()
-        self.km.shutdown_kernel(now=self.shutdown_kernel == 'immediate')
+        self.km.shutdown_kernel(now = True)
         
     def run_cell(self, src):
         cell = {}

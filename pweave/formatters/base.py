@@ -106,23 +106,24 @@ class PwebFormatter(object):
 
     def render_jupyter_output(self, out, chunk):
         #print(out)
+        if out["output_type"] == "error":
+            return self.render_text("".join(out["traceback"]), chunk)
+
         if out["output_type"] == "stream":
             return self.render_text(out["text"], chunk)
-        #Return the "richest support output"
-        else: #out["output_type"] == "display_data":
-            #Return richest supported mimetype
-            for mimetype in self.mimetypes:
-                if mimetype in out["data"]:
-                    return("\n" + out["data"][mimetype])
-            #Return nothing if data is shown as figure
-            for mimetype in self.fig_mimetypes:
-                if mimetype in out["data"]:
-                    return ""
 
-            if "text/plain" in out["data"]:
-                return self.render_text(out["data"]["text/plain"], chunk)
-            else:
+        for mimetype in self.mimetypes:
+            if mimetype in out["data"]:
+                return("\n" + out["data"][mimetype])
+        #Return nothing if data is shown as figure
+        for mimetype in self.fig_mimetypes:
+            if mimetype in out["data"]:
                 return ""
+
+        if "text/plain" in out["data"]:
+            return self.render_text(out["data"]["text/plain"], chunk)
+        else:
+            return ""
 
     def render_text(self, text, chunk):
         chunk = copy.deepcopy(chunk)
