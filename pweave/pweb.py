@@ -17,9 +17,8 @@ if sys.version_info[0] == 3:
 
 class Pweb(object):
     """Processes a complete document
-
     :param file: ``string`` name of the input document.
-    :param format: ``string`` output format from supported formats. See: http://mpastell.com/pweave/formats.html
+    :param format: ``string`` output format from supported formats. pweavSee: http://mpastell.com/pweave/formats.html
     """
 
     # Shared across class instances
@@ -72,12 +71,12 @@ class Pweb(object):
         """
         #Formatters are needed  when the code is executed and formatted
         if Formatter is not None:
-            self.formatter = Formatter(self.source)
+            self.formatter = Formatter(self)
             return
         #Get formatter class from available formatters
         try:
             Formatter = PwebFormats.getFormatter(doctype)
-            self.formatter = Formatter(self.source) if theme is None else Formatter(self.source, theme)
+            self.formatter = Formatter(self) if theme is None else Formatter(self, theme)
 
         except KeyError as e:
             raise Exception("Pweave: Unknown output format")
@@ -141,11 +140,13 @@ class Pweb(object):
         else:
             Runner = shell
 
+        self.outdir = os.path.dirname(self.destination if self.destination is not None else self.source)
+
         runner = Runner(copy.deepcopy(self.parsed), self.source,
                         self.documentationmode,
                         self.formatter.getformatdict(),
                         self.figdir,
-                        os.path.dirname(self.destination if self.destination is not None else self.source))
+                        self.outdir)
         runner.run()
         self.executed = runner.getresults()
         self.isexecuted = True

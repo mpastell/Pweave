@@ -1,17 +1,26 @@
 import textwrap
+import os
+import base64
+import copy
 
 # Pweave output formatters
 class PwebFormatter(object):
     """Base class for all formatters"""
 
-    def __init__(self, source=None):
+    def __init__(self, doc):
+        self.fig_mimetypes = ["image/png", "image/jpg"]
+        self.mimetypes = [] #other supported mimetypes than text/plain
         self.initformat()
         self._fillformatdict()
         self.header = None
         self.footer = None
         self.executed = None
-        self.source = source
+        self.doc = doc
         self.wrapper = textwrap.TextWrapper(subsequent_indent="", break_long_words=False)
+        self.mime_extensions = {"application/pdf" : "pdf",
+                                "image/png" : "png",
+                                "image/jpg" : "jpg"}
+
 
     def setexecuted(self, executed):
         self.executed = executed
@@ -29,11 +38,11 @@ class PwebFormatter(object):
             if chunk['type'] == "code":
                 if chunk['wrap']:
                     chunk['content'] = self._wrap(chunk['content'])
-                    chunk['result'] = self._wrap(chunk['result'])
+                    #chunk['result'] = self._wrap(chunk['result'])
                 if chunk['wrap'] == 'code':
                     chunk['content'] = self._wrap(chunk['content'])
-                if chunk['wrap'] == 'results':
-                    chunk['result'] = self._wrap(chunk['result'])
+                #if chunk['wrap'] == 'results':
+                #    chunk['result'] = self._wrap(chunk['result'])
                 if not chunk['wrap']:
                     chunk['content'] = chunk['content'] + "\n"
 
@@ -58,6 +67,28 @@ class PwebFormatter(object):
     def preformat_chunk(self, chunk):
         """You can use this method in subclasses to preformat chunk content"""
         return chunk
+      
+    def figures_from_chunk(self, chunk):
+        """Extract base64 encoded figures from chunk"""
+        figs = []
+        i = 0
+        for out in chunk["result"]:
+        #Loop trough mimetypes in order of preference
+            for mimetype in self.fig_mimetypes:
+                if out["output_type"] != "display_data":
+                    continue
+                if mimetype in out["data"]:
+                    fig_name, include_name = self.get_figname(chunk, i, mimetype)
+                    figs.append(include_name)
+                    bfig = base64.b64decode(out["data"][mimetype])
+                    f = open(fig_name, "wb")
+                    f.write(bfig)
+                    f.close()
+                    i += 1
+                    break
+        print(figs)
+        return figs
+
 
     def format_termchunk(self, chunk):
         if chunk['echo'] and chunk['results'] != 'hidden':
@@ -73,6 +104,54 @@ class PwebFormatter(object):
     def format_results(self, chunk):
         pass
 
+    def render_jupyter_output(self, out, chunk):
+        #print(out)
+        if out["output_type"] == "stream":
+            return self.render_text(out["text"], chunk)
+        #Return the "richest support output"
+        else: #out["output_type"] == "display_data":
+            #Return richest supported mimetype
+            for mimetype in self.mimetypes:
+                if mimetype in out["data"]:
+                    return("\n" + out["data"][mimetype])
+            #Return nothing if data is shown as figure
+            for mimetype in self.fig_mimetypes:
+                if mimetype in out["data"]:
+                    return ""
+
+            if "text/plain" in out["data"]:
+                return self.render_text(out["data"]["text/plain"], chunk)
+            else:
+                return ""
+
+    def render_text(self, text, chunk):
+        chunk = copy.deepcopy(chunk)
+        chunk["result"] = "\n" + text
+        result = ""
+        #Set lexers for code and output
+
+        if "%s" in chunk["outputstart"]:
+            chunk["outputstart"] = chunk["outputstart"] % chunk["engine"]
+        if "%s" in chunk["termstart"]:
+            chunk["termstart"] = chunk["termstart"] % chunk["engine"]
+
+
+        #Term sets echo to true
+        if chunk['term']:
+        #    result = self.format_termchunk(chunk)
+            pass
+        #Other things than term
+        elif chunk['results'] == 'verbatim':
+            if len(chunk['result'].strip()) > 1:
+                chunk['result'] = self._indent(chunk['result'])
+                result += '%(outputstart)s%(result)s%(outputend)s' % chunk
+
+        elif chunk['results'] != 'verbatim':
+            result += text
+
+        return(result)
+
+
     def format_codechunks(self, chunk):
         chunk['content'] = self._indent(chunk['content'])
 
@@ -86,46 +165,24 @@ class PwebFormatter(object):
             else:
                 return ''
 
-        #Set lexers for code and output
-        if "%s" in chunk["codestart"]:
-            chunk["codestart"] = chunk["codestart"] % chunk["engine"]
-        if "%s" in chunk["outputstart"]:
-            chunk["outputstart"] = chunk["outputstart"] % chunk["engine"]
-        if "%s" in chunk["termstart"]:
-            chunk["termstart"] = chunk["termstart"] % chunk["engine"]
-
         #Code is executed
         #-------------------
+        if "%s" in chunk["codestart"]:
+            chunk["codestart"] = chunk["codestart"] % chunk["engine"]
+
         result = ""
 
-        #Hidden results
-        if chunk['results'] == 'hidden':
-            chunk['result'] = ''
+        if chunk['echo']:
+            result += '%(codestart)s%(content)s%(codeend)s' % chunk
 
-        #Term sets echo to true
-        if chunk['term']:
-            result = self.format_termchunk(chunk)
-        #Other things than term
-        elif chunk['evaluate'] and chunk['echo'] and chunk['results'] == 'verbatim':
-            result = '%(codestart)s%(content)s%(codeend)s' % chunk
-            if len(chunk['result'].strip()) > 1:
-                chunk['result'] = self._indent(chunk['result'])
-                result += '%(outputstart)s%(result)s%(outputend)s' % chunk
 
-        elif chunk['evaluate'] and chunk['echo'] and chunk['results'] != 'verbatim':
-            chunk['result'] = chunk['result'].replace('\n', '', 1)
-            result = '%(codestart)s%(content)s%(codeend)s%(result)s' % chunk
-
-        elif chunk['evaluate'] and not chunk['echo'] and chunk['results'] == 'verbatim':
-            if len(chunk['result'].strip()) > 1:
-                chunk['result'] = self._indent(chunk['result'])
-                result += '%(outputstart)s%(result)s%(outputend)s' % chunk
-
-        elif chunk['evaluate'] and not chunk['echo']:
-            #Remove extra line added when results are captured in run phase
-            result = chunk['result'].replace('\n', '', 1)
+        if chunk['results'] != 'hidden':
+            for out in chunk["result"]:
+                result += self.render_jupyter_output(out, chunk)
 
         #Handle figures
+        chunk['figure'] = self.figures_from_chunk(chunk) #Save embedded figures to file
+
         if chunk['fig'] and 'figure' in chunk:
             if chunk['include']:
                 result += self.formatfigure(chunk)
@@ -190,3 +247,30 @@ class PwebFormatter(object):
         """Indent blocks for formats where indent is significant"""
         return text
         # return(text.replace('\n', '\n' + self.formatdict['termindent']))
+
+    def get_figname(self, chunk, i, mimetype):
+        save_dir = self.getFigDirectory()
+        include_dir = self.doc.figdir
+        ext = "." + self.mime_extensions[mimetype]
+        self.fig_mimetypes = ["image/png", "image/jpg"]
+        base = os.path.splitext(os.path.basename(self.doc.source))[0]
+
+        if chunk['name'] is None:
+            prefix = base + '_figure' + str(chunk['number']) + "_" + str(i)
+        else:
+            prefix = base + '_' + chunk['name'] + "_" + str(i)
+
+
+        self.ensureDirectoryExists(self.getFigDirectory())
+
+        save_name = os.path.join(save_dir, prefix + ext)
+        include_name = os.path.join(include_dir, prefix + ext)
+        return save_name, include_name
+
+
+    def getFigDirectory(self):
+        return os.path.join(self.doc.outdir, self.doc.figdir)
+
+    def ensureDirectoryExists(self, figdir):
+        if not os.path.isdir(figdir):
+            os.mkdir(figdir)

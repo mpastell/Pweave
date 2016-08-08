@@ -1,5 +1,6 @@
 from .base import PwebFormatter
 
+
 class PwebTexFormatter(PwebFormatter):
     def initformat(self):
         self.formatdict = dict(codestart='\\begin{verbatim}',
@@ -10,9 +11,10 @@ class PwebTexFormatter(PwebFormatter):
                                extension='tex',
                                width='\\linewidth',
                                doctype='tex')
+        self.mimetypes = ["text/latex"]
+        self.fig_mimetypes = ["application/pdf", "image/png", "image/jpg"]
 
     def formatfigure(self, chunk):
-
         fignames = chunk['figure']
         caption = chunk['caption']
         width = chunk['width']

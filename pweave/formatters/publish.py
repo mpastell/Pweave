@@ -4,32 +4,35 @@ from subprocess import Popen, PIPE
 import base64
 import sys
 import os
+import io
 
 
 class PwebHTMLFormatter(PwebFormatter):
-    def format_codechunks(self, chunk):
+
+    def preformat_chunk(self, chunk):
+        print(chunk)
+        if chunk["type"] == "doc":
+            return chunk
+
         from pygments import highlight
         from pygments.lexers import PythonLexer, PythonConsoleLexer, TextLexer
         from pygments.formatters import HtmlFormatter
 
         chunk['content'] = highlight(chunk['content'], PythonLexer(), HtmlFormatter())
-        if len(chunk['result'].strip()) > 0 and chunk['results'] == 'verbatim':
-            if chunk['term']:
-                chunk['result'] = highlight(chunk['result'], PythonLexer(), HtmlFormatter())
-            else:
-                chunk['result'] = highlight(chunk['result'], TextLexer(), HtmlFormatter())
-
-        return PwebFormatter.format_codechunks(self, chunk)
+        return chunk
 
     def initformat(self):
         self.formatdict = dict(codestart='',
                                codeend='',
-                               outputstart='',
-                               outputend='',
+                               # TODO overrive render_text to use
+                               # pygments Lexer
+                               outputstart='\n<div class="highlight"><pre>',
+                               outputend='</pre></div>\n',
                                figfmt='.png',
                                extension='html',
                                width='600',
                                doctype='html')
+        self.mimetypes = ["text/html"]
 
     def formatfigure(self, chunk):
         result = ""
@@ -59,16 +62,19 @@ class PwebHTMLFormatter(PwebFormatter):
 
 class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
 
-    def __init__(self, source = None, theme = "skeleton"):
+    def __init__(self, doc = None, theme = "skeleton"):
         from .templates import htmltemplate
         from .. import themes
         from pygments.formatters import HtmlFormatter
         from .. import __version__
         import time
-        PwebHTMLFormatter.__init__(self, source)
+        PwebHTMLFormatter.__init__(self, doc)
+        self.mimetypes = ["text/html", "text/markdown"]
+        self.doc = doc
+        self.source = self.doc.source
 
-        if self.source is not None:
-            self.path = os.path.dirname(os.path.abspath(self.source))
+        if self.doc is not None:
+            self.path = os.path.dirname(os.path.abspath(self.doc.source))
         else:
              self.path = "."
 
