@@ -114,7 +114,10 @@ class PwebFormatter(object):
 
         for mimetype in self.mimetypes:
             if mimetype in out["data"]:
-                return("\n" + out["data"][mimetype])
+                if mimetype == "application/javascript":
+                    return ("\n<script>" + out["data"][mimetype] + "</script>")
+                else:
+                    return("\n" + out["data"][mimetype])
         #Return nothing if data is shown as figure
         for mimetype in self.fig_mimetypes:
             if mimetype in out["data"]:

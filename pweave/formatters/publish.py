@@ -32,7 +32,7 @@ class PwebHTMLFormatter(PwebFormatter):
                                extension='html',
                                width='600',
                                doctype='html')
-        self.mimetypes = ["text/html"]
+        self.mimetypes = ["text/html", "application/javascript"]
 
     def formatfigure(self, chunk):
         result = ""
@@ -69,7 +69,7 @@ class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
         from .. import __version__
         import time
         PwebHTMLFormatter.__init__(self, doc)
-        self.mimetypes = ["text/html", "text/markdown"]
+        self.mimetypes = ["text/html", "text/markdown", "application/javascript"]
         self.doc = doc
         self.source = self.doc.source
 
