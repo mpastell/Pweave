@@ -45,6 +45,7 @@ class Pweb(object):
         self.isparsed = False
         self.isexecuted = False
         self.isformatted = False
+        self.kernel = "python"
 
         if self.source != None:
             name, file_ext = os.path.splitext(self.source)
@@ -80,6 +81,11 @@ class Pweb(object):
 
         except KeyError as e:
             raise Exception("Pweave: Unknown output format")
+
+    def setkernel(self, kernel):
+        """Set the kernel for jupyter_client"""
+        self.kernel = kernel
+
 
     def setreader(self, Reader=PwebReader):
         """Set class reading for reading documents,
@@ -146,7 +152,8 @@ class Pweb(object):
                         self.documentationmode,
                         self.formatter.getformatdict(),
                         self.figdir,
-                        self.outdir)
+                        self.outdir,
+                        kernel = self.kernel)
         runner.run()
         self.executed = runner.getresults()
         self.isexecuted = True
