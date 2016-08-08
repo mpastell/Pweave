@@ -28,6 +28,7 @@ class JupyterProcessor(PwebProcessorBase):
             stderr=open(os.devnull, 'w'),
             cwd=path)
         self.kc.allow_stdin = False
+        self.spec = self.km.kernel_spec.to_dict()
         #self.run_cell("%matplotlib inline\nfrom IPython.display import set_matplotlib_formats\nset_matplotlib_formats('svg', 'pdf')")
 		
         

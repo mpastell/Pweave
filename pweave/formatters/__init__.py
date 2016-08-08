@@ -4,6 +4,7 @@ from .rst import  PwebRstFormatter, PwebSphinxFormatter
 from .markdown import PwebLeanpubFormatter, PwebPandocFormatter, PwebSoftCoverFormatter
 from .publish import  PwebMDtoHTMLFormatter, PwebPandocMDtoHTMLFormatter,\
     PwebPandoctoTexFormatter, PwebHTMLFormatter
+from .jupyter_notebook import PwebNotebookFormatter
 
 class PwebFormats(object):
     """Contains a dictionary of available output formats"""
@@ -34,7 +35,9 @@ class PwebFormats(object):
                'pandoc2latex': {'class': PwebPandoctoTexFormatter,
                                 'description': 'Markdown to Latex using Pandoc, requires Pandoc in path'},
                'pandoc2html': {'class': PwebPandocMDtoHTMLFormatter,
-                               'description': 'Markdown to HTML using Pandoc, requires Pandoc in path'}
+                               'description': 'Markdown to HTML using Pandoc, requires Pandoc in path'},
+               'notebook': {'class': PwebNotebookFormatter,
+                               'description': 'Jupyter notebook'}
                 }
 
     @classmethod
