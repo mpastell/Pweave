@@ -158,100 +158,100 @@ class PwebProcessor(PwebProcessorBase):
         return emulator.getOutput()
 
 
-class ConsoleEmulator(object):
-    """Emulate console for running code chunks with term=True"""
+    class ConsoleEmulator(object):
 
-    def __init__(self, globals, source):
-        self.__statement = []
-        self.__chunkResult = "\n"
-        self.__compiled = None
-        self.__source = source
-        self.__globals = globals
-        self._probeTracebackSkip()
 
-    def _probeTracebackSkip(self):
-        try:
-            eval(code.compile_command('raise Exception\n'))
-        except Exception:
-            _, _, eTb = sys.exc_info()
-            self.__skipTb = len(traceback.extract_tb(eTb)) - 1
+        def __init__(self, globals, source):
+            self.__statement = []
+            self.__chunkResult = "\n"
+            self.__compiled = None
+            self.__source = source
+            self.__globals = globals
+            self._probeTracebackSkip()
 
-    def typeLines(self, block):
-        for line in block:
-            self.typeLine(line)
-
-        if self._isStatementWaiting():
-            self.typeLine('')
-
-    def getOutput(self):
-        return self.__chunkResult
-
-    def typeLine(self, line):
-        self._enterLine(line)
-        compiled = self._compileStatement()
-        if line == '' or self._isOneLineStatement():
-            self._tryToProcessStatement(compiled)
-
-    def _tryToProcessStatement(self, compiledStatement):
-        if compiledStatement is not None:
-            self._executeStatement(compiledStatement)
-            self._forgetStatement()
-
-    def _enterLine(self, line):
-        self.__statement.append(line)
-        self.__chunkResult += '{} {}\n'.format(self._getPrompt(), line)
-
-    def _getPrompt(self):
-        return '>>>' if self._isOneLineStatement() else '...'
-
-    def _compileStatement(self):
-        try:
-            return code.compile_command('\n'.join(self.__statement) + '\n',
-                                        self.__source)
-        except SyntaxError:
-            self.__chunkResult += self._getSyntaxError()
-            self._forgetStatement()
-
-    def _isOneLineStatement(self):
-        return len(self.__statement) == 1
-
-    def _isStatementWaiting(self):
-        return self.__statement != []
-
-    def _forgetStatement(self):
-        self.__statement = []
-
-    def _getRedirectedOutput(self):
-        out = StringIO()
-        sys.stdout = out
-        sys.stderr = out
-        def displayhook(obj=None):
-            if obj is not None:
-                out.write('{!r}\n'.format(obj))
-
-        sys.displayhook = displayhook
-        return out
-
-    def _executeStatement(self, statement):
-        with ProtectStdStreams():
-            out = self._getRedirectedOutput()
+        def _probeTracebackSkip(self):
             try:
-                eval(statement,  self.__globals)
-
+                eval(code.compile_command('raise Exception\n'))
             except Exception:
-                out.write('Traceback (most recent call last):\n' \
-                          + self._getExceptionTraceback())
+                _, _, eTb = sys.exc_info()
+                self.__skipTb = len(traceback.extract_tb(eTb)) - 1
 
-        self.__chunkResult += out.getvalue()
-        out.close()
+        def typeLines(self, block):
+            for line in block:
+                self.typeLine(line)
 
-    def _getSyntaxError(self):
-        eType, eValue, _ = sys.exc_info()
-        return ''.join(traceback.format_exception_only(eType, eValue))
+            if self._isStatementWaiting():
+                self.typeLine('')
 
-    def _getExceptionTraceback(self):
-        eType, eValue, eTb = sys.exc_info()
-        skip = self.__skipTb
-        result = traceback.format_list(traceback.extract_tb(eTb)[skip:]) \
-               + traceback.format_exception_only(eType, eValue)
-        return ''.join(result)
+        def getOutput(self):
+            return self.__chunkResult
+
+        def typeLine(self, line):
+            self._enterLine(line)
+            compiled = self._compileStatement()
+            if line == '' or self._isOneLineStatement():
+                self._tryToProcessStatement(compiled)
+
+        def _tryToProcessStatement(self, compiledStatement):
+            if compiledStatement is not None:
+                self._executeStatement(compiledStatement)
+                self._forgetStatement()
+
+        def _enterLine(self, line):
+            self.__statement.append(line)
+            self.__chunkResult += '{} {}\n'.format(self._getPrompt(), line)
+
+        def _getPrompt(self):
+            return '>>>' if self._isOneLineStatement() else '...'
+
+        def _compileStatement(self):
+            try:
+                return code.compile_command('\n'.join(self.__statement) + '\n',
+                                            self.__source)
+            except SyntaxError:
+                self.__chunkResult += self._getSyntaxError()
+                self._forgetStatement()
+
+        def _isOneLineStatement(self):
+            return len(self.__statement) == 1
+
+        def _isStatementWaiting(self):
+            return self.__statement != []
+
+        def _forgetStatement(self):
+            self.__statement = []
+
+        def _getRedirectedOutput(self):
+            out = StringIO()
+            sys.stdout = out
+            sys.stderr = out
+            def displayhook(obj=None):
+                if obj is not None:
+                    out.write('{!r}\n'.format(obj))
+
+            sys.displayhook = displayhook
+            return out
+
+        def _executeStatement(self, statement):
+            with ProtectStdStreams():
+                out = self._getRedirectedOutput()
+                try:
+                    eval(statement,  self.__globals)
+
+                except Exception:
+                    out.write('Traceback (most recent call last):\n' \
+                              + self._getExceptionTraceback())
+
+            self.__chunkResult += out.getvalue()
+            out.close()
+
+        def _getSyntaxError(self):
+            eType, eValue, _ = sys.exc_info()
+            return ''.join(traceback.format_exception_only(eType, eValue))
+
+        def _getExceptionTraceback(self):
+            eType, eValue, eTb = sys.exc_info()
+            skip = self.__skipTb
+            result = traceback.format_list(traceback.extract_tb(eTb)[skip:]) \
+                   + traceback.format_exception_only(eType, eValue)
+            return ''.join(result)
