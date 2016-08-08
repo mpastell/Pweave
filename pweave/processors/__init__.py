@@ -1,10 +1,11 @@
 
 from . pythonprocessor import PwebProcessor
+from . jupyter import JupyterProcessor
 
 class PwebProcessors(object):
     """Lists available input formats"""
     formats = {'python': {'class': PwebProcessor,
-                          'description': 'Python shell'}}
+                          'description': 'Python shell'},
                #,
                #'ipython': {'class': PwebIPythonProcessor,
                #            'description': 'IPython shell'},
@@ -14,8 +15,8 @@ class PwebProcessors(object):
                #           'description': 'Run code using Octave'},
                #'matlab': {'class': MatlabProcessor,
                #           'description': 'Run code using Matlab'},
-               #'jupyter': {'class': JupyterProcessor,
-               #           'description': 'Run code using Jupyter client'}}
+               'jupyter': {'class': JupyterProcessor,
+                          'description': 'Run code using Jupyter client'}}
 
     @classmethod
     def getProcessor(cls, shell):
