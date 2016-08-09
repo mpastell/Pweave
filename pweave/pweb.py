@@ -28,13 +28,15 @@ class Pweb(object):
         name, ext = os.path.splitext(os.path.basename(source))
         self.basename = name
         self.ext = ext
+        self.figdir = figdir
+        self.setkernel(kernel)
+
+        if doctype is None:
+            self._detect_format()
+        else:
+            self.setformat(doctype)
 
         self.setsink(output)
-
-        self.figdir = figdir
-        #self.doctype = doctype
-
-
         self._setwd()
 
         if self.source != None:
@@ -45,7 +47,7 @@ class Pweb(object):
 
 
         #Kernel setting
-        self.setkernel(kernel)
+
 
         #Init variables not set using the constructor
         #: Use documentation mode
@@ -56,10 +58,10 @@ class Pweb(object):
         self.mimetype = None
 
         self.read(reader = reader)
-        if doctype is None:
-            self._detect_format()
-        else:
-            self.setformat(doctype)
+
+
+
+
 
 
     def _setwd(self):
@@ -74,17 +76,17 @@ class Pweb(object):
         """
         #Formatters are needed  when the code is executed and formatted
         if Formatter is not None:
-            self.formatter = Formatter(self)
+            self.formatter = Formatter(self, mimetype = self.mimetype)
             return
         #Get formatter class from available formatters
         try:
             Formatter = PwebFormats.getFormatter(doctype)
-            self.formatter = Formatter(self) if theme is None else Formatter(self, theme)
+            self.formatter = Formatter(self, theme = None)
 
         except KeyError as e:
             raise Exception("Pweave: Unknown output format")
 
-        self.mimetype = self.formatter.doc_mimetype
+
 
 
 
@@ -172,7 +174,7 @@ class Pweb(object):
 
     def setsink(self, output = None):
         if output is None:
-            self.sink = os.path.splitext(self.source)[0] + '.' + "txt" #self._getDstExtension()
+            self.sink = os.path.splitext(self.source)[0] + '.' + self._getDstExtension()
         else:
             self.sink = output
 
@@ -182,8 +184,6 @@ class Pweb(object):
 
     def write(self, action="Pweaved"):
         """Write formatted code to file"""
-        if not self.isformatted:
-            self.format()
 
         self._writeToSink(self.formatted.replace("\r", ""))
         self._print('{action} {src} to {dst}\n'.format(action=action,

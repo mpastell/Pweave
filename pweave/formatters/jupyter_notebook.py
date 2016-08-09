@@ -3,7 +3,7 @@ import nbformat
 
 class PwebNotebookFormatter(object):
 
-    def __init__(self, doc):
+    def __init__(self, doc, mimetype = None, theme = None):
         self.notebook = {"metadata" : {
                 "kernel_info" : {
                     "name" : doc.kernel
@@ -20,16 +20,14 @@ class PwebNotebookFormatter(object):
             ]
         }
         self.execution_count = 1
-        self.doc_mimetype = "text/markdown"
         self.formatdict = {"extension" : "ipynb"}
 
-        if doc.mimetype == "text/markdown":
+        if mimetype is None or mimetype == "text/markdown":
             self.doc_cell_type = "markdown"
+            self.doc_cell_mimetype = "text/markdown"
         else:
             self.doc_cell_type = "raw"
-
-        self.doc_cell_mimetype = doc.mimetype
-
+            self.doc_cell_mimetype = mimetype
 
     def setexecuted(self, executed):
         self.executed = executed
