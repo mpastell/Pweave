@@ -23,4 +23,4 @@
 
 #Remove test cases from language detectiom
 tests/publish/* linguist-documentation
-tests/formats/*
+tests/formats/* linguist-documentation
