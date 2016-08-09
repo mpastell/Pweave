@@ -139,7 +139,7 @@ class IPythonProcessor(JupyterProcessor):
     def pre_run_hook(self, chunk):
         f_size = """matplotlib.rcParams.update({"figure.figsize" : (%i, %i)})""" % chunk["f_size"]
         f_dpi = """matplotlib.rcParams.update({"savefig.dpi" : %i})""" % chunk["dpi"]
-        self.loadstring(f_size)
-        self.loadstring(f_dpi)
+        self.loadstring("\n".join([f_size, f_dpi]))
+
 
 

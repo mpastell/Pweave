@@ -46,7 +46,7 @@ class Pweb(object):
         self.isexecuted = False
         self.isformatted = False
         self.kernel = None
-        self.language = None
+        self.language = "python"
 
         if self.source != None:
             name, file_ext = os.path.splitext(self.source)
@@ -158,7 +158,6 @@ class Pweb(object):
         runner.run()
         self.executed = runner.getresults()
         self.isexecuted = True
-        self.language = runner.spec["language"]
 
     def format(self):
         """Format the code for writing"""
