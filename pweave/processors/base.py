@@ -32,7 +32,7 @@ class PwebProcessorBase(object):
     """Processors run code from parsed Pweave documents. This is an abstract base
     class for specific implementations"""
 
-    def __init__(self, parsed, source, mode, formatdict,
+    def __init__(self, parsed, kernel, source, mode, formatdict,
                        figdir, outdir):
         self.parsed = parsed
         self.source = source

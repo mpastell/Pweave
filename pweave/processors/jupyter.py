@@ -10,27 +10,22 @@ from .base import PwebProcessorBase
 class JupyterProcessor(PwebProcessorBase):
     """Generic Jupyter processor, should work with any kernel"""
 
-    def __init__(self, parsed, source, mode, formatdict,
-                       figdir, outdir, kernel = "python"):
-        super(JupyterProcessor, self).__init__(parsed, source, mode, formatdict,
+    def __init__(self, parsed, kernel, source, mode, formatdict,
+                       figdir, outdir):
+        super(JupyterProcessor, self).__init__(parsed, kernel, source, mode, formatdict,
                        figdir, outdir)
 
         self.extra_arguments = None
         self.timeout = -1
         path = self.outdir
-        
-        kernel_name = kernel
-        #if self.kernel_name:
-        #    kernel_name = self.kernel_name
-        #self.log.info("Executing notebook with kernel: %s" % kernel_name)
+
         self.km, self.kc = start_new_kernel(
-            kernel_name=kernel_name,
+            kernel_name= kernel,
             extra_arguments=self.extra_arguments,
             stderr=open(os.devnull, 'w'),
-            cwd=path)
+            cwd = outdir)
         self.kc.allow_stdin = False
-        self.spec = self.km.kernel_spec.to_dict()
-        #self.run_cell("%matplotlib inline\nfrom IPython.display import set_matplotlib_formats\nset_matplotlib_formats('svg', 'pdf')")
+
 
     def close(self):
         self.kc.stop_channels()
@@ -132,8 +127,8 @@ class JupyterProcessor(PwebProcessorBase):
 class IPythonProcessor(JupyterProcessor):
     """Contains IPytho specific functions"""
 
-    def __init__(self, *args, **kwargs):
-        super(IPythonProcessor, self).__init__(*args, kernel="python")
+    def __init__(self, *args):
+        super(IPythonProcessor, self).__init__(*args)
         self.loadstring("import matplotlib")
 
     def pre_run_hook(self, chunk):

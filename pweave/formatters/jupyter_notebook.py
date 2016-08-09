@@ -20,7 +20,15 @@ class PwebNotebookFormatter(object):
             ]
         }
         self.execution_count = 1
+        self.doc_mimetype = "text/markdown"
         self.formatdict = {"extension" : "ipynb"}
+
+        if doc.mimetype == "text/markdown":
+            self.doc_cell_type = "markdown"
+        else:
+            self.doc_cell_type = "raw"
+
+        self.doc_cell_mimetype = doc.mimetype
 
 
     def setexecuted(self, executed):
@@ -31,8 +39,10 @@ class PwebNotebookFormatter(object):
             if chunk["type"] == "doc":
                 self.notebook["cells"].append(
                     {
-                        "cell_type": "markdown",
-                        "metadata": {},
+                        "cell_type": self.doc_cell_type,
+                        "metadata": {
+                            "format" : self.doc_cell_mimetype
+                        },
                         "source": chunk["content"],
                     }
                 )

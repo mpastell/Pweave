@@ -19,8 +19,11 @@ class PwebProcessors(object):
                           'description': 'Run code using Jupyter client'}}
 
     @classmethod
-    def getProcessor(cls, shell):
-        return cls.formats[shell]['class']
+    def getprocessor(cls, kernel):
+        if "python" in kernel:
+            return IPythonProcessor
+        else:
+            return JupyterProcessor
 
     @classmethod
     def shortformats(cls):

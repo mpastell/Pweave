@@ -1,5 +1,3 @@
-# Moved globals from Pweb, check to see after move each for invalid references!
-
 
 rcParams = {"figdir": "figures",
             "usematplotlib": True,

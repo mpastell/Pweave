@@ -291,7 +291,7 @@ class PwebReaders(object):
                             'description': 'IPython notebook'}}
 
     @classmethod
-    def getReader(cls, doctype):
+    def get_reader(cls, doctype):
         return cls.formats[doctype]['class']
 
     @classmethod
@@ -301,7 +301,7 @@ class PwebReaders(object):
 
     @staticmethod
     def guessFromExtension(ext):
-        if ext == '.pmd': return 'markdown'
+        if 'md' in ext: return 'markdown'
         if ext == '.py': return 'script'
         return 'noweb'
 
