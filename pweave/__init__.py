@@ -6,8 +6,8 @@ from __future__ import print_function, division, unicode_literals, absolute_impo
 
 import inspect
 from . import readers
-from .pweb import *
-from .formatters import *
+from . pweb import *
+from . formatters import *
 from .readers import *
 from .processors import *
 from .config import *

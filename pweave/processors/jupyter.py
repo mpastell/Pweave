@@ -8,7 +8,8 @@ from ..config import *
 from .base import PwebProcessorBase
 
 class JupyterProcessor(PwebProcessorBase):
-    
+    """Generic Jupyter processor, should work with any kernel"""
+
     def __init__(self, parsed, source, mode, formatdict,
                        figdir, outdir, kernel = "python"):
         super(JupyterProcessor, self).__init__(parsed, source, mode, formatdict,
@@ -121,8 +122,24 @@ class JupyterProcessor(PwebProcessorBase):
 
         return outs
 
+
     def loadstring(self, code_str, **kwargs):
         return self.run_cell(code_str)
         
     def loadterm(self, code_str, **kwargs):
         return self.run_cell(code_str)
+
+class IPythonProcessor(JupyterProcessor):
+    """Contains IPytho specific functions"""
+
+    def __init__(self, *args, **kwargs):
+        super(IPythonProcessor, self).__init__(*args, kernel="python")
+        self.loadstring("import matplotlib")
+
+    def pre_run_hook(self, chunk):
+        f_size = """matplotlib.rcParams.update({"figure.figsize" : (%i, %i)})""" % chunk["f_size"]
+        f_dpi = """matplotlib.rcParams.update({"savefig.dpi" : %i})""" % chunk["dpi"]
+        self.loadstring(f_size)
+        self.loadstring(f_dpi)
+
+

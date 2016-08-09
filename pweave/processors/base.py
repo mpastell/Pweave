@@ -162,6 +162,9 @@ class PwebProcessorBase(object):
             if not chunk['evaluate']:
                 chunk['result'] = ''
                 return chunk
+
+            self.pre_run_hook(chunk)
+
             if chunk['term']:
                 #try to use term, if fail use exec whole chunk
                 #term seems to fail on function definitions
@@ -190,7 +193,16 @@ class PwebProcessorBase(object):
         if old_content is not None:
             chunk['content'] = old_content  # The code from current chunk for display
 
+        self.post_run_hook(chunk)
+
+
         return chunk
+
+    def post_run_hook(self, chunk):
+        pass
+
+    def pre_run_hook(self, chunk):
+        pass
 
     def init_matplotlib(self):
         pass

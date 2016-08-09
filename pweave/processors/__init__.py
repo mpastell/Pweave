@@ -1,10 +1,10 @@
 
 from . pythonprocessor import PwebProcessor
-from . jupyter import JupyterProcessor
+from . jupyter import JupyterProcessor, IPythonProcessor
 
 class PwebProcessors(object):
     """Lists available input formats"""
-    formats = {'python': {'class': PwebProcessor,
+    formats = {'python': {'class': IPythonProcessor,
                           'description': 'Python shell'},
                #,
                #'ipython': {'class': PwebIPythonProcessor,

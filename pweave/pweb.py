@@ -6,8 +6,8 @@ import copy
 import io
 
 from .readers import PwebReader, PwebReaders
-from .formatters import PwebFormats
-from .processors import PwebProcessors
+from . formatters import PwebFormats
+from . processors import PwebProcessors
 from .config import rcParams
 
 # Python2 compatibility fix
@@ -45,7 +45,8 @@ class Pweb(object):
         self.isparsed = False
         self.isexecuted = False
         self.isformatted = False
-        self.kernel = "python"
+        self.kernel = None
+        self.language = None
 
         if self.source != None:
             name, file_ext = os.path.splitext(self.source)
