@@ -6,7 +6,6 @@ import io
 import copy
 from ..config import *
 
-
 class PwebProcessorBase(object):
     """Processors run code from parsed Pweave documents. This is an abstract base
     class for specific implementations"""
@@ -18,6 +17,7 @@ class PwebProcessorBase(object):
         self.documentationmode = mode
         self.figdir = figdir
         self.outdir = outdir
+        self.executed = []
 
         self.cwd = os.path.dirname(os.path.abspath(source))
         self.basename = os.path.basename(os.path.abspath(source)).split(".")[0]
@@ -37,8 +37,17 @@ class PwebProcessorBase(object):
                 sys.stderr.write(
                     "DOCUMENTATION MODE ERROR:\nCan't find stored results, running the code and caching results for the next documentation mode run\n")
                 rcParams["storeresults"] = True
-        exec("import sys\nsys.path.append('.')", PwebProcessorGlobals.globals)
-        self.executed = list(map(self._runcode, self.parsed))
+        #exec("import sys\nsys.path.append('.')", PwebProcessorGlobals.globals)
+        #self.executed = list(map(self._runcode, self.parsed))
+        self.executed = []
+        for chunk in self.parsed:
+            res = self._runcode(chunk)
+            if isinstance(res, list):
+                self.executed = self.executed + res
+            else:
+                self.executed.append(res)
+
+
         self.isexecuted = True
         if rcParams["storeresults"]:
             self.store(self.executed)
@@ -52,6 +61,7 @@ class PwebProcessorBase(object):
             os.mkdir(figdir)
 
     def getresults(self):
+        #flattened = list(itertools.chain.from_iterable(self.executed))
         return copy.deepcopy(self.executed)
 
     def store(self, data):
@@ -115,13 +125,6 @@ class PwebProcessorBase(object):
             chunk['content'] = self.loadinline(chunk['content'])
             return chunk
 
-        # Engines different from python, shell commands for now
-        if chunk['engine'] == "shell":
-            sys.stdout.write("Processing chunk %(number)s named %(name)s from line %(start_line)s\n" % chunk)
-            chunk['result'] = self.load_shell(chunk)
-
-            #chunk['term'] = True
-            return chunk
 
         if chunk['type'] == 'code':
             sys.stdout.write("Processing chunk %(number)s named %(name)s from line %(start_line)s\n" % chunk)
@@ -143,25 +146,24 @@ class PwebProcessorBase(object):
             self.pre_run_hook(chunk)
 
             if chunk['term']:
-                #try to use term, if fail use exec whole chunk
-                #term seems to fail on function definitions
-                stdold = sys.stdout
-                try:
-                    chunk['result'] = self.loadterm(chunk['content'], chunk=chunk)
-                except Exception as e:
-                    sys.stdout = stdold
-                    sys.stderr.write("  Exception:\n")
-                    sys.stderr.write("  " + str(e) + "\n")
-                    sys.stderr.write("  Error messages will be included in output document\n" % chunk)
-                    chunk["result"] = "%s\n\n%s\n%s" % (chunk["content"], type(e), e)
+                # Running in term mode can return a list of chunks
+                chunks = []
+                sources, results = self.loadterm(chunk['content'], chunk=chunk)
+                n = len(sources)
+                content = ""
+                for i in range(n):
+                    if len(results[i]) == 0:
+                        content += sources[i]
+                    else:
+                        new_chunk = chunk.copy()
+                        new_chunk["content"] = content + sources[i].rstrip()
+                        content = ""
+                        new_chunk["result"] = results[i]
+                        chunks.append(new_chunk)
+                return(chunks)
             else:
-                try:
-                    chunk['result'] = self.loadstring(chunk['content'], chunk=chunk)
-                except Exception as e:
-                    sys.stderr.write("  Exception:\n")
-                    sys.stderr.write("  " + str(e) + "\n")
-                    sys.stderr.write("  Error messages will be included in output document\n" % chunk)
-                    chunk["result"] = "\n%s\n%s" % (type(e), e)
+                chunk['result'] = self.loadstring(chunk['content'], chunk=chunk)
+
 
         #After executing the code save the figure
         if chunk['fig']:

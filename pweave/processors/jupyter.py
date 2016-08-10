@@ -7,6 +7,7 @@ import os
 from .. import config
 from .base import PwebProcessorBase
 from . import subsnippets
+from IPython.core import inputsplitter
 
 class JupyterProcessor(PwebProcessorBase):
     """Generic Jupyter processor, should work with any kernel"""
@@ -118,12 +119,12 @@ class JupyterProcessor(PwebProcessorBase):
 
         return outs
 
-
     def loadstring(self, code_str, **kwargs):
         return self.run_cell(code_str)
-        
+
+    #Yes same format for compatibility even if term is not implemented
     def loadterm(self, code_str, **kwargs):
-        return self.run_cell(code_str)
+        return((sources, self.run_cell(code_str)))
 
 class IPythonProcessor(JupyterProcessor):
     """Contains IPython specific functions"""
@@ -140,6 +141,24 @@ class IPythonProcessor(JupyterProcessor):
         f_size = """matplotlib.rcParams.update({"figure.figsize" : (%i, %i)})""" % chunk["f_size"]
         f_dpi = """matplotlib.rcParams.update({"savefig.dpi" : %i})""" % chunk["dpi"]
         self.loadstring("\n".join([f_size, f_dpi]))
+
+    def loadterm(self, code_str, **kwargs):
+        splitter = inputsplitter.IPythonInputSplitter()
+        code_lines = code_str.lstrip().splitlines()
+        sources = []
+        outputs = []
+        for line in code_lines:
+            complete = splitter.push_line(line)
+            if complete:
+                code_str = splitter.source
+                splitter.reset()
+                sources.append(code_str)
+                out = self.loadstring(code_str)
+                outputs.append(out)
+
+        return((sources, outputs))
+
+
 
 
 

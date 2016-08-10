@@ -120,7 +120,6 @@ class Pweb(object):
         else:
             Reader = reader
 
-        print(Reader)
 
         if string is None:
             self.reader = Reader(file=self.source)
@@ -147,7 +146,7 @@ class Pweb(object):
         proc.run()
         self.processor = proc
         self.executed = proc.getresults()
-        self.isexecuted = True
+
 
     def format(self, doctype = None, Formatter = None):
         """Format the code for writing. You can pass either
