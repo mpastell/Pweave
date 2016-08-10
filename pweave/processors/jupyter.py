@@ -35,7 +35,7 @@ class JupyterProcessor(PwebProcessorBase):
         cell = {}
         cell["source"] = src.lstrip()
         msg_id = self.kc.execute(src.lstrip())
-        print(msg_id)
+
         #self.log.debug("Executing cell:\n%s", cell.source)
         
         # wait for finish, with timeout

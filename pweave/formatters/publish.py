@@ -1,5 +1,5 @@
 from .base import PwebFormatter
-from .tex import PwebTexPygmentsFormatter
+from .tex import PwebTexPygmentsFormatter, PwebTexFormatter
 from subprocess import Popen, PIPE
 import base64
 import sys
@@ -9,8 +9,8 @@ import io
 
 class PwebHTMLFormatter(PwebFormatter):
 
+
     def preformat_chunk(self, chunk):
-        print(chunk)
         if chunk["type"] == "doc":
             return chunk
 
@@ -29,10 +29,10 @@ class PwebHTMLFormatter(PwebFormatter):
                                outputstart='\n<div class="highlight"><pre>',
                                outputend='</pre></div>\n',
                                figfmt='.png',
-                               extension='html',
                                width='600',
                                doctype='html')
         self.mimetypes = ["text/html", "application/javascript"]
+        self.file_ext = "html"
 
     def formatfigure(self, chunk):
         result = ""
@@ -62,25 +62,20 @@ class PwebHTMLFormatter(PwebFormatter):
 
 class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
 
-    def __init__(self, doc = None, theme = "skeleton"):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
         from .templates import htmltemplate
         from .. import themes
         from pygments.formatters import HtmlFormatter
         from .. import __version__
         import time
-        PwebHTMLFormatter.__init__(self, doc)
-        self.mimetypes = ["text/html", "text/markdown", "application/javascript"]
-        self.doc = doc
-        self.source = self.doc.source
 
-        if self.doc is not None:
-            self.path = os.path.dirname(os.path.abspath(self.doc.source))
-        else:
-             self.path = "."
+        self.mimetypes = ["text/html", "text/markdown", "application/javascript"]
 
         theme_css = ""
         try:
-            theme_css += getattr(themes, theme)
+            theme_css += getattr(themes, self.theme)
         except:
             print("Can't find requested theme. Using Skeleton")
             theme_css += getattr(themes, "skeleton")
@@ -128,7 +123,7 @@ class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
 
         for fig in chunk['figure']:
             #print(self.path + "/" + fig)
-            fig_base64 = base64.b64encode(io.open(self.path + "/" + fig, "rb").read()).decode("utf-8")
+            fig_base64 = base64.b64encode(io.open(self.wd + "/" + fig, "rb").read()).decode("utf-8")
             figstring += ('<img src="data:image/png;base64,%s" width="%s"/>\n' % (fig_base64, chunk['width']))
 
         # Figure environment
@@ -163,9 +158,11 @@ class PwebPandocMDtoHTMLFormatter(PwebMDtoHTMLFormatter):
         return chunk['content']
 
 
-class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
-    def __init__(self, source=None):
-        PwebTexPygmentsFormatter.__init__(self, source)
+#class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
+class PwebPandoctoTexFormatter(PwebTexFormatter):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         from pygments.formatters import LatexFormatter
 
         x = LatexFormatter()

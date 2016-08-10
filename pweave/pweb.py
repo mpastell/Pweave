@@ -62,6 +62,7 @@ class Pweb(object):
         self.reader = None
         self.formatter = None
         self.processor = None
+        self.theme = "skeleton"
 
 
         self.read(reader = reader)
@@ -77,7 +78,6 @@ class Pweb(object):
 
         """
         #Formatters are needed  when the code is executed and formatted
-
 
 
     def setkernel(self, kernel):
@@ -161,10 +161,15 @@ class Pweb(object):
         else:
             Formatter = PwebFormats.getFormatter(self.doctype)
 
-        self.formatter = Formatter(self.executed,
+        self.formatter = Formatter(copy.deepcopy(self.executed),
                                    kernel = self.kernel,
                                    language = self.language,
-                                   mimetype = self.mimetype.type)
+                                   mimetype = self.mimetype.type,
+                                   source = self.source,
+                                   theme = self.theme,
+                                   figdir = self.figdir,
+                                   wd = self.wd
+                                   )
 
 
         self.formatter.format()

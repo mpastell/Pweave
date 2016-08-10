@@ -5,25 +5,38 @@ import copy
 
 # Pweave output formatters
 class PwebFormatter(object):
-    """Base class for all formatters"""
+    """Base class for all not-notebook formatters"""
 
-    def __init__(self, doc):
+    def __init__(self, executed, *, kernel = "python3", language = "python",
+                 mimetype = None, source = None, theme = None,
+                 figdir = "figures", wd = "."):
+
         self.fig_mimetypes = ["image/png", "image/jpg"]
         self.mimetypes = [] #other supported mimetypes than text/plain
-        self.initformat()
-        self._fillformatdict()
+        self.executed = executed
+        self.figdir = figdir
+        self.wd = wd
+        self.source = source
+        self.theme = theme
+
+        #To be set in child classess
+        self.file_ext = None
         self.header = None
         self.footer = None
-        self.executed = None
-        self.doc = doc
+
+
         self.wrapper = textwrap.TextWrapper(subsequent_indent="", break_long_words=False)
+
         self.mime_extensions = {"application/pdf" : "pdf",
                                 "image/png" : "png",
                                 "image/jpg" : "jpg"}
+        self.initformat()
+        self._fillformatdict()
 
 
-    def setexecuted(self, executed):
-        self.executed = executed
+    def initformat(self):
+        pass
+
 
     def format(self):
         self.formatted = []
@@ -86,7 +99,7 @@ class PwebFormatter(object):
                     f.close()
                     i += 1
                     break
-        print(figs)
+        #print(figs)
         return figs
 
 
@@ -254,10 +267,10 @@ class PwebFormatter(object):
 
     def get_figname(self, chunk, i, mimetype):
         save_dir = self.getFigDirectory()
-        include_dir = self.doc.figdir
+        include_dir = self.figdir
         ext = "." + self.mime_extensions[mimetype]
         self.fig_mimetypes = ["image/png", "image/jpg"]
-        base = os.path.splitext(os.path.basename(self.doc.source))[0]
+        base = os.path.splitext(os.path.basename(self.source))[0]
 
         if chunk['name'] is None:
             prefix = base + '_figure' + str(chunk['number']) + "_" + str(i)
@@ -273,7 +286,7 @@ class PwebFormatter(object):
 
 
     def getFigDirectory(self):
-        return os.path.join(self.doc.outdir, self.doc.figdir)
+        return os.path.join(self.wd, self.figdir)
 
     def ensureDirectoryExists(self, figdir):
         if not os.path.isdir(figdir):

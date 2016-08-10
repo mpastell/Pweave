@@ -8,11 +8,11 @@ class PwebTexFormatter(PwebFormatter):
                                outputstart='\\begin{verbatim}',
                                outputend='\end{verbatim}\n',
                                figfmt='.pdf',
-                               extension='tex',
                                width='\\linewidth',
                                doctype='tex')
         self.mimetypes = ["text/latex"]
         self.fig_mimetypes = ["application/pdf", "image/png", "image/jpg"]
+        self.file_ext = "tex"
 
     def formatfigure(self, chunk):
         fignames = chunk['figure']
@@ -59,6 +59,7 @@ class PwebMintedFormatter(PwebTexFormatter):
             extension='tex',
             width='\\linewidth',
             doctype='tex')
+        self.file_ext = "tex"
 
 
 class PwebTexPygmentsFormatter(PwebTexFormatter):
@@ -75,6 +76,7 @@ class PwebTexPygmentsFormatter(PwebTexFormatter):
             extension='tex',
             width='\\linewidth',
             doctype='tex')
+        self.file_ext = "tex"
 
     def format_codechunks(self, chunk):
         from pygments import highlight
@@ -108,3 +110,4 @@ class PwebTexPweaveFormatter(PwebTexFormatter):
             extension='tex',
             width='\\linewidth',
             doctype='tex')
+        self.file_ext = "tex"

@@ -4,7 +4,8 @@ import nbformat
 class PwebNotebookFormatter(object):
 
     def __init__(self, executed, *, kernel = "python3", language = "python",
-                 mimetype = "text/markdown"):
+                 mimetype = "text/markdown", source = None, theme = None,
+                 figdir = None, wd = None):
 
         self.notebook = {"metadata" : {
                 "kernel_info" : {
