@@ -1,5 +1,5 @@
 from .base import PwebFormatter
-from .tex import PwebTexPygmentsFormatter, PwebTexFormatter
+from .tex import PwebTexPygmentsFormatter
 from subprocess import Popen, PIPE
 import base64
 import sys
@@ -158,8 +158,8 @@ class PwebPandocMDtoHTMLFormatter(PwebMDtoHTMLFormatter):
         return chunk['content']
 
 
-#class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
-class PwebPandoctoTexFormatter(PwebTexFormatter):
+class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
+
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -194,6 +194,7 @@ class PwebPandoctoTexFormatter(PwebTexFormatter):
         """) % (self.source, x.get_style_defs())
         self.footer = r"\end{document}"
         self.subheader = "\n\\begin{document}\n"
+        self.fig_mimetypes = ["application/pdf", "image/png", "image/jpg"]
 
     def add_header(self):
         """Can be used to add header to self.formatted list"""

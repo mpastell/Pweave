@@ -11,7 +11,6 @@ class PwebFormatter(object):
                  mimetype = None, source = None, theme = None,
                  figdir = "figures", wd = "."):
 
-        self.fig_mimetypes = ["image/png", "image/jpg"]
         self.mimetypes = [] #other supported mimetypes than text/plain
         self.executed = executed
         self.figdir = figdir
@@ -86,10 +85,10 @@ class PwebFormatter(object):
         figs = []
         i = 0
         for out in chunk["result"]:
+            if out["output_type"] != "display_data":
+                continue
         #Loop trough mimetypes in order of preference
             for mimetype in self.fig_mimetypes:
-                if out["output_type"] != "display_data":
-                    continue
                 if mimetype in out["data"]:
                     fig_name, include_name = self.get_figname(chunk, i, mimetype)
                     figs.append(include_name)
@@ -99,6 +98,7 @@ class PwebFormatter(object):
                     f.close()
                     i += 1
                     break
+
         #print(figs)
         return figs
 
@@ -269,7 +269,6 @@ class PwebFormatter(object):
         save_dir = self.getFigDirectory()
         include_dir = self.figdir
         ext = "." + self.mime_extensions[mimetype]
-        self.fig_mimetypes = ["image/png", "image/jpg"]
         base = os.path.splitext(os.path.basename(self.source))[0]
 
         if chunk['name'] is None:
