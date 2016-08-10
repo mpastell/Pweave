@@ -120,6 +120,8 @@ class Pweb(object):
         else:
             Reader = reader
 
+        print(Reader)
+
         if string is None:
             self.reader = Reader(file=self.source)
         else:
@@ -210,7 +212,6 @@ class Pweb(object):
 
     def tangle(self):
         """Tangle the document"""
-        self.read()
         if self.output is None:
             target = self.basename + '.py'
         code = [x for x in self.parsed if x['type'] == 'code']

@@ -60,12 +60,12 @@ def weave(file, doctype=None, informat=None, kernel="python3", plot=True,
     doc.documentationmode = docmode
     rcParams["storeresults"] = cache
 
-def tangle(file):
+def tangle(file, informat = None):
     """Tangles a noweb file i.e. extracts code from code chunks to a .py file
 
     :param file: ``string`` the pweave document containing the code
     """
-    doc = Pweb(file, kernel = None)
+    doc = Pweb(file, kernel = None, informat = informat)
     doc.tangle()
 
 

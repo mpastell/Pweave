@@ -87,6 +87,8 @@ def tangle():
         sys.exit()
 
     parser = OptionParser(usage="Ptangle sourcefile", version="Pweave " + pweave.__version__)
+    parser.add_option("-i", "--input-format", dest="informat", default=None,
+                      help="Input format: noweb, markdown, notebook or script")
 
     (options, args) = parser.parse_args()
 
@@ -95,7 +97,7 @@ def tangle():
     except IndexError:
         infile = ""
 
-    pweave.tangle(infile)
+    pweave.tangle(infile, options.informat)
 
 
 def convert():
