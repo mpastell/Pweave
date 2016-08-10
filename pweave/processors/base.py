@@ -1,30 +1,9 @@
 # Processors that execute code from code chunks
-from __future__ import print_function, division, absolute_import
-import json
 import sys
 import re
 import os
 import io
-from subprocess import Popen, PIPE
-import shutil
-import traceback
-
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from io import StringIO
 import copy
-import code
-
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
-from subprocess import Popen, PIPE
-try:
-    from subprocess import TimeoutExpired
-except ImportError:
-    pass
 from ..config import *
 
 

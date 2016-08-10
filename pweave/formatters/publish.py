@@ -124,8 +124,7 @@ class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
         figstring = ""
 
         for fig in chunk['figure']:
-            #print(self.path + "/" + fig)
-            fig_base64 = base64.b64encode(io.open(self.wd + "/" + fig, "rb").read()).decode("utf-8")
+            fig_base64 = base64.b64encode(io.open(os.path.join(self.wd, fig), "rb").read()).decode("utf-8")
             figstring += ('<img src="data:image/png;base64,%s" width="%s"/>\n' % (fig_base64, chunk['width']))
 
         # Figure environment

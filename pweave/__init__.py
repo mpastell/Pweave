@@ -69,7 +69,8 @@ def tangle(file):
     doc.tangle()
 
 
-def publish(file, doc_format="html", theme="skeleton", latex_engine="pdflatex"):
+def publish(file, doc_format="html", theme="skeleton", latex_engine="pdflatex",
+            output = None):
     """Publish python script and results to html or pdf, expects that doc
     chunks are  written in markdown.
 
@@ -77,6 +78,7 @@ def publish(file, doc_format="html", theme="skeleton", latex_engine="pdflatex"):
     ":param format: ``string`` output format "html" of "pdf", pdf output
     requires pandoc and pdflatex in your path.
     :param: ``string`` latex_engine the command for running latex. Defaults to "pdflatex".
+    :param output: ``string`` output file. Use .tex extension for pdf output.
     """
 
     if doc_format == "html":
@@ -87,10 +89,12 @@ def publish(file, doc_format="html", theme="skeleton", latex_engine="pdflatex"):
         print("Unknown format, exiting")
         return
 
-    doc = Pweb(file)
-    doc.setformat(pformat, theme=theme)
-    doc.setreader(readers.PwebScriptReader)
-    doc.parse()
+    doc = Pweb(file, kernel="python3", informat="script", doctype=pformat,
+               output=output)
+
+    doc.theme = theme
+
+    doc.read()
     doc.run()
     doc.format()
 

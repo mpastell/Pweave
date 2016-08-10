@@ -268,6 +268,7 @@ class PwebFormatter(object):
     def get_figname(self, chunk, i, mimetype):
         save_dir = self.getFigDirectory()
         include_dir = self.figdir
+
         ext = "." + self.mime_extensions[mimetype]
         base = os.path.splitext(os.path.basename(self.source))[0]
 
@@ -281,6 +282,7 @@ class PwebFormatter(object):
 
         save_name = os.path.join(save_dir, prefix + ext)
         include_name = os.path.join(include_dir, prefix + ext)
+
         return save_name, include_name
 
 

@@ -66,8 +66,10 @@ def publish():
                       help="Output format html or pdf, pdf output requires pandoc and pdflatex")
     parser.add_option("-e", "--latex_engine", dest = "latex_engine", default = "pdflatex",
                       help = "The command for running latex.")
-    parser.add_option("-t", "--theme", dest = "theme", default = None,
+    parser.add_option("-t", "--theme", dest = "theme", default = "skeleton",
                       help = "Theme for HTML output")
+    parser.add_option("-o", "--output", dest="output", default=None,
+                      help="Name of the output file")
 
     (options, args) = parser.parse_args()
 
@@ -76,7 +78,7 @@ def publish():
     except IndexError:
         infile = ""
 
-    pweave.publish(infile, options.format, options.theme, options.latex_engine)
+    pweave.publish(infile, options.format, options.theme, options.latex_engine, options.output)
 
 
 def tangle():
