@@ -1,6 +1,3 @@
-from __future__ import print_function, division, absolute_import, unicode_literals
-import copy
-
 import sys
 from optparse import OptionParser
 import pweave

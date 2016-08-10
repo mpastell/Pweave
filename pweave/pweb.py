@@ -4,10 +4,9 @@ import re
 import copy
 import io
 
-from .readers import PwebReader, PwebReaders
+from .readers import PwebReaders
 from . formatters import PwebFormats
 from . processors import PwebProcessors
-from .config import rcParams
 from jupyter_client import kernelspec
 
 from .mimetypes import MimeTypes

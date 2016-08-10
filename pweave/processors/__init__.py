@@ -1,20 +1,9 @@
-
-#from . pythonprocessor import PwebProcessor
 from . jupyter import JupyterProcessor, IPythonProcessor
 
 class PwebProcessors(object):
     """Lists available input formats"""
     formats = {'python': {'class': IPythonProcessor,
                           'description': 'Python shell'},
-               #,
-               #'ipython': {'class': PwebIPythonProcessor,
-               #            'description': 'IPython shell'},
-               #'epython': {'class': PwebSubProcessor,
-               #            'description': 'Python as separate process'},
-               #'octave': {'class': OctaveProcessor,
-               #           'description': 'Run code using Octave'},
-               #'matlab': {'class': MatlabProcessor,
-               #           'description': 'Run code using Matlab'},
                'jupyter': {'class': JupyterProcessor,
                           'description': 'Run code using Jupyter client'}}
 

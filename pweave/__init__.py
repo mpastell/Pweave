@@ -1,17 +1,15 @@
 # Python module Pweave
-# Matti Pastell 2010-2013
+# Matti Pastell 2010-2016
 # http://mpastell.com/pweave
 
-from __future__ import print_function, division, unicode_literals, absolute_import
 
-import inspect
 from . import readers
 from .pweb import *
 from .formatters import *
 from .readers import *
 from .processors import *
 from .config import *
-import copy
+
 
 __version__ = '0.30-alpha1'
 
