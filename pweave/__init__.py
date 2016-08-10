@@ -91,12 +91,18 @@ def _returnglobals():
         print('%s\n%s\n' % ("Can't return globals", "Start Ironpython with ipy -X:Frames if you wan't this to work"))
 
 
-def tangle(file):
+def tangle(file, informat=None):
     """Tangles a noweb file i.e. extracts code from code chunks to a .py file
 
     :param file: ``string`` the pweave document containing the code
     """
     doc = Pweb(file)
+
+    if informat == None:
+        doc.detect_reader()
+    else:
+        doc.setreader(informat)
+
     doc.tangle()
 
 
