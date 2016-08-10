@@ -32,7 +32,7 @@ class PwebProcessorBase(object):
     """Processors run code from parsed Pweave documents. This is an abstract base
     class for specific implementations"""
 
-    def __init__(self, parsed, kernel, source, mode, formatdict,
+    def __init__(self, parsed, kernel, source, mode,
                        figdir, outdir):
         self.parsed = parsed
         self.source = source
@@ -42,7 +42,6 @@ class PwebProcessorBase(object):
 
         self.cwd = os.path.dirname(os.path.abspath(source))
         self.basename = os.path.basename(os.path.abspath(source)).split(".")[0]
-        self.formatdict = formatdict
         self.pending_code = ""  # Used for multichunk splits
         self.init_matplotlib()
 

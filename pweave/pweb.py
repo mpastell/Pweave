@@ -27,16 +27,16 @@ class Pweb(object):
         self.source = source
         name, ext = os.path.splitext(os.path.basename(source))
         self.basename = name
-        self.ext = ext
+        self.file_ext = ext
         self.figdir = figdir
         self.setkernel(kernel)
+        self.doctype = doctype
 
-        if doctype is None:
-            self._detect_format()
+        if output is not None:
+            self.setsink(output)
         else:
-            self.setformat(doctype)
+            self.sink = None
 
-        self.setsink(output)
         self._setwd()
 
         if self.source != None:
@@ -45,9 +45,7 @@ class Pweb(object):
         else:
             self.file_ext = None
 
-
         #Kernel setting
-
 
         #Init variables not set using the constructor
         #: Use documentation mode
@@ -58,9 +56,6 @@ class Pweb(object):
         self.mimetype = None
 
         self.read(reader = reader)
-
-
-
 
 
 
@@ -87,9 +82,6 @@ class Pweb(object):
             raise Exception("Pweave: Unknown output format")
 
 
-
-
-
     def setkernel(self, kernel):
         """Set the kernel for jupyter_client"""
         self.kernel = kernel
@@ -111,15 +103,6 @@ class Pweb(object):
             print("Can't autodetect output format, defaulting to reStructured text")
             self.setformat("rst")
 
-    def _detect_reader(self):
-        """Detect input format based on file extension"""
-        if "md" in self.file_ext:
-            return PwebReaders.get_reader("markdown")
-        elif self.file_ext == ".py":
-            return PwebReaders.get_reader("script")
-        else:
-            return PwebReaders.get_reader("noweb")
-
     def getformat(self):
         """Get current format dictionary. See: http://mpastell.com/pweave/customizing.html"""
         return self.formatter.formatdict
@@ -130,10 +113,10 @@ class Pweb(object):
 
     def read(self, string=None, basename="string_input", reader = None):
         """Parse document
-        :param reader name or class
+        :param None (set automatically), reader name or class object
         """
         if reader is None:
-            Reader = self._detect_reader()
+            Reader = PwebReaders.guess_reader(self.source)
         elif isinstance(reader, basestring):
             Reader = PwebReaders.get_reader(reader)
         else:
@@ -156,7 +139,6 @@ class Pweb(object):
                          self.kernel,
                          self.source,
                          self.documentationmode,
-                         self.formatter.getformatdict(),
                          self.figdir,
                          self.wd
                         )
@@ -173,6 +155,7 @@ class Pweb(object):
         self.isformatted = True
 
     def setsink(self, output = None):
+        _self.de
         if output is None:
             self.sink = os.path.splitext(self.source)[0] + '.' + self._getDstExtension()
         else:

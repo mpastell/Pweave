@@ -10,9 +10,9 @@ from .base import PwebProcessorBase
 class JupyterProcessor(PwebProcessorBase):
     """Generic Jupyter processor, should work with any kernel"""
 
-    def __init__(self, parsed, kernel, source, mode, formatdict,
+    def __init__(self, parsed, kernel, source, mode,
                        figdir, outdir):
-        super(JupyterProcessor, self).__init__(parsed, kernel, source, mode, formatdict,
+        super(JupyterProcessor, self).__init__(parsed, kernel, source, mode,
                        figdir, outdir)
 
         self.extra_arguments = None

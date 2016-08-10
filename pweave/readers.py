@@ -6,6 +6,7 @@ import copy
 import json
 import io
 from subprocess import Popen, PIPE
+import os
 
 class PwebReader(object):
     """Reads and parses Pweb documents"""
@@ -291,19 +292,25 @@ class PwebReaders(object):
                             'description': 'IPython notebook'}}
 
     @classmethod
-    def get_reader(cls, doctype):
-        return cls.formats[doctype]['class']
+    def guess_reader(cls, filename):
+        """Returns reader based on file extension"""
+        _, ext = os.path.splitext(filename)
+        ext = ext.lower()
+
+        if ext.endswith("w"):
+            return cls.get_reader('noweb')
+        if'md' in ext:
+            return cls.get_reader('markdown')
+
+        # Script reader is the default, because in should be
+        # able to read .py, *.jl, .R etc Jupyter supported formats
+        return cls.get_reader('script')
 
     @classmethod
-    def guessFromFilename(cls, filename):
-        _, ext = os.path.splitext(filename)
-        return cls.guessFromExtension(ext.lower())
+    def get_reader(cls, informat):
+        """Get a reader based on reader name"""
+        return cls.formats[informat]['class']
 
-    @staticmethod
-    def guessFromExtension(ext):
-        if 'md' in ext: return 'markdown'
-        if ext == '.py': return 'script'
-        return 'noweb'
 
     @classmethod
     def shortformats(cls):
