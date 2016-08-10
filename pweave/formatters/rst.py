@@ -15,6 +15,9 @@ class PwebRstFormatter(PwebFormatter):
                                extension='rst',
                                width='15 cm',
                                doctype='rst')
+        self.fig_mimetypes = ["image/png", "image/jpg"]
+        self.mimetypes = ["text/restructuredtext"]
+        self.file_ext = "rst"
 
     def formatfigure(self, chunk):
         fignames = chunk['figure']
@@ -34,8 +37,12 @@ class PwebRstFormatter(PwebFormatter):
             result += figstring
         return result
 
+
+
     def _indent(self, text):
         """Indent blocks for formats where indent is significant"""
+        if not text.startswith("\n"):
+            text = "\n" + text
         return text.replace('\n', '\n' + self.formatdict['indent'])
 
     def _termindent(self, text):
@@ -59,6 +66,9 @@ class PwebSphinxFormatter(PwebRstFormatter):
                                extension='rst',
                                width='15 cm',
                                doctype='rst')
+        self.fig_mimetypes = ["image/png", "image/jpg"]
+        self.mimetypes = ["text/restructuredtext"]
+        self.file_ext = "rst"
 
     def formatfigure(self, chunk):
         fignames = chunk['figure']

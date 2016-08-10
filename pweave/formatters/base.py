@@ -154,15 +154,14 @@ class PwebFormatter(object):
 
 
         #Term sets echo to true
-        if chunk['term']:
-        #    result = self.format_termchunk(chunk)
-            pass
+        #if chunk['term']:
+            #result = self.format_termchunk(chunk)
+         #   pass
         #Other things than term
-        elif chunk['results'] == 'verbatim':
+        if chunk['results'] == 'verbatim':
             if len(chunk['result'].strip()) > 1:
                 chunk['result'] = self._indent(chunk['result'])
                 result += '%(outputstart)s%(result)s%(outputend)s' % chunk
-
         elif chunk['results'] != 'verbatim':
             result += text
 
