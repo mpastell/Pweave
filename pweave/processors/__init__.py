@@ -1,5 +1,5 @@
 
-from . pythonprocessor import PwebProcessor
+#from . pythonprocessor import PwebProcessor
 from . jupyter import JupyterProcessor, IPythonProcessor
 
 class PwebProcessors(object):

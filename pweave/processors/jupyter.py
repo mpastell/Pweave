@@ -4,8 +4,9 @@ from jupyter_client.manager import start_new_kernel
 from nbformat.v4 import output_from_msg
 import os
 
-from ..config import *
+from .. import config
 from .base import PwebProcessorBase
+from . import subsnippets
 
 class JupyterProcessor(PwebProcessorBase):
     """Generic Jupyter processor, should work with any kernel"""
@@ -125,11 +126,15 @@ class JupyterProcessor(PwebProcessorBase):
         return self.run_cell(code_str)
 
 class IPythonProcessor(JupyterProcessor):
-    """Contains IPytho specific functions"""
+    """Contains IPython specific functions"""
 
     def __init__(self, *args):
         super(IPythonProcessor, self).__init__(*args)
-        self.loadstring("import matplotlib")
+        if config.rcParams["usematplotlib"]:
+            self.init_matplotlib()
+
+    def init_matplotlib(self):
+        self.loadstring(subsnippets.init_matplotlib)
 
     def pre_run_hook(self, chunk):
         f_size = """matplotlib.rcParams.update({"figure.figsize" : (%i, %i)})""" % chunk["f_size"]

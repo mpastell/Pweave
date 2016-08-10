@@ -43,7 +43,6 @@ class PwebProcessorBase(object):
         self.cwd = os.path.dirname(os.path.abspath(source))
         self.basename = os.path.basename(os.path.abspath(source)).split(".")[0]
         self.pending_code = ""  # Used for multichunk splits
-        self.init_matplotlib()
 
     def run(self):
         # Create directory for figures

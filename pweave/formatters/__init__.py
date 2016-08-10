@@ -52,14 +52,14 @@ class PwebFormats(object):
 
     @staticmethod
     def guessFromExtension(ext):
-        if ext in ('.pmd', ',py'): return 'markdown'
+        if ext in ('.pmd', '.py'): return 'markdown'
         if 'md' in ext: return 'markdown'
         if 'tex' in ext: return 'texpygments'
         if 'rst' in ext: return 'rst'
         if 'htm' in ext: return 'html'
 
-        print("Can't autodetect output format, defaulting to reStructured text")
-        return 'rst'
+        print("Can't autodetect output format, defaulting to markdown")
+        return 'markdown'
 
     @classmethod
     def shortformats(cls):

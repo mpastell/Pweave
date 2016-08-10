@@ -1,4 +1,3 @@
-from __future__ import print_function, division, unicode_literals, absolute_import
 import sys
 import os
 import re
@@ -25,7 +24,7 @@ class Pweb(object):
     :param format: ``string`` output format from supported formats. pweavSee: http://mpastell.com/pweave/formats.html
     """
 
-    def __init__(self, source, *, reader = None , doctype = "notebook", kernel = "python",
+    def __init__(self, source, *, informat = None , doctype = "notebook", kernel = "python3",
                  output = None, figdir = 'figures', mimetype = None):
         self.source = source
         name, ext = os.path.splitext(os.path.basename(source))
@@ -34,8 +33,6 @@ class Pweb(object):
         self.figdir = figdir
         self.doctype = doctype
         self.sink = None
-
-
 
         if mimetype is None:
             self.mimetype = MimeTypes.guess_mimetype(self.source)
@@ -50,7 +47,10 @@ class Pweb(object):
             self.file_ext = None
 
         self.output = output
-        self.setkernel(kernel)
+
+        if kernel is not None:
+            self.setkernel(kernel)
+
         self._setwd()
 
         #Init variables not set using the constructor
@@ -65,7 +65,7 @@ class Pweb(object):
         self.theme = "skeleton"
 
 
-        self.read(reader = reader)
+        self.read(reader = informat)
 
     def _setwd(self):
         self.wd = os.path.dirname(self.output if self.output is not None else self.source)
@@ -210,12 +210,13 @@ class Pweb(object):
 
     def tangle(self):
         """Tangle the document"""
-        self.parse()
-        target = self._basename() + '.py'
+        self.read()
+        if self.output is None:
+            target = self.basename + '.py'
         code = [x for x in self.parsed if x['type'] == 'code']
         code = [x['content'] for x in code]
         f = open(target, 'w')
         f.write('\n'.join(code))
         f.close()
-        self._print('Tangled code from {src} to {dst}'.format(src=self.source,
+        print('Tangled code from {src} to {dst}'.format(src=self.source,
                                                               dst=target))

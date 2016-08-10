@@ -5,8 +5,8 @@ import sys
 
 class PwebPandocFormatter(PwebFormatter):
 
-    def __init__(self, source=None):
-        PwebFormatter.__init__(self, source)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         pandoc_ver = False
 
         try:
@@ -22,6 +22,8 @@ class PwebPandocFormatter(PwebFormatter):
             print("Your pandoc version is below 1.16, not setting figure size and id")
         else:
             self.new_pandoc = True
+        self.file_ext = "md"
+        self.fig_mimetypes = ["image/png", "image/jpg"]
 
     def initformat(self):
         self.formatdict = dict(codestart='~~~~{.%s}',

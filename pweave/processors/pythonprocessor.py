@@ -1,12 +1,8 @@
 from __future__ import print_function, division, absolute_import
-import json
 import sys
-import re
 import os
-import io
-from subprocess import Popen, PIPE
-import shutil
 import traceback
+from .. import config
 
 try:
     from cStringIO import StringIO
@@ -38,7 +34,7 @@ class PwebProcessor(PwebProcessorBase):
                        figdir, outdir):
         super(PwebProcessor, self).__init__(parsed, source, mode, formatdict,
                        figdir, outdir)
-        self._stdout = sys.stdout
+
 
     def init_matplotlib(self):
         if rcParams["usematplotlib"]:

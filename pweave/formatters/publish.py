@@ -31,6 +31,8 @@ class PwebHTMLFormatter(PwebFormatter):
                                figfmt='.png',
                                width='600',
                                doctype='html')
+
+        self.fig_mimetypes = ["application/svg+xml", "image/png", "image/jpg"]
         self.mimetypes = ["text/html", "application/javascript"]
         self.file_ext = "html"
 
