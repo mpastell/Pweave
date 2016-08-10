@@ -5,6 +5,7 @@ from .markdown import PwebLeanpubFormatter, PwebPandocFormatter, PwebSoftCoverFo
 from .publish import  PwebMDtoHTMLFormatter, PwebPandocMDtoHTMLFormatter,\
     PwebPandoctoTexFormatter, PwebHTMLFormatter
 from .jupyter_notebook import PwebNotebookFormatter
+import os
 
 class PwebFormats(object):
     """Contains a dictionary of available output formats"""

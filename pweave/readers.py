@@ -311,7 +311,6 @@ class PwebReaders(object):
         """Get a reader based on reader name"""
         return cls.formats[informat]['class']
 
-
     @classmethod
     def shortformats(cls):
         fmtstring = ""

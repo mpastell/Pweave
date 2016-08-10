@@ -3,31 +3,32 @@ import nbformat
 
 class PwebNotebookFormatter(object):
 
-    def __init__(self, doc, mimetype = None, theme = None):
+    def __init__(self, executed, *, kernel = "python3", language = "python",
+                 mimetype = "text/markdown"):
+
         self.notebook = {"metadata" : {
                 "kernel_info" : {
-                    "name" : doc.kernel
+                    "name" : kernel
                 },
             "language_info": {
                 # if language_info is defined, its name field is required.
-                "name": doc.language
+                "name": language
             }
         },
         "nbformat": 4,
         "nbformat_minor": 0,
-        "cells": [
-                # list of cell dictionaries, see below
-            ]
+        "cells": [ ]
         }
-        self.execution_count = 1
-        self.formatdict = {"extension" : "ipynb"}
 
-        if mimetype is None or mimetype == "text/markdown":
+        self.execution_count = 1
+        self.file_ext = "ipynb"
+        self.executed = executed
+        self.mimetype = mimetype
+
+        if mimetype == "text/markdown":
             self.doc_cell_type = "markdown"
-            self.doc_cell_mimetype = "text/markdown"
         else:
             self.doc_cell_type = "raw"
-            self.doc_cell_mimetype = mimetype
 
     def setexecuted(self, executed):
         self.executed = executed
@@ -39,7 +40,7 @@ class PwebNotebookFormatter(object):
                     {
                         "cell_type": self.doc_cell_type,
                         "metadata": {
-                            "format" : self.doc_cell_mimetype
+                            "format" : self.mimetype
                         },
                         "source": chunk["content"],
                     }
@@ -63,6 +64,3 @@ class PwebNotebookFormatter(object):
 
     def getformatted(self):
         return nbformat.writes(self.notebook)
-
-    def getformatdict(self):
-        return self.formatdict

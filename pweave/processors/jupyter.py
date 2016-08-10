@@ -17,13 +17,13 @@ class JupyterProcessor(PwebProcessorBase):
 
         self.extra_arguments = None
         self.timeout = -1
-        path = self.outdir
+        path = os.path.abspath(outdir)
 
         self.km, self.kc = start_new_kernel(
             kernel_name= kernel,
             extra_arguments=self.extra_arguments,
             stderr=open(os.devnull, 'w'),
-            cwd = outdir)
+            cwd = path)
         self.kc.allow_stdin = False
 
 

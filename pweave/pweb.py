@@ -11,6 +11,9 @@ from . processors import PwebProcessors
 from .config import rcParams
 from jupyter_client import kernelspec
 
+from .mimetypes import MimeTypes
+
+
 # Python2 compatibility fix
 if sys.version_info[0] == 3:
     basestring = str
@@ -23,21 +26,22 @@ class Pweb(object):
     """
 
     def __init__(self, source, *, reader = None , doctype = "notebook", kernel = "python",
-                 output = None, figdir = 'figures'):
+                 output = None, figdir = 'figures', mimetype = None):
         self.source = source
         name, ext = os.path.splitext(os.path.basename(source))
         self.basename = name
         self.file_ext = ext
         self.figdir = figdir
-        self.setkernel(kernel)
         self.doctype = doctype
+        self.sink = None
 
-        if output is not None:
-            self.setsink(output)
+
+
+        if mimetype is None:
+            self.mimetype = MimeTypes.guess_mimetype(self.source)
         else:
-            self.sink = None
+            self.mimetype = MimeTypes.get_mimetype(mimetype)
 
-        self._setwd()
 
         if self.source != None:
             name, file_ext = os.path.splitext(self.source)
@@ -45,7 +49,9 @@ class Pweb(object):
         else:
             self.file_ext = None
 
-        #Kernel setting
+        self.output = output
+        self.setkernel(kernel)
+        self._setwd()
 
         #Init variables not set using the constructor
         #: Use documentation mode
@@ -53,16 +59,17 @@ class Pweb(object):
         self.parsed = None
         self.executed = None
         self.formatted = None
-        self.mimetype = None
+        self.reader = None
+        self.formatter = None
+        self.processor = None
+
 
         self.read(reader = reader)
 
-
-
     def _setwd(self):
-        self.wd = os.path.dirname(self.sink if self.sink is not None else self.source)
+        self.wd = os.path.dirname(self.output if self.output is not None else self.source)
 
-    def setformat(self, doctype='tex', Formatter=None, theme = None, mimetype = None):
+    def setformat(self, doctype = None, Formatter=None):
         """Set output format for the document
 
         :param doctype: ``string`` output format from supported formats. See: http://mpastell.com/pweave/formats.html
@@ -70,16 +77,7 @@ class Pweb(object):
 
         """
         #Formatters are needed  when the code is executed and formatted
-        if Formatter is not None:
-            self.formatter = Formatter(self, mimetype = self.mimetype)
-            return
-        #Get formatter class from available formatters
-        try:
-            Formatter = PwebFormats.getFormatter(doctype)
-            self.formatter = Formatter(self, theme = None)
 
-        except KeyError as e:
-            raise Exception("Pweave: Unknown output format")
 
 
     def setkernel(self, kernel):
@@ -130,6 +128,8 @@ class Pweb(object):
         self.reader.parse()
         self.parsed = self.reader.getparsed()
 
+
+
     def run(self, Processor = None):
         """Execute code in the document"""
         if Processor is None:
@@ -147,19 +147,34 @@ class Pweb(object):
         self.executed = proc.getresults()
         self.isexecuted = True
 
-    def format(self):
-        """Format the code for writing"""
-        self.formatter.setexecuted(copy.deepcopy(self.executed))
+    def format(self, doctype = None, Formatter = None):
+        """Format the code for writing. You can pass either
+        :doctype The name of Pweave output format
+        :Formatter Formatter class
+        """
+        if doctype is not None:
+            Formatter = PwebFormats.getFormatter(doctype)
+        elif Formatter is not None:
+            Formatter = Formatter
+        elif self.doctype is None:
+            Formatter = PwebFormats.getFormatter(PwebFormats.guessFromFilename(self.source))
+        else:
+            Formatter = PwebFormats.getFormatter(self.doctype)
+
+        self.formatter = Formatter(self.executed,
+                                   kernel = self.kernel,
+                                   language = self.language,
+                                   mimetype = self.mimetype.type)
+
+
         self.formatter.format()
         self.formatted = self.formatter.getformatted()
-        self.isformatted = True
 
-    def setsink(self, output = None):
-        _self.de
-        if output is None:
-            self.sink = os.path.splitext(self.source)[0] + '.' + self._getDstExtension()
+    def setsink(self):
+        if self.output is None:
+            self.sink = os.path.splitext(self.source)[0] + '.' + self.formatter.file_ext
         else:
-            self.sink = output
+            self.sink = self.output
 
 
     def _getDstExtension(self):
@@ -167,6 +182,7 @@ class Pweb(object):
 
     def write(self, action="Pweaved"):
         """Write formatted code to file"""
+        self.setsink()
 
         self._writeToSink(self.formatted.replace("\r", ""))
         self._print('{action} {src} to {dst}\n'.format(action=action,
