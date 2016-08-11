@@ -8,9 +8,9 @@ notifications:
 before_install:
   #- sudo add-apt-repository ppa:octave/stable -y
   #- sudo apt-get update -q
-  - sudo apt-get install gdebi -y
-  - wget https://github.com/jgm/pandoc/releases/download/1.17.0.2/pandoc-1.17.0.2-1-amd64.deb
-  - sudo gdebi pandoc-1.17.0.2-1-amd64.deb -n
+  #- sudo apt-get install gdebi -y
+  #- wget https://github.com/jgm/pandoc/releases/download/1.17.0.2/pandoc-1.17.0.2-1-amd64.deb
+  #- sudo gdebi pandoc-1.17.0.2-1-amd64.deb -n
   - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
   - chmod +x miniconda.sh
   - ./miniconda.sh -b
@@ -21,7 +21,8 @@ before_install:
   - sudo ln -s /run/shm /dev/shm
 # Install packages
 install:
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION scipy matplotlib markdown pygments coverage ipython nose nbformat jupyter_client nbconvert
+  - conda install --yes nomkl
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION scipy matplotlib markdown pygments coverage ipython nose nbformat jupyter_client nbconvert notebook
   #- pip install -r requirements.txt
   # Coverage packages are on my binstar channel
   #- conda install --yes -c dan_blanchard python-coveralls nose-cov

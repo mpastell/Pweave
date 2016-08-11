@@ -23,6 +23,7 @@ tests/weave/tex/FIR_design_verb/FIR_design_AbsoluteFigdir.tex
 tests/weave/tex/FIR_design_verb/FIR_design_figdir.tex
 tests/weave/tex/term_test.tex
 tests/weave/texminted/wrap_test.tex
+tests/readers/markdown_reader.md
 
 tmp/
 .ipynb_checkpoints/*

@@ -201,6 +201,7 @@ class PwebFormatter(object):
 
         # Code is not executed
         if not chunk['evaluate']:
+            chunk["content"] = self.fix_linefeeds(chunk["content"])
             if "%s" in chunk["codestart"]:
                 chunk["codestart"] = chunk["codestart"] % self.language
             if chunk['echo']:
