@@ -164,7 +164,7 @@ class PwebFormatter(object):
         #Set lexers for code and output
 
     def format_text_result(self, text, chunk):
-        chunk["result"] = "\n" + text
+        chunk["result"] = self.fix_linefeeds(text)
         result = ""
         if "%s" in chunk["outputstart"]:
             chunk["outputstart"] = chunk["outputstart"] % chunk["engine"]
@@ -186,6 +186,17 @@ class PwebFormatter(object):
 
         return(result)
 
+
+    def fix_linefeeds(self, text):
+        """Add empty line to start and end of string if it
+        they don't exist"""
+
+        if not text.startswith("\n"):
+            text = "\n" + text
+        if not text.endswith("\n"):
+            text = text + "\n"
+
+        return(text)
 
     def format_codechunks(self, chunk):
         chunk['content'] = self._indent(chunk['content'])

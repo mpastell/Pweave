@@ -1,5 +1,5 @@
 from .base import PwebFormatter
-
+from nbconvert import filters
 
 class PwebTexFormatter(PwebFormatter):
     def initformat(self):
@@ -69,16 +69,19 @@ class PwebTexPygmentsFormatter(PwebTexFormatter):
         self.formatdict = dict(
             codestart="",
             codeend="",
-            outputstart = "\n\\begin{verbatim}\n",
-            outputend = "\n\\end{verbatim}\n",
-            termstart="",
-            termend="",
+            outputstart = "\n" + r"\begin{Verbatim}[commandchars=\\\{\},frame=leftline,fontsize=\small, xleftmargin=0.5em]",
+            outputend = r"\end{Verbatim}" +"\n",
+            #termstart= "\n" + r"\begin{Verbatim}[commandchars=\\\{\},frame=single,fontsize=\small, xleftmargin=0.5em]",
+            #termend= r"\end{Verbatim}" +"\n",
             figfmt='.pdf',
             extension='tex',
             width='\\linewidth',
             doctype='tex')
         self.file_ext = "tex"
         self.fig_mimetypes = ["application/pdf", "image/png", "image/jpg"]
+
+    def highlight_ansi(self, text):
+        return filters.ansi2latex(text)
 
     def format_codechunks(self, chunk):
         from pygments import highlight

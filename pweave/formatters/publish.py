@@ -178,6 +178,25 @@ class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
 
         \\ifluatex\\usepackage{fontspec}\\fi
 
+        \\usepackage{xcolor}
+        %% ANSI colors from nbconvert
+        \\definecolor{ansi-black}{HTML}{3E424D}
+        \\definecolor{ansi-black-intense}{HTML}{282C36}
+        \\definecolor{ansi-red}{HTML}{E75C58}
+        \\definecolor{ansi-red-intense}{HTML}{B22B31}
+        \\definecolor{ansi-green}{HTML}{00A250}
+        \\definecolor{ansi-green-intense}{HTML}{007427}
+        \\definecolor{ansi-yellow}{HTML}{DDB62B}
+        \\definecolor{ansi-yellow-intense}{HTML}{B27D12}
+        \\definecolor{ansi-blue}{HTML}{208FFB}
+        \\definecolor{ansi-blue-intense}{HTML}{0065CA}
+        \\definecolor{ansi-magenta}{HTML}{D160C4}
+        \\definecolor{ansi-magenta-intense}{HTML}{A03196}
+        \\definecolor{ansi-cyan}{HTML}{60C6C8}
+        \\definecolor{ansi-cyan-intense}{HTML}{258F8F}
+        \\definecolor{ansi-white}{HTML}{C5C1B4}
+         \\definecolor{ansi-white-intense}{HTML}{A1A6B2}
+
         \\hypersetup
         {   pdfauthor = {Pweave},
             pdftitle={Published from %s},
