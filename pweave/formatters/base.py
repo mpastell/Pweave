@@ -150,14 +150,14 @@ class PwebFormatter(object):
 
     def render_traceback(self, text, chunk):
         chunk = copy.deepcopy(chunk)
-        text = self.escape(text)
         text = self.highlight_ansi(text)
         return self.format_text_result(text, chunk)
 
     def render_text(self, text, chunk):
         chunk = copy.deepcopy(chunk)
-        text = filters.strip_ansi(text)
-        text = self.escape(text)
+        text = self.highlight_ansi(text)
+        #text = filters.strip_ansi(text)
+        #text = self.escape(text)
 
         return self.format_text_result(text, chunk)
 

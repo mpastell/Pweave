@@ -5,7 +5,8 @@ import base64
 import sys
 import os
 import io
-
+import html
+from nbconvert import filters
 
 class PwebHTMLFormatter(PwebFormatter):
 
@@ -15,17 +16,16 @@ class PwebHTMLFormatter(PwebFormatter):
             return chunk
 
         from pygments import highlight
-        from pygments.lexers import PythonLexer, PythonConsoleLexer, TextLexer
+        from IPython.lib.lexers import IPyLexer
+        #from pygments.lexers import PythonLexer, PythonConsoleLexer, TextLexer
         from pygments.formatters import HtmlFormatter
 
-        chunk['content'] = highlight(chunk['content'], PythonLexer(), HtmlFormatter())
+        chunk['content'] = highlight(chunk['content'], IPyLexer(), HtmlFormatter())
         return chunk
 
     def initformat(self):
         self.formatdict = dict(codestart='',
                                codeend='',
-                               # TODO overrive render_text to use
-                               # pygments Lexer
                                outputstart='\n<div class="highlight"><pre>',
                                outputend='</pre></div>\n',
                                figfmt='.png',
@@ -35,6 +35,14 @@ class PwebHTMLFormatter(PwebFormatter):
         self.fig_mimetypes = ["application/svg+xml", "image/png", "image/jpg"]
         self.mimetypes = ["text/html", "application/javascript"]
         self.file_ext = "html"
+
+
+    def escape(self, text):
+
+        return html.escape(text)
+
+    def highlight_ansi(self, text):
+        return filters.ansi2html(text)
 
     def formatfigure(self, chunk):
         result = ""

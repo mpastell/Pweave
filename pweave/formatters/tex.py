@@ -85,19 +85,12 @@ class PwebTexPygmentsFormatter(PwebTexFormatter):
 
     def format_codechunks(self, chunk):
         from pygments import highlight
-        from pygments.lexers import PythonLexer, TextLexer, PythonConsoleLexer
+        from IPython.lib.lexers import IPyLexer
+        #from pygments.lexers import PythonLexer, TextLexer, PythonConsoleLexer
         from pygments.formatters import LatexFormatter
 
-        chunk['content'] = highlight(chunk['content'], PythonLexer(),
+        chunk['content'] = highlight(chunk['content'], IPyLexer(),
                                      LatexFormatter(verboptions="frame=single,fontsize=\small, xleftmargin=0.5em"))
-        #Highlighting of output is broken with Jupyter processor
-        #if len(chunk['result'].strip()) > 0 and chunk['results'] == 'verbatim':
-        #    if chunk['term']:
-        #        chunk['result'] = highlight(chunk['result'], PythonLexer(), LatexFormatter(
-        #            verboptions="frame=single,fontsize=\small, xleftmargin=0.5em"))
-        #    else:
-        #        chunk['result'] = highlight(chunk['result'], TextLexer(), LatexFormatter(
-        #            verboptions="frame=leftline,fontsize=\small, xleftmargin=0.5em"))
         return PwebFormatter.format_codechunks(self, chunk)
 
 
