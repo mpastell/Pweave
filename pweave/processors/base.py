@@ -188,7 +188,7 @@ class PwebProcessorBase(object):
 
     def savefigs(self, chunk):
         pass
-      
+
     def getFigDirectory(self):
         return os.path.join(self.outdir, self.figdir)
 
@@ -215,11 +215,14 @@ class PwebProcessorBase(object):
 
     def load_shell(self, chunk):
         pass
-      
-    def loadstring(self, code, chunk=None, scope=PwebProcessorGlobals.globals):
+
+    def loadstring(self, code, chunk=None):
         pass
 
     def loadterm(self, code_string, chunk=None):
+        pass
+
+    def load_inline_string(self, code_string):
         pass
 
     def loadinline(self, content):
@@ -238,12 +241,12 @@ class PwebProcessorBase(object):
                 continue
             if elem.startswith('<%='):
                 code_str = elem.replace('<%=', '').replace('%>', '').lstrip()
-                result = self.loadstring(self.add_echo(code_str)).strip()
+                result = self.load_inline_string(code_str).strip()
                 splitted[i] = result
                 continue
             if elem.startswith('<%'):
                 code_str = elem.replace('<%', '').replace('%>', '').lstrip()
-                result = self.loadstring(code_str).strip()
+                result = self.load_inline_string(code_str).strip()
                 splitted[i] = result
         return ''.join(splitted)
 

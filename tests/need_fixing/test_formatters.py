@@ -1,7 +1,6 @@
 import pweave
 import unittest
 import sys
-import os
 
 try:
     from _frameworkForTests import RegressionTest
@@ -23,7 +22,7 @@ class WeaveFormatsTest(RegressionTest):
                          informat='markdown')
 
             self.REFERENCE = self.absPathTo(reference)
-            self.assertSameAsReference
+            self.assertSameAsReference()
 
         testMethod.__name__ = name
         version = sys.version_info[0]

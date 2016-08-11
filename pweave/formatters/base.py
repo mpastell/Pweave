@@ -18,6 +18,7 @@ class PwebFormatter(object):
         self.wd = wd
         self.source = source
         self.theme = theme
+        self.language = language
 
         #To be set in child classess
         self.file_ext = None
@@ -48,16 +49,16 @@ class PwebFormatter(object):
                         chunk[key] = self.formatdict[key]
 
             # Wrap text if option is set
-            if chunk['type'] == "code":
-                if chunk['wrap']:
-                    chunk['content'] = self._wrap(chunk['content'])
-                    #chunk['result'] = self._wrap(chunk['result'])
-                if chunk['wrap'] == 'code':
-                    chunk['content'] = self._wrap(chunk['content'])
-                #if chunk['wrap'] == 'results':
-                #    chunk['result'] = self._wrap(chunk['result'])
-                if not chunk['wrap']:
-                    chunk['content'] = chunk['content'] + "\n"
+            #if chunk['type'] == "code":
+            #    if chunk['wrap']:
+            #        chunk['content'] = self._wrap(chunk['content'])
+            #        #chunk['result'] = self._wrap(chunk['result'])
+            #    if chunk['wrap'] == 'code':
+            #        chunk['content'] = self._wrap(chunk['content'])
+            #    #if chunk['wrap'] == 'results':
+            #    #    chunk['result'] = self._wrap(chunk['result'])
+            #    if not chunk['wrap']:
+            #        chunk['content'] = chunk['content'] + "\n"
 
             # Preformat chunk content before default formatters
             chunk = self.preformat_chunk(chunk)
@@ -80,11 +81,11 @@ class PwebFormatter(object):
     def preformat_chunk(self, chunk):
         """You can use this method in subclasses to preformat chunk content"""
         return chunk
-      
+
     def figures_from_chunk(self, chunk):
         """Extract base64 encoded figures from chunk"""
         figs = []
-        i = 0
+        i = 1
         for out in chunk["result"]:
             if out["output_type"] != "display_data":
                 continue
@@ -142,23 +143,20 @@ class PwebFormatter(object):
         else:
             return ""
 
-    def highlight_ansi(self, text):
-        return filters.strip_ansi(text)
+    def highlight_ansi_and_escape(self, text):
+        return self.escape(filters.strip_ansi(text))
 
     def escape(self, text):
         return text
 
     def render_traceback(self, text, chunk):
         chunk = copy.deepcopy(chunk)
-        text = self.highlight_ansi(text)
+        text = self.highlight_ansi_and_escape(text)
         return self.format_text_result(text, chunk)
 
     def render_text(self, text, chunk):
         chunk = copy.deepcopy(chunk)
-        text = self.highlight_ansi(text)
-        #text = filters.strip_ansi(text)
-        #text = self.escape(text)
-
+        text = self.highlight_ansi_and_escape(text)
         return self.format_text_result(text, chunk)
 
         #Set lexers for code and output
@@ -167,9 +165,9 @@ class PwebFormatter(object):
         chunk["result"] = self.fix_linefeeds(text)
         result = ""
         if "%s" in chunk["outputstart"]:
-            chunk["outputstart"] = chunk["outputstart"] % chunk["engine"]
+            chunk["outputstart"] = chunk["outputstart"] % self.language
         if "%s" in chunk["termstart"]:
-            chunk["termstart"] = chunk["termstart"] % chunk["engine"]
+            chunk["termstart"] = chunk["termstart"] % self.language
 
 
         #Term sets echo to true
@@ -204,7 +202,7 @@ class PwebFormatter(object):
         # Code is not executed
         if not chunk['evaluate']:
             if "%s" in chunk["codestart"]:
-                chunk["codestart"] = chunk["codestart"] % chunk["engine"]
+                chunk["codestart"] = chunk["codestart"] % self.language
             if chunk['echo']:
                 result = '%(codestart)s%(content)s%(codeend)s' % chunk
                 return result
@@ -214,11 +212,12 @@ class PwebFormatter(object):
         #Code is executed
         #-------------------
         if "%s" in chunk["codestart"]:
-            chunk["codestart"] = chunk["codestart"] % chunk["engine"]
+            chunk["codestart"] = chunk["codestart"] % self.language
 
         result = ""
 
         if chunk['echo']:
+            chunk["content"] = self.fix_linefeeds(chunk["content"])
             result += '%(codestart)s%(content)s%(codeend)s' % chunk
 
 

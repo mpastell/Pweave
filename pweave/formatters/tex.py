@@ -80,7 +80,7 @@ class PwebTexPygmentsFormatter(PwebTexFormatter):
         self.file_ext = "tex"
         self.fig_mimetypes = ["application/pdf", "image/png", "image/jpg"]
 
-    def highlight_ansi(self, text):
+    def highlight_ansi_and_escape(self, text):
         return filters.ansi2latex(text)
 
     def format_codechunks(self, chunk):

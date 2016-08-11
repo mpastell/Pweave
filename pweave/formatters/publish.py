@@ -41,7 +41,7 @@ class PwebHTMLFormatter(PwebFormatter):
 
         return html.escape(text)
 
-    def highlight_ansi(self, text):
+    def highlight_ansi_and_escape(self, text):
         return filters.ansi2html(text)
 
     def formatfigure(self, chunk):

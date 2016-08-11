@@ -8,14 +8,13 @@ Change properties of a matplotlib plot with inline chunk
 
 
 
-~~~~{.python}
+```python
 print(pweave_test)
-~~~~~~~~~~~~~
+```
 
-~~~~{.python}
+```
 True
-
-~~~~~~~~~~~~~
+```
 
 
 

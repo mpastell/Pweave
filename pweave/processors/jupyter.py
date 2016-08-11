@@ -32,14 +32,14 @@ class JupyterProcessor(PwebProcessorBase):
     def close(self):
         self.kc.stop_channels()
         self.km.shutdown_kernel(now = True)
-        
+
     def run_cell(self, src):
         cell = {}
         cell["source"] = src.lstrip()
         msg_id = self.kc.execute(src.lstrip())
 
         #self.log.debug("Executing cell:\n%s", cell.source)
-        
+
         # wait for finish, with timeout
         while True:
             try:
@@ -126,6 +126,24 @@ class JupyterProcessor(PwebProcessorBase):
     def loadterm(self, code_str, **kwargs):
         return((sources, self.run_cell(code_str)))
 
+    #TODO add support for "rich" output
+    #Requires storing the results for formatter
+    def load_inline_string(self, code_string):
+        from nbconvert import filters
+        outputs = self.loadstring(code_string)
+        result = ""
+        for out in outputs:
+            if out["output_type"] == "stream":
+                result += out["text"]
+            elif out["output_type"] == "error":
+                result += filters.strip_ansi("".join(out["traceback"]))
+            elif "text/plain" in out["data"]:
+                result += out["data"]["text/plain"]
+            else:
+                result = ""
+        return result
+
+
 class IPythonProcessor(JupyterProcessor):
     """Contains IPython specific functions"""
 
@@ -157,8 +175,3 @@ class IPythonProcessor(JupyterProcessor):
                 outputs.append(out)
 
         return((sources, outputs))
-
-
-
-
-

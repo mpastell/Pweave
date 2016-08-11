@@ -26,10 +26,10 @@ class PwebPandocFormatter(PwebFormatter):
         self.fig_mimetypes = ["image/png", "image/jpg"]
 
     def initformat(self):
-        self.formatdict = dict(codestart='~~~~{.%s}',
-                               codeend='~~~~~~~~~~~~~\n\n',
-                               outputstart='~~~~{.%s}',
-                               outputend='~~~~~~~~~~~~~\n\n',
+        self.formatdict = dict(codestart='```%s',
+                               codeend='```\n\n',
+                               outputstart='```',
+                               outputend='```\n\n',
                                indent='',
                                termindent='',
                                figfmt='.png',
