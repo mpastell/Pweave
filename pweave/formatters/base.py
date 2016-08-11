@@ -2,6 +2,7 @@ import textwrap
 import os
 import base64
 import copy
+from nbconvert import filters
 
 # Pweave output formatters
 class PwebFormatter(object):
@@ -120,7 +121,7 @@ class PwebFormatter(object):
     def render_jupyter_output(self, out, chunk):
         #print(out)
         if out["output_type"] == "error":
-            return self.render_text("".join(out["traceback"]), chunk)
+            return self.render_traceback("".join(out["traceback"]), chunk)
 
         if out["output_type"] == "stream":
             return self.render_text(out["text"], chunk)
@@ -141,12 +142,30 @@ class PwebFormatter(object):
         else:
             return ""
 
+    def highlight_ansi(self, text):
+        return filters.strip_ansi(text)
+
+    def escape(self, text):
+        return text
+
+    def render_traceback(self, text, chunk):
+        chunk = copy.deepcopy(chunk)
+        text = self.escape(text)
+        text = self.highlight_ansi(text)
+        return self.format_text_result(text, chunk)
+
     def render_text(self, text, chunk):
         chunk = copy.deepcopy(chunk)
-        chunk["result"] = "\n" + text
-        result = ""
+        text = filters.strip_ansi(text)
+        text = self.escape(text)
+
+        return self.format_text_result(text, chunk)
+
         #Set lexers for code and output
 
+    def format_text_result(self, text, chunk):
+        chunk["result"] = "\n" + text
+        result = ""
         if "%s" in chunk["outputstart"]:
             chunk["outputstart"] = chunk["outputstart"] % chunk["engine"]
         if "%s" in chunk["termstart"]:

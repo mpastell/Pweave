@@ -87,7 +87,7 @@ def publish(file, doc_format="html", theme="skeleton", latex_engine="pdflatex",
         print("Unknown format, exiting")
         return
 
-    doc = Pweb(file, kernel="python3", informat="script", doctype=pformat,
+    doc = Pweb(file, kernel="python3", doctype=pformat,
                output=output)
 
     doc.theme = theme

@@ -23,7 +23,7 @@ class Pweb(object):
     :param format: ``string`` output format from supported formats. pweavSee: http://mpastell.com/pweave/formats.html
     """
 
-    def __init__(self, source, *, informat = None , doctype = "notebook", kernel = "python3",
+    def __init__(self, source, doctype = None, *, informat = None, kernel = "python3",
                  output = None, figdir = 'figures', mimetype = None):
         self.source = source
         name, ext = os.path.splitext(os.path.basename(source))
