@@ -37,11 +37,11 @@ class WeaveTest(RegressionTest):
               'ClassInMultipleChunksUsingContinueOption': (['pandoc', 'ar_yw.md'], {}),
               'InlineCode': (['pandoc', 'inline_chunks.md'], {}),
 
-              'TerminalEmulation': (['tex', 'term_test.tex'], {'kwargs': {'doctype': 'tex'}}),
+              'TerminalEmulation': (['tex', 'term_test.tex'], {}),
 
-              'FIR_FilterExampleTex': (['tex', 'FIR_design_verb.tex'], {}),
-
-              'WrapAndCodeOutput': (['texminted', 'wrap_test.tex'], {})
+              'FIR_FilterExampleTex': (['tex', 'FIR_design_verb.tex'], {})
+              # TODO decide how to handle wrapping
+              #'WrapAndCodeOutput': (['texminted', 'wrap_test.tex'], {})
               }
 
 

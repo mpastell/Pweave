@@ -2,8 +2,8 @@
 \usepackage{fancyvrb, color, graphicx, hyperref, amsmath, url}
 \usepackage{palatino}
 \usepackage[a4paper,text={16.5cm,25.2cm},centering]{geometry}
-        
-\hypersetup  
+
+\hypersetup
 {   pdfauthor = {Matti Pastell},
   pdftitle={FIR filter design with Python and SciPy},
   colorlinks=TRUE,
@@ -16,7 +16,7 @@
 \setlength{\parskip}{1.2ex}
 
 
-        
+
 \title{FIR filter design with Python and SciPy}
 \author{Matti Pastell \\ \url{http://mpastell.com}}
 \date{15th April 2013}
@@ -52,7 +52,7 @@ Let's first define functions to plot filter properties.
 <<>>=
 from pylab import *
 import scipy.signal as signal
-    
+
 #Plot frequency and phase response
 def mfreqz(b,a=1):
     w,h = signal.freqz(b,a)
@@ -105,16 +105,14 @@ The next code chunk is executed in term mode, see the source document
 for syntax. Notice also that Pweave can now catch multiple
 figures/code chunk.
 
-<<term=True>>=
+<<>>=
 n = 61
 a = signal.firwin(n, cutoff = 0.3, window = "hamming")
 #Frequency and phase response
 mfreqz(a)
-show()
 #Impulse and step response
-_ = figure(2)
+p = figure(2)
 impz(a)
-show()
 @
 
 \subsection{Highpass FIR Filter}
@@ -125,7 +123,6 @@ Let's define a highpass FIR filter:
 n = 101
 a = signal.firwin(n, cutoff = 0.3, window = "hanning", pass_zero=False)
 mfreqz(a)
-show()
 @
 
 \subsection{Bandpass FIR filter}
@@ -137,7 +134,6 @@ Notice that the plot has a caption defined in code chunk options.
 n = 1001
 a = signal.firwin(n, cutoff = [0.2, 0.5], window = 'blackmanharris', pass_zero = False)
 mfreqz(a)
-show()
 @
 
 \end{document}
