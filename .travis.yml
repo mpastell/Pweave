@@ -21,7 +21,7 @@ before_install:
   - sudo ln -s /run/shm /dev/shm
 # Install packages
 install:
-  - conda install nomkl
+  - conda install --yes nomkl
   - conda install --yes python=$TRAVIS_PYTHON_VERSION scipy matplotlib markdown pygments coverage ipython nose nbformat jupyter_client nbconvert notebook
   #- pip install -r requirements.txt
   # Coverage packages are on my binstar channel
