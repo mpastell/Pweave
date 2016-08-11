@@ -30,12 +30,6 @@ class WeaveTest(RegressionTest):
             self.assertSameAsReference()
 
         testMethod.__name__ = name
-        version = sys.version_info[0]
-        if version not in python:
-            return unittest.skip('{test} skipped beacause of inappropriate Python version ({v})'.format(
-                test = name,
-                v = version))(testMethod)
-
         return testMethod
 
     _tests = {
@@ -43,7 +37,7 @@ class WeaveTest(RegressionTest):
               'ClassInMultipleChunksUsingContinueOption': (['pandoc', 'ar_yw.md'], {}),
               'InlineCode': (['pandoc', 'inline_chunks.md'], {}),
 
-              'TerminalEmulation': (['tex', 'term_test.tex'], {'kwargs': {'shell': 'python'}}),
+              'TerminalEmulation': (['tex', 'term_test.tex'], {'kwargs': {'doctype': 'tex'}}),
 
               'FIR_FilterExampleTex': (['tex', 'FIR_design_verb.tex'], {}),
 

@@ -165,13 +165,24 @@ class IPythonProcessor(JupyterProcessor):
         code_lines = code_str.lstrip().splitlines()
         sources = []
         outputs = []
+
         for line in code_lines:
-            complete = splitter.push_line(line)
-            if complete:
+            if splitter.push_accepts_more():
+                splitter.push_line(line)
+            else:
                 code_str = splitter.source
-                splitter.reset()
                 sources.append(code_str)
                 out = self.loadstring(code_str)
+                #print(out)
                 outputs.append(out)
+                splitter.reset()
+                splitter.push_line(line)
+
+
+        if splitter.source != "":
+            code_str = splitter.source
+            sources.append(code_str)
+            out = self.loadstring(code_str)
+            outputs.append(out)
 
         return((sources, outputs))

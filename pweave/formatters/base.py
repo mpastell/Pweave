@@ -176,7 +176,7 @@ class PwebFormatter(object):
          #   pass
         #Other things than term
         if chunk['results'] == 'verbatim':
-            if len(chunk['result'].strip()) > 1:
+            if len(chunk['result'].strip()) > 0:
                 chunk['result'] = self._indent(chunk['result'])
                 result += '%(outputstart)s%(result)s%(outputend)s' % chunk
         elif chunk['results'] != 'verbatim':
