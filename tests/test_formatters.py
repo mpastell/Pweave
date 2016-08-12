@@ -19,7 +19,7 @@ class FormatterTest(unittest.TestCase):
     def testFormatters(self):
         formats = sorted(list(pweave.formatters.PwebFormats.formats.keys()))
         for format in formats:
-            if format == "pandoc2latex": #Pygments creates output in varying order
+            if "pandoc2" in format: #No pandoc on travis
                 continue
             self.doc.format(format)
             self.out_file = self.out_base % format
