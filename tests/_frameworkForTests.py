@@ -59,11 +59,10 @@ class RegressionTest(ParametricTests):
         return content
 
     def removeFile(self, name):
-        pass
-        #try:
-        #    os.remove(self.absPathTo(name))
-        #except OSError:
-        #    pass
+        try:
+            os.remove(self.absPathTo(name))
+        except OSError:
+            pass
 
     def setNewOutfile(self, name):
         self.removeFile(name)
