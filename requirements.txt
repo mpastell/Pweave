@@ -1,4 +1,6 @@
 markdown
 pygments
 ipython
-beautifulsoup4
+nbformat
+nbconvert
+jupyter_client

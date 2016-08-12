@@ -1,14 +1,16 @@
-from __future__ import print_function, division, unicode_literals, absolute_import
 import sys
 import os
 import re
 import copy
 import io
 
-from .readers import PwebReader, PwebReaders
-from .formatters import PwebFormats
-from .processors import PwebProcessors
-from .config import rcParams
+from .readers import PwebReaders
+from . formatters import PwebFormats
+from . processors import PwebProcessors
+from jupyter_client import kernelspec
+
+from .mimetypes import MimeTypes
+
 
 # Python2 compatibility fix
 if sys.version_info[0] == 3:
@@ -17,35 +19,25 @@ if sys.version_info[0] == 3:
 
 class Pweb(object):
     """Processes a complete document
-
     :param file: ``string`` name of the input document.
-    :param format: ``string`` output format from supported formats. See: http://mpastell.com/pweave/formats.html
+    :param format: ``string`` output format from supported formats. pweavSee: http://mpastell.com/pweave/formats.html
     """
 
-    # Shared across class instances
-    chunkformatters = []
-    chunkprocessors = []
-
-    #: Pweave cache directory
-    cachedir = 'cache'
-
-    _mpl_imported = False
-
-    def __init__(self, file=None, format="tex", shell="python",
-                 output=None, figdir='figures'):
-
-        #The source document
-        self.source = file
-        self.sink = None
-        self.destination = output
+    def __init__(self, source, doctype = None, *, informat = None, kernel = "python3",
+                 output = None, figdir = 'figures', mimetype = None):
+        self.source = source
+        name, ext = os.path.splitext(os.path.basename(source))
+        self.basename = name
+        self.file_ext = ext
         self.figdir = figdir
-        self.doctype = format
-        self.parsed = None
-        self.executed = None
-        self.formatted = None
-        self.isparsed = False
-        self.isexecuted = False
-        self.isformatted = False
+        self.doctype = doctype
+        self.sink = None
+
+        if mimetype is None:
+            self.mimetype = MimeTypes.guess_mimetype(self.source)
+        else:
+            self.mimetype = MimeTypes.get_mimetype(mimetype)
+
 
         if self.source != None:
             name, file_ext = os.path.splitext(self.source)
@@ -53,67 +45,35 @@ class Pweb(object):
         else:
             self.file_ext = None
 
+        self.output = output
 
-        if "python" not in shell:
-            rcParams["chunk"]["defaultoptions"]["engine"] = shell
+        if kernel is not None:
+            self.setkernel(kernel)
 
-        #: Use documentation mode?
+        self._setwd()
+
+        #Init variables not set using the constructor
+        #: Use documentation mode
         self.documentationmode = False
+        self.parsed = None
+        self.executed = None
+        self.formatted = None
+        self.reader = None
+        self.formatter = None
+        self.processor = None
+        self.theme = "skeleton"
 
-        self.setreader()
-        self.setformat(self.doctype)
 
-    def setformat(self, doctype='tex', Formatter=None, theme = None):
-        """Set output format for the document
+        self.read(reader = informat)
 
-        :param doctype: ``string`` output format from supported formats. See: http://mpastell.com/pweave/formats.html
-        :param Formatter: Formatter class, can be used to specify custom formatters. See: http://mpastell.com/pweave/subclassing.html
+    def _setwd(self):
+        self.wd = os.path.dirname(self.output if self.output is not None else self.source)
 
-        """
-        #Formatters are needed  when the code is executed and formatted
-        if Formatter is not None:
-            self.formatter = Formatter(self.source)
-            return
-        #Get formatter class from available formatters
-        try:
-            Formatter = PwebFormats.getFormatter(doctype)
-            self.formatter = Formatter(self.source) if theme is None else Formatter(self.source, theme)
 
-        except KeyError as e:
-            raise Exception("Pweave: Unknown output format")
-
-    def setreader(self, Reader=PwebReader):
-        """Set class reading for reading documents,
-        readers can be used to implement different input markups"""
-        if isinstance(Reader, basestring):
-            self.Reader = PwebReaders.getReader(Reader)
-        else:
-            self.Reader = Reader
-
-    def detect_format(self):
-        """Detect output format based on file extension"""
-        if self.file_ext == ".pmd" or self.file_ext == ".py":
-            self.setformat("markdown")
-        elif "md" in self.file_ext:
-            self.setformat("markdown")
-        elif "tex" in self.file_ext:
-            self.setformat("texpygments")
-        elif "rst" in self.file_ext:
-            self.setformat("rst")
-        elif "htm" in self.file_ext:
-            self.setformat("html")
-        else:
-            print("Can't autodetect output format, defaulting to reStructured text")
-            self.setformat("rst")
-
-    def detect_reader(self):
-        """Detect input format based on file extension"""
-        if self.file_ext == ".pmd":
-            self.setreader("markdown")
-        elif self.file_ext == ".py":
-            self.setreader("script")
-        else:
-            self.setreader("noweb")
+    def setkernel(self, kernel):
+        """Set the kernel for jupyter_client"""
+        self.kernel = kernel
+        self.language = kernelspec.get_kernel_spec(kernel).language
 
     def getformat(self):
         """Get current format dictionary. See: http://mpastell.com/pweave/customizing.html"""
@@ -123,55 +83,87 @@ class Pweb(object):
         """Update existing format, See: http://mpastell.com/pweave/customizing.html"""
         self.formatter.formatdict.update(dict)
 
-    def parse(self, string=None, basename="string_input"):
-        """Parse document"""
+    def read(self, string=None, basename="string_input", reader = None):
+        """Parse document
+        :param None (set automatically), reader name or class object
+        """
+        if reader is None:
+            Reader = PwebReaders.guess_reader(self.source)
+        elif isinstance(reader, basestring):
+            Reader = PwebReaders.get_reader(reader)
+        else:
+            Reader = reader
+
+
         if string is None:
-            parser = self.Reader(file=self.source)
+            self.reader = Reader(file=self.source)
         else:
-            parser = self.Reader(string=string)
+            self.reader = self.Reader(string=string)
             self.source = basename # XXX non-trivial implications possible
-        parser.parse()
-        self.parsed = parser.getparsed()
-        self.isparsed = True
+        self.reader.parse()
+        self.parsed = self.reader.getparsed()
 
-    def run(self, shell="python"):
+
+
+    def run(self, Processor = None):
         """Execute code in the document"""
-        if isinstance(shell, basestring):
-            Runner = PwebProcessors.getProcessor(shell)
+        if Processor is None:
+            Processor = PwebProcessors.getprocessor(self.kernel)
+
+        proc = Processor(copy.deepcopy(self.parsed),
+                         self.kernel,
+                         self.source,
+                         self.documentationmode,
+                         self.figdir,
+                         self.wd
+                        )
+        proc.run()
+        self.processor = proc
+        self.executed = proc.getresults()
+
+
+    def format(self, doctype = None, Formatter = None):
+        """Format the code for writing. You can pass either
+        :doctype The name of Pweave output format
+        :Formatter Formatter class
+        """
+        if doctype is not None:
+            Formatter = PwebFormats.getFormatter(doctype)
+        elif Formatter is not None:
+            Formatter = Formatter
+        elif self.doctype is None:
+            Formatter = PwebFormats.getFormatter(PwebFormats.guessFromFilename(self.source))
         else:
-            Runner = shell
+            Formatter = PwebFormats.getFormatter(self.doctype)
 
-        runner = Runner(copy.deepcopy(self.parsed), self.source,
-                        self.documentationmode,
-                        self.formatter.getformatdict(),
-                        self.figdir,
-                        os.path.dirname(self.destination if self.destination is not None else self.source))
-        runner.run()
-        self.executed = runner.getresults()
-        self.isexecuted = True
+        self.formatter = Formatter(copy.deepcopy(self.executed),
+                                   kernel = self.kernel,
+                                   language = self.language,
+                                   mimetype = self.mimetype.type,
+                                   source = self.source,
+                                   theme = self.theme,
+                                   figdir = self.figdir,
+                                   wd = self.wd
+                                   )
 
-    def format(self):
-        """Format the code for writing"""
-        if not self.isexecuted:
-            self.run()
-        self.formatter.setexecuted(copy.deepcopy(self.executed))
+
         self.formatter.format()
         self.formatted = self.formatter.getformatted()
-        self.isformatted = True
 
-    def _determineOutputFile(self, dst):
-        self.sink = dst if dst is not None else \
-            (self._basename() + '.' + self._getDstExtension())
+    def setsink(self):
+        if self.output is None:
+            self.sink = os.path.splitext(self.source)[0] + '.' + self.formatter.file_ext
+        else:
+            self.sink = self.output
+
 
     def _getDstExtension(self):
         return self.formatter.getformatdict()['extension']
 
     def write(self, action="Pweaved"):
         """Write formatted code to file"""
-        if not self.isformatted:
-            self.format()
+        self.setsink()
 
-        self._determineOutputFile(self.destination)
         self._writeToSink(self.formatted.replace("\r", ""))
         self._print('{action} {src} to {dst}\n'.format(action=action,
                                                        src=self.source,
@@ -185,28 +177,20 @@ class Pweb(object):
         f.write(data)
         f.close()
 
-    def _basename(self):
-        return self._getBaseName(self.source)
-
-    def _getBaseName(self, filename):
-        return re.split("\.+[^\.]+$", filename)[0]
-
-    def weave(self, shell="python"):
+    def weave(self):
         """Weave the document, equals -> parse, run, format, write"""
-        if not self.isparsed:
-            self.parse()
-        self.run(shell)
+        self.run()
         self.format()
         self.write()
 
     def tangle(self):
         """Tangle the document"""
-        self.parse()
-        target = self._basename() + '.py'
+        if self.output is None:
+            target = os.path.join(self.wd, self.basename + '.py')
         code = [x for x in self.parsed if x['type'] == 'code']
         code = [x['content'] for x in code]
         f = open(target, 'w')
         f.write('\n'.join(code))
         f.close()
-        self._print('Tangled code from {src} to {dst}'.format(src=self.source,
+        print('Tangled code from {src} to {dst}'.format(src=self.source,
                                                               dst=target))

@@ -1,11 +1,10 @@
 # Pweave readers
-from __future__ import print_function, division, unicode_literals, absolute_import
-
 import re
 import copy
 import json
 import io
 from subprocess import Popen, PIPE
+import os
 
 class PwebReader(object):
     """Reads and parses Pweb documents"""
@@ -291,19 +290,24 @@ class PwebReaders(object):
                             'description': 'IPython notebook'}}
 
     @classmethod
-    def getReader(cls, doctype):
-        return cls.formats[doctype]['class']
+    def guess_reader(cls, filename):
+        """Returns reader based on file extension"""
+        _, ext = os.path.splitext(filename)
+        ext = ext.lower()
+
+        if ext.endswith("w"):
+            return cls.get_reader('noweb')
+        if'md' in ext:
+            return cls.get_reader('markdown')
+
+        # Script reader is the default, because in should be
+        # able to read .py, *.jl, .R etc Jupyter supported formats
+        return cls.get_reader('script')
 
     @classmethod
-    def guessFromFilename(cls, filename):
-        _, ext = os.path.splitext(filename)
-        return cls.guessFromExtension(ext.lower())
-
-    @staticmethod
-    def guessFromExtension(ext):
-        if ext == '.pmd': return 'markdown'
-        if ext == '.py': return 'script'
-        return 'noweb'
+    def get_reader(cls, informat):
+        """Get a reader based on reader name"""
+        return cls.formats[informat]['class']
 
     @classmethod
     def shortformats(cls):

@@ -20,7 +20,3 @@
 *.PDF	 diff=astextplain
 *.rtf	 diff=astextplain
 *.RTF	 diff=astextplain
-
-#Remove test cases from language detectiom
-tests/publish/* linguist-documentation
-tests/formats/* linguist-documentation

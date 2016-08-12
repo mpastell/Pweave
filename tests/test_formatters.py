@@ -1,52 +1,52 @@
-import pweave
 import unittest
-import sys
+import pweave
+import pickle
 import os
 
-try:
-    from _frameworkForTests import RegressionTest
+class FormatterTest(unittest.TestCase):
+    """Test formatters"""
 
-except ImportError:
-    from ._frameworkForTests import RegressionTest
 
-class WeaveFormatsTest(RegressionTest):
-    TESTDIR = 'formats'
-    INFILE = 'formatters_test.pmd'
+    def setUp(self):
+        self.doc = pweave.Pweb("tests/formats/formatters_test.pmd")
+        #self.doc.run()
+        #pickle.dump(doc.executed, open("formats/formatters_test.pkl", "wb"))
+        e = pickle.load(open("tests/formats/formatters_test.pkl", "rb"))
+        self.doc.executed = e
+        self.out_base = "tests/formats/formatters_test.%s"
+        self.ref_base = "tests/formats/formatters_test_REF.%s"
 
-    def _testGenerator(name, doctype, ext, reference, python={2, 3}):
-        def testMethod(self):
-            infile = self.absPathTo(self.INFILE)
-            self.setNewOutfile(infile[:-3] + ext)
-            print("")
-            pweave.weave(infile,
-                         doctype=doctype,
-                         informat='markdown')
+    def testFormatters(self):
+        formats = sorted(list(pweave.formatters.PwebFormats.formats.keys()))
+        for format in formats:
+            if "pandoc2" in format: #No pandoc on travis
+                continue
+            self.doc.format(format)
+            self.out_file = self.out_base % format
+            self.ref_file = self.ref_base % format
+            self.doc.output = self.out_file
+            self.doc.write()
+            if "2html" in format:
+                self.assertSameAsReference(-1000) #Ignore changing footer
+            self.assertSameAsReference()
+            try:
+                os.remove(self.out_file)
+            except FileNotFoundError:
+                pass
 
-            self.REFERENCE = self.absPathTo(reference)
-            self.assertSameAsReference
+    def contentOf(self, filename, end_ignore):
+        fh = open(filename)
+        content = fh.read()
+        fh.close()
+        if end_ignore > 0:
+            return(content[:-end_ignore])
+        return content
 
-        testMethod.__name__ = name
-        version = sys.version_info[0]
-        if version not in python:
-            return unittest.skip('{test} skipped beacause of inappropriate Python version ({v})'.format(
-              test = name,
-              v = version))(testMethod)
+    def assertSameAsReference(self, end_ignore = -1):
+        self.assertEqual(self.contentOf(self.out_file, end_ignore),
+               self.contentOf(self.ref_file, end_ignore))
 
-        return testMethod
 
-    _tests = {
-              'TeX': (['tex', 'tex', 'formatters_test_REF.tex'], {}),
-              'RST': (['rst', 'rst', 'formatters_test_REF.rst'], {}),
-              'Leanpub': (['leanpub', 'txt', 'formatters_test_REF.txt'], {}),
-              'Pandoc': (['pandoc', 'md', 'formatters_test_REF.md'], {}),
-              'HTML': (['html', 'html', 'formatters_test_REF.html'], {}),
-              # contains date
-              # 'MdToHTML': (['md2html', 'html', 'formatters_test_md_REF.html'], {}),
-              # 'PandocToHTML': (['pandoc2html', 'html', 'formatters_test_pandoc_REF.html'], {}),
-              'PandocToLaTeX': (['pandoc2latex', 'tex', 'formatters_test_pandoc_REF.tex'],
-                                {'python': {2}}),# output differs substantially depending on Python version
-              'Sphinx': (['sphinx', 'rst', 'formatters_test_sphinx_REF.rst'], {}),
-              }
 
 if __name__ == '__main__':
     unittest.main()

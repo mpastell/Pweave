@@ -1,19 +1,30 @@
 import os
-import sys
 
-if sys.version_info[0] < 3:
-    try:
-        from _frameworkForTests_2 import ParametricTests
+import unittest
 
-    except ImportError:
-        from ._frameworkForTests_2 import ParametricTests
+class ParametricTestsMetaclass(type):
+    def __new__(mcl, name, bases, attrs):
+        try:
+            tests = attrs['_tests']
+            testGenerator = attrs['_testGenerator']
 
-else:
-  try:
-    from _frameworkForTests_3 import ParametricTests
+        except KeyError:
+            pass
 
-  except ImportError:
-    from ._frameworkForTests_3 import ParametricTests
+        else:
+            del attrs['_tests']
+            del attrs['_testGenerator']
+
+            for name, params in tests.items():
+
+                args, kwargs = params
+                methodName = 'test' + name
+                attrs[methodName] = testGenerator(methodName, *args, **kwargs)
+
+        return type.__new__(mcl, name, bases, attrs)
+
+class ParametricTests(unittest.TestCase, metaclass=ParametricTestsMetaclass):
+    pass
 
 class RegressionTest(ParametricTests):
     TESTDIR = '.'

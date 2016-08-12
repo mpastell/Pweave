@@ -11,7 +11,7 @@ x = linspace(0, 2*pi, 1000)
 
 {line-numbers=off}
 ~~~~~~~~
-plot(x, sin(x))
+p = plot(x, sin(x))
 ~~~~~~~~
 
 ![](figures/formatters_test_figure2_1.png)
@@ -24,7 +24,7 @@ plot(x, sin(x))
 
 {line-numbers=off}
 ~~~~~~~~
-plot(x, sinc(x))
+p = plot(x, sinc(x))
 ~~~~~~~~
 
 ![Sinc function](figures/formatters_test_sinc_1.png)
@@ -33,7 +33,7 @@ plot(x, sinc(x))
 
 {line-numbers=off}
 ~~~~~~~~
-plot(x, sinc(x))
+p = plot(x, sinc(x))
 ~~~~~~~~
 
 ![Sinc function](figures/formatters_test_sinc_1.png)
@@ -42,7 +42,7 @@ plot(x, sinc(x))
 
 {line-numbers=off}
 ~~~~~~~~
-plot(x, sinc(x))
+p = plot(x, sinc(x))
 ~~~~~~~~
 
 ![Sinc function](figures/formatters_test_figure6_1.png)
@@ -51,7 +51,7 @@ plot(x, sinc(x))
 
 {line-numbers=off}
 ~~~~~~~~
-plot(x, sinc(x))
+p = plot(x, sinc(x))
 ~~~~~~~~
 
 ![Sinc function](figures/formatters_test_figure7_1.png)
@@ -62,7 +62,7 @@ plot(x, sinc(x))
 ~~~~~~~~
 for i in range(5):
   figure()
-  plot(x, sinc(x*i))
+  p = plot(x, sinc(x*i))
 ~~~~~~~~
 
 ![Sinc function](figures/formatters_test_figure8_1.png)
@@ -73,7 +73,7 @@ for i in range(5):
 ~~~~~~~~
 for i in range(5):
   figure()
-  plot(x, sinc(x*i))
+  p = plot(x, sinc(x*i))
 ~~~~~~~~
 
 ![](figures/formatters_test_figure9_1.png)
@@ -81,7 +81,6 @@ for i in range(5):
 ![](figures/formatters_test_figure9_3.png)
 ![](figures/formatters_test_figure9_4.png)
 ![](figures/formatters_test_figure9_5.png)
-
 
 
 
@@ -93,7 +92,6 @@ print("Verbatim output")
 {line-numbers=off}
 ~~~~~~~~
 Verbatim output
-
 ~~~~~~~~
 
 
@@ -112,8 +110,8 @@ print("Hidden results!")
 {line-numbers=off}
 ~~~~~~~~
 No echo!
-
 ~~~~~~~~
+
 
 
 
@@ -122,12 +120,14 @@ No echo!
 
 
 
+{line-numbers=off}
+~~~~~~~~
+for i in range(10):
+  print(i)
+~~~~~~~~
 
 {line-numbers=off}
 ~~~~~~~~
->>> for i in range(10):
-...   print(i)
-...
 0
 1
 2
@@ -138,7 +138,6 @@ No echo!
 7
 8
 9
-
 ~~~~~~~~
 
 
@@ -153,7 +152,6 @@ print("pweave " * 20)
 ~~~~~~~~
 pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
 pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
-
 ~~~~~~~~
 
 
@@ -166,7 +164,7 @@ print("pweave " * 20)
 
 {line-numbers=off}
 ~~~~~~~~
-pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave 
+pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
 ~~~~~~~~
 
 
@@ -175,14 +173,11 @@ pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pwe
 {line-numbers=off}
 ~~~~~~~~
 print("pweave " * 20)
-
 ~~~~~~~~
 
 {line-numbers=off}
 ~~~~~~~~
-pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
-pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
-
+pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
 ~~~~~~~~
 
 
@@ -197,8 +192,6 @@ print("pweave " * 20)
 ~~~~~~~~
 pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
 pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
-
-
 ~~~~~~~~
 
 

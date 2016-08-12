@@ -1,0 +1,213 @@
+
+
+
+\begin{Verbatim}[commandchars=\\\{\},frame=single,fontsize=\small, xleftmargin=0.5em]
+\PY{k+kn}{from} \PY{n+nn}{pylab} \PY{k+kn}{import} \PY{o}{*}
+\PY{n}{x} \PY{o}{=} \PY{n}{linspace}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{2}\PY{o}{*}\PY{n}{pi}\PY{p}{,} \PY{l+m+mi}{1000}\PY{p}{)}
+\end{Verbatim}
+
+
+
+
+\begin{Verbatim}[commandchars=\\\{\},frame=single,fontsize=\small, xleftmargin=0.5em]
+\PY{n}{p} \PY{o}{=} \PY{n}{plot}\PY{p}{(}\PY{n}{x}\PY{p}{,} \PY{n}{sin}\PY{p}{(}\PY{n}{x}\PY{p}{)}\PY{p}{)}
+\end{Verbatim}
+\includegraphics[width= \linewidth]{figures/formatters_test_figure2_1.pdf}
+
+
+
+\begin{figure}[htpb]
+\center
+\includegraphics[width= \linewidth]{figures/formatters_test_figure3_1.pdf}
+\caption{Sinc function}
+\label{fig:None}
+\end{figure}
+
+
+
+
+\begin{Verbatim}[commandchars=\\\{\},frame=single,fontsize=\small, xleftmargin=0.5em]
+\PY{n}{p} \PY{o}{=} \PY{n}{plot}\PY{p}{(}\PY{n}{x}\PY{p}{,} \PY{n}{sinc}\PY{p}{(}\PY{n}{x}\PY{p}{)}\PY{p}{)}
+\end{Verbatim}
+\begin{figure}[htpb]
+\center
+\includegraphics[width= \linewidth]{figures/formatters_test_sinc_1.pdf}
+\caption{Sinc function}
+\label{fig:sinc}
+\end{figure}
+
+
+
+
+\begin{Verbatim}[commandchars=\\\{\},frame=single,fontsize=\small, xleftmargin=0.5em]
+\PY{n}{p} \PY{o}{=} \PY{n}{plot}\PY{p}{(}\PY{n}{x}\PY{p}{,} \PY{n}{sinc}\PY{p}{(}\PY{n}{x}\PY{p}{)}\PY{p}{)}
+\end{Verbatim}
+\begin{figure}[htpb]
+\center
+\includegraphics[width= 50%]{figures/formatters_test_sinc_1.pdf}
+\caption{Sinc function}
+\label{fig:sinc}
+\end{figure}
+
+
+
+
+\begin{Verbatim}[commandchars=\\\{\},frame=single,fontsize=\small, xleftmargin=0.5em]
+\PY{n}{p} \PY{o}{=} \PY{n}{plot}\PY{p}{(}\PY{n}{x}\PY{p}{,} \PY{n}{sinc}\PY{p}{(}\PY{n}{x}\PY{p}{)}\PY{p}{)}
+\end{Verbatim}
+\begin{figure}[htpb]
+\center
+\includegraphics[width= 50%]{figures/formatters_test_figure6_1.pdf}
+\caption{Sinc function}
+\label{fig:None}
+\end{figure}
+
+
+
+
+\begin{Verbatim}[commandchars=\\\{\},frame=single,fontsize=\small, xleftmargin=0.5em]
+\PY{n}{p} \PY{o}{=} \PY{n}{plot}\PY{p}{(}\PY{n}{x}\PY{p}{,} \PY{n}{sinc}\PY{p}{(}\PY{n}{x}\PY{p}{)}\PY{p}{)}
+\end{Verbatim}
+\begin{sidefigure}
+\begin{figure}[htpb]
+\center
+\includegraphics[width= 50%]{figures/formatters_test_figure7_1.pdf}
+\caption{Sinc function}
+\label{fig:None}
+\end{figure}
+\end{sidefigure}
+
+
+
+
+\begin{Verbatim}[commandchars=\\\{\},frame=single,fontsize=\small, xleftmargin=0.5em]
+\PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{l+m+mi}{5}\PY{p}{)}\PY{p}{:}
+  \PY{n}{figure}\PY{p}{(}\PY{p}{)}
+  \PY{n}{p} \PY{o}{=} \PY{n}{plot}\PY{p}{(}\PY{n}{x}\PY{p}{,} \PY{n}{sinc}\PY{p}{(}\PY{n}{x}\PY{o}{*}\PY{n}{i}\PY{p}{)}\PY{p}{)}
+\end{Verbatim}
+\begin{sidefigure}
+\begin{figure}[htpb]
+\center
+\includegraphics[width= 50%]{figures/formatters_test_figure8_1.pdf}
+\includegraphics[width= 50%]{figures/formatters_test_figure8_2.pdf}
+\includegraphics[width= 50%]{figures/formatters_test_figure8_3.pdf}
+\includegraphics[width= 50%]{figures/formatters_test_figure8_4.pdf}
+\includegraphics[width= 50%]{figures/formatters_test_figure8_5.pdf}
+\caption{Sinc function}
+\label{fig:None}
+\end{figure}
+\end{sidefigure}
+
+
+
+
+\begin{Verbatim}[commandchars=\\\{\},frame=single,fontsize=\small, xleftmargin=0.5em]
+\PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{l+m+mi}{5}\PY{p}{)}\PY{p}{:}
+  \PY{n}{figure}\PY{p}{(}\PY{p}{)}
+  \PY{n}{p} \PY{o}{=} \PY{n}{plot}\PY{p}{(}\PY{n}{x}\PY{p}{,} \PY{n}{sinc}\PY{p}{(}\PY{n}{x}\PY{o}{*}\PY{n}{i}\PY{p}{)}\PY{p}{)}
+\end{Verbatim}
+\includegraphics[width= \linewidth]{figures/formatters_test_figure9_1.pdf}
+\includegraphics[width= \linewidth]{figures/formatters_test_figure9_2.pdf}
+\includegraphics[width= \linewidth]{figures/formatters_test_figure9_3.pdf}
+\includegraphics[width= \linewidth]{figures/formatters_test_figure9_4.pdf}
+\includegraphics[width= \linewidth]{figures/formatters_test_figure9_5.pdf}
+
+
+
+
+\begin{Verbatim}[commandchars=\\\{\},frame=single,fontsize=\small, xleftmargin=0.5em]
+\PY{k}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Verbatim output}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\end{Verbatim}
+
+\begin{Verbatim}[commandchars=\\\{\},frame=leftline,fontsize=\small, xleftmargin=0.5em]
+Verbatim output
+\end{Verbatim}
+
+
+
+
+\begin{Verbatim}[commandchars=\\\{\},frame=single,fontsize=\small, xleftmargin=0.5em]
+\PY{k}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Hidden results!}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\end{Verbatim}
+
+
+```
+
+
+
+\begin{Verbatim}[commandchars=\\\{\},frame=leftline,fontsize=\small, xleftmargin=0.5em]
+No echo!
+\end{Verbatim}
+
+
+
+
+No echo!
+
+
+
+
+\begin{Verbatim}[commandchars=\\\{\},frame=single,fontsize=\small, xleftmargin=0.5em]
+\PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{l+m+mi}{10}\PY{p}{)}\PY{p}{:}
+  \PY{k}{print}\PY{p}{(}\PY{n}{i}\PY{p}{)}
+\end{Verbatim}
+
+\begin{Verbatim}[commandchars=\\\{\},frame=leftline,fontsize=\small, xleftmargin=0.5em]
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+\end{Verbatim}
+
+
+
+
+\begin{Verbatim}[commandchars=\\\{\},frame=single,fontsize=\small, xleftmargin=0.5em]
+\PY{k}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{pweave }\PY{l+s+s2}{\PYZdq{}} \PY{o}{*} \PY{l+m+mi}{20}\PY{p}{)}
+\end{Verbatim}
+
+\begin{Verbatim}[commandchars=\\\{\},frame=leftline,fontsize=\small, xleftmargin=0.5em]
+pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
+pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
+\end{Verbatim}
+
+
+
+
+\begin{Verbatim}[commandchars=\\\{\},frame=single,fontsize=\small, xleftmargin=0.5em]
+\PY{k}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{pweave }\PY{l+s+s2}{\PYZdq{}} \PY{o}{*} \PY{l+m+mi}{20}\PY{p}{)}
+\end{Verbatim}
+
+\begin{Verbatim}[commandchars=\\\{\},frame=leftline,fontsize=\small, xleftmargin=0.5em]
+pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
+\end{Verbatim}
+
+
+
+
+\begin{Verbatim}[commandchars=\\\{\},frame=single,fontsize=\small, xleftmargin=0.5em]
+\PY{k}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{pweave }\PY{l+s+s2}{\PYZdq{}} \PY{o}{*} \PY{l+m+mi}{20}\PY{p}{)}
+\end{Verbatim}
+
+\begin{Verbatim}[commandchars=\\\{\},frame=leftline,fontsize=\small, xleftmargin=0.5em]
+pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
+\end{Verbatim}
+
+
+
+
+\begin{Verbatim}[commandchars=\\\{\},frame=single,fontsize=\small, xleftmargin=0.5em]
+\PY{k}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{pweave }\PY{l+s+s2}{\PYZdq{}} \PY{o}{*} \PY{l+m+mi}{20}\PY{p}{)}
+\end{Verbatim}
+
+\begin{Verbatim}[commandchars=\\\{\},frame=leftline,fontsize=\small, xleftmargin=0.5em]
+pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
+pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
+\end{Verbatim}
+

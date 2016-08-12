@@ -3,17 +3,17 @@
 % 14.5.2013
 
 
-~~~~{.python}
+```python
 from scipy import signal, linalg
 import numpy as np
 import matplotlib.pyplot as plt
 
 class YW(object):
     """A class to fit AR model using Yule-Walker method"""
-
+    
     def __init__(self, X):
         self.X = X - np.mean(X)
-~~~~~~~~~~~~~
+```
 
 
         
@@ -24,14 +24,14 @@ YW method requires that we compute the sample autocorrelation function:
 $$r_k = \frac{1}{(n-k)\sigma^2}\sum_{t=1}^{n-k}(X_t - \mu)(X_{t+k} - \mu)$$
 
 
-~~~~{.python}
+```python
     def autocorr(self, lag=10):
         c = np.correlate(self.X, self.X, 'full')
         mid = int(np.floor(len(c) * 0.5))
         acov = c[mid:mid+lag]
         acor = acov/acov[0]
         return(acor)
-~~~~~~~~~~~~~
+```
 
 
 
@@ -65,13 +65,13 @@ and it is thus easy to form using `toeplitz` function from `scipy.linalg`.
 And solve simply using: $$\Phi = R^{-1}r$$
 
 
-~~~~{.python}
+```python
     def fit(self, p=5):
         ac = self.autocorr(p+1)
         R = linalg.toeplitz(ac[:p])
         r = ac[1:p+1]
         self.phi = linalg.inv(R).dot(r)
-~~~~~~~~~~~~~
+```
 
 
 
@@ -85,7 +85,7 @@ $$S(f) = \frac{\sigma^2}{|1 - \sum_{k=1}^{p} \phi_k e^{-2\pi ikf}|^2} $$
 It can be calcuted easily using `scipy.signal.freqz`.
         
 
-~~~~{.python}
+```python
     def spectrum(self):
         a = np.concatenate([np.ones(1), -self.phi])
         w, h = signal.freqz(1, a)
@@ -94,7 +94,7 @@ It can be calcuted easily using `scipy.signal.freqz`.
         plt.xlabel(r'Normalized Frequency ($\times \pi$rad/sample)')
         plt.ylabel(r'Power/frequency (dB/rad/sample)')
         plt.title(r'Yule-Walker Spectral Density Estimate')
-~~~~~~~~~~~~~
+```
 
 
 
@@ -102,16 +102,22 @@ It can be calcuted easily using `scipy.signal.freqz`.
 # Try it out:
 
 
-~~~~{.python}
->>> x = np.sin(np.linspace(0, 20))
->>> ar1 = YW(x)
->>> ar1.fit()
->>> ar1.phi
+```python
+x = np.sin(np.linspace(0, 20))
+ar1 = YW(x)
+ar1.fit()
+ar1.phi
+```
+
+```
 array([ 1.19379795, -0.21810471, -0.12747881, -0.06257484,
 -0.12929761])
->>> ar1.spectrum()
+```
 
-~~~~~~~~~~~~~
+
+```python
+ar1.spectrum()
+```
 
 ![](figures/ar_yw_figure5_1.png)\
 
