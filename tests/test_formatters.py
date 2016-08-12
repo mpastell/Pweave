@@ -27,8 +27,9 @@ class FormatterTest(unittest.TestCase):
             self.doc.output = self.out_file
             self.doc.write()
             if "2html" in format:
-                self.assertSameAsReference(-1000) #Ignore changing footer
-            self.assertSameAsReference()
+                self.assertSameAsReference(1000) #Ignore changing footer
+            else:
+                self.assertSameAsReference()
             try:
                 os.remove(self.out_file)
             except FileNotFoundError:
