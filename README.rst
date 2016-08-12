@@ -12,11 +12,12 @@ compatibility with latest release and runs only using Python 3. The code has
 quite good test coverage and should be usable for anyone who wants to try it out.
 
 **Notable new features:**
+
 - Code is run using jupyter_client giving the possibility to run code using any
-installed kernel (including python2) via `--kernel` argument. Some chunk options only work for Python.
+  installed kernel (including python2) via `--kernel` argument. Some chunk options only work for Python.
 - Support for IPython magics and rich output.
 - Many small fixes to output and syntax highlighting including rendering tracebacks correctly.
-- Output directly to Jupyter notebooks with chunk options preserved as metadata:
+- Output directly to Jupyter notebooks with chunk options preserved as metadata ->
   ability to use custom nbconvert templates in addition to builtin formatters.
 
 About Pweave
