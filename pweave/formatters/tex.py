@@ -2,6 +2,13 @@ from .base import PwebFormatter
 from nbconvert import filters
 
 class PwebTexFormatter(PwebFormatter):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.mimetypes = ["text/latex"]
+        self.fig_mimetypes = ["application/pdf", "image/png", "image/jpg"]
+        self.file_ext = "tex"
+
     def initformat(self):
         self.formatdict = dict(codestart='\\begin{verbatim}',
                                codeend='\end{verbatim}\n',
@@ -10,9 +17,6 @@ class PwebTexFormatter(PwebFormatter):
                                figfmt='.pdf',
                                width='\\linewidth',
                                doctype='tex')
-        self.mimetypes = ["text/latex"]
-        self.fig_mimetypes = ["application/pdf", "image/png", "image/jpg"]
-        self.file_ext = "tex"
 
     def formatfigure(self, chunk):
         fignames = chunk['figure']

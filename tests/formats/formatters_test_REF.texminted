@@ -1,15 +1,15 @@
 
 
-\begin{verbatim}
+\begin{minted}[mathescape, fontsize=\small, xleftmargin=0.5em]{python}
 from pylab import *
 x = linspace(0, 2*pi, 1000)
-\end{verbatim}
+\end{minted}
 
 
 
-\begin{verbatim}
+\begin{minted}[mathescape, fontsize=\small, xleftmargin=0.5em]{python}
 p = plot(x, sin(x))
-\end{verbatim}
+\end{minted}
 \includegraphics[width= \linewidth]{figures/formatters_test_figure2_1.pdf}
 
 
@@ -23,9 +23,9 @@ p = plot(x, sin(x))
 
 
 
-\begin{verbatim}
+\begin{minted}[mathescape, fontsize=\small, xleftmargin=0.5em]{python}
 p = plot(x, sinc(x))
-\end{verbatim}
+\end{minted}
 \begin{figure}[htpb]
 \center
 \includegraphics[width= \linewidth]{figures/formatters_test_sinc_1.pdf}
@@ -35,9 +35,9 @@ p = plot(x, sinc(x))
 
 
 
-\begin{verbatim}
+\begin{minted}[mathescape, fontsize=\small, xleftmargin=0.5em]{python}
 p = plot(x, sinc(x))
-\end{verbatim}
+\end{minted}
 \begin{figure}[htpb]
 \center
 \includegraphics[width= 50%]{figures/formatters_test_sinc_1.pdf}
@@ -47,9 +47,9 @@ p = plot(x, sinc(x))
 
 
 
-\begin{verbatim}
+\begin{minted}[mathescape, fontsize=\small, xleftmargin=0.5em]{python}
 p = plot(x, sinc(x))
-\end{verbatim}
+\end{minted}
 \begin{figure}[htpb]
 \center
 \includegraphics[width= 50%]{figures/formatters_test_figure6_1.pdf}
@@ -59,9 +59,9 @@ p = plot(x, sinc(x))
 
 
 
-\begin{verbatim}
+\begin{minted}[mathescape, fontsize=\small, xleftmargin=0.5em]{python}
 p = plot(x, sinc(x))
-\end{verbatim}
+\end{minted}
 \begin{sidefigure}
 \begin{figure}[htpb]
 \center
@@ -73,11 +73,11 @@ p = plot(x, sinc(x))
 
 
 
-\begin{verbatim}
+\begin{minted}[mathescape, fontsize=\small, xleftmargin=0.5em]{python}
 for i in range(5):
   figure()
   p = plot(x, sinc(x*i))
-\end{verbatim}
+\end{minted}
 \begin{sidefigure}
 \begin{figure}[htpb]
 \center
@@ -93,11 +93,11 @@ for i in range(5):
 
 
 
-\begin{verbatim}
+\begin{minted}[mathescape, fontsize=\small, xleftmargin=0.5em]{python}
 for i in range(5):
   figure()
   p = plot(x, sinc(x*i))
-\end{verbatim}
+\end{minted}
 \includegraphics[width= \linewidth]{figures/formatters_test_figure9_1.pdf}
 \includegraphics[width= \linewidth]{figures/formatters_test_figure9_2.pdf}
 \includegraphics[width= \linewidth]{figures/formatters_test_figure9_3.pdf}
@@ -106,26 +106,26 @@ for i in range(5):
 
 
 
-\begin{verbatim}
+\begin{minted}[mathescape, fontsize=\small, xleftmargin=0.5em]{python}
 print("Verbatim output")
-\end{verbatim}
-\begin{verbatim}
+\end{minted}
+\begin{minted}[fontsize=\small, xleftmargin=0.5em, mathescape, frame = leftline]{text}
 Verbatim output
-\end{verbatim}
+\end{minted}
 
 
 
-\begin{verbatim}
+\begin{minted}[mathescape, fontsize=\small, xleftmargin=0.5em]{python}
 print("Hidden results!")
-\end{verbatim}
+\end{minted}
 
 
 ```
 
 
-\begin{verbatim}
+\begin{minted}[fontsize=\small, xleftmargin=0.5em, mathescape, frame = leftline]{text}
 No echo!
-\end{verbatim}
+\end{minted}
 
 
 
@@ -134,11 +134,11 @@ No echo!
 
 
 
-\begin{verbatim}
+\begin{minted}[mathescape, fontsize=\small, xleftmargin=0.5em]{python}
 for i in range(10):
   print(i)
-\end{verbatim}
-\begin{verbatim}
+\end{minted}
+\begin{minted}[fontsize=\small, xleftmargin=0.5em, mathescape, frame = leftline]{text}
 0
 1
 2
@@ -149,43 +149,43 @@ for i in range(10):
 7
 8
 9
-\end{verbatim}
+\end{minted}
 
 
 
-\begin{verbatim}
+\begin{minted}[mathescape, fontsize=\small, xleftmargin=0.5em]{python}
 print("pweave " * 20)
-\end{verbatim}
-\begin{verbatim}
+\end{minted}
+\begin{minted}[fontsize=\small, xleftmargin=0.5em, mathescape, frame = leftline]{text}
 pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
 pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
-\end{verbatim}
+\end{minted}
 
 
 
-\begin{verbatim}
+\begin{minted}[mathescape, fontsize=\small, xleftmargin=0.5em]{python}
 print("pweave " * 20)
-\end{verbatim}
-\begin{verbatim}
+\end{minted}
+\begin{minted}[fontsize=\small, xleftmargin=0.5em, mathescape, frame = leftline]{text}
 pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
-\end{verbatim}
+\end{minted}
 
 
 
-\begin{verbatim}
+\begin{minted}[mathescape, fontsize=\small, xleftmargin=0.5em]{python}
 print("pweave " * 20)
-\end{verbatim}
-\begin{verbatim}
+\end{minted}
+\begin{minted}[fontsize=\small, xleftmargin=0.5em, mathescape, frame = leftline]{text}
 pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
-\end{verbatim}
+\end{minted}
 
 
 
-\begin{verbatim}
+\begin{minted}[mathescape, fontsize=\small, xleftmargin=0.5em]{python}
 print("pweave " * 20)
-\end{verbatim}
-\begin{verbatim}
+\end{minted}
+\begin{minted}[fontsize=\small, xleftmargin=0.5em, mathescape, frame = leftline]{text}
 pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
 pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
-\end{verbatim}
+\end{minted}
 
