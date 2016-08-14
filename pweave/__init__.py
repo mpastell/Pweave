@@ -51,12 +51,13 @@ def weave(file, doctype=None, informat=None, kernel="python3", plot=True,
                kernel=kernel, output=output, figdir=figdir,
                mimetype=mimetype
                )
-    doc.weave()
+    doc.documentationmode = docmode
 
     rcParams["usematplotlib"] = plot
     rcParams["cachedir"] = cachedir
-    doc.documentationmode = docmode
     rcParams["storeresults"] = cache
+
+    doc.weave()
 
 def tangle(file, informat = None):
     """Tangles a noweb file i.e. extracts code from code chunks to a .py file

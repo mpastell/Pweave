@@ -177,7 +177,6 @@ class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
         super().__init__(*args, **kwargs)
         from pygments.formatters import LatexFormatter
 
-        x = LatexFormatter()
         self.header = ("""\\documentclass[a4paper,11pt,final]{article}
         \\usepackage{fancyvrb, color, graphicx, hyperref, amsmath, url, textcomp}
         \\usepackage{palatino}
@@ -222,7 +221,7 @@ class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
         \\providecommand{\\tightlist}{%%
             \\setlength{\\itemsep}{0pt}\\setlength{\\parskip}{0pt}}
         %s
-        """) % (self.source, x.get_style_defs())
+        """) % (self.source, LatexFormatter().get_style_defs())
         self.footer = r"\end{document}"
         self.subheader = "\n\\begin{document}\n"
         self.fig_mimetypes = ["application/pdf", "image/png", "image/jpg"]

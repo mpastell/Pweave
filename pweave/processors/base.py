@@ -5,16 +5,17 @@ import os
 import io
 import copy
 from ..config import *
+import pickle
 
 class PwebProcessorBase(object):
     """Processors run code from parsed Pweave documents. This is an abstract base
     class for specific implementations"""
 
-    def __init__(self, parsed, kernel, source, mode,
+    def __init__(self, parsed, kernel, source, docmode,
                        figdir, outdir):
         self.parsed = parsed
         self.source = source
-        self.documentationmode = mode
+        self.documentationmode = docmode
         self.figdir = figdir
         self.outdir = outdir
         self.executed = []
