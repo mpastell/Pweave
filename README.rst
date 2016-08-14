@@ -5,6 +5,20 @@
 .. image:: https://coveralls.io/repos/github/mpastell/Pweave/badge.svg?branch=master
    :target: https://coveralls.io/github/mpastell/Pweave?branch=master
 
+Note about Pweave 0.3
+---------------------
+The master branch contains the code for the upcoming 0.3 version, which breaks
+compatibility with latest release and runs only using Python 3. The code has
+quite good test coverage and should be usable for anyone who wants to try it out.
+
+**Notable new features:**
+
+- Code is run using jupyter_client giving the possibility to run code using any
+  installed kernel (including python2) via `--kernel` argument. Some chunk options only work for Python.
+- Support for IPython magics and rich output.
+- Many small fixes to output and syntax highlighting including rendering tracebacks correctly.
+- Output directly to Jupyter notebooks with chunk options preserved as metadata ->
+  ability to use custom nbconvert templates in addition to builtin formatters.
 
 About Pweave
 -------------
@@ -44,20 +58,13 @@ Features:
 Install
 -----------------------
 
-**Note: pip install fails in Python 3 due to a bug in pip. You'll need to use one of the other options.**
-
 From PyPi::
 
   pip install --upgrade Pweave
 
-or::
-
-  easy_install -U Pweave
-
 with conda::
 
-  conda config --add channels mpastell
-  conda install pweave
+  conda install -c mpastell pweave
 
 or download the source and run::
 

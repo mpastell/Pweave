@@ -1,29 +1,14 @@
 from .base import PwebFormatter
-from distutils.version import LooseVersion
-from subprocess import Popen, PIPE
 import sys
 
 class PwebPandocFormatter(PwebFormatter):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        pandoc_ver = False
-
-        try:
-            pandoc = Popen(["pandoc", "--version"], stdin=PIPE, stdout=PIPE)
-            pandoc_ver = pandoc.communicate()[0].decode('utf-8').split("\n")[0]
-            pandoc_ver = LooseVersion(pandoc_ver.split(" ")[1])
-        except:
-            pandoc_ver = LooseVersion("0.0.1")
-            print("Error in trying to detect pandoc version")
-
-        if pandoc_ver < LooseVersion("1.16.0"):
-            self.new_pandoc = False
-            print("Your pandoc version is below 1.16, not setting figure size and id")
-        else:
-            self.new_pandoc = True
         self.file_ext = "md"
-        self.fig_mimetypes = ["image/png", "image/jpg"]
+        self.mimetypes = ["text/markdown"]
+        self.fig_mimetypes = ["image/png", "image/jpg", "application/svg+xml"]
+
 
     def initformat(self):
         self.formatdict = dict(codestart='```%s',
@@ -41,14 +26,14 @@ class PwebPandocFormatter(PwebFormatter):
         figstring = "![%s](%s)" % (caption, figname)
 
         #Pandoc >= 1.16 supports figure width and id
-        if (self.new_pandoc):
-            attributes = ""
-            if label is not None:
-                attributes += "#%s " % label
-            if width is not None:
-                attributes += "width=%s" % width
-            if attributes != "":
-                figstring += "{%s}" % attributes
+
+        attributes = ""
+        if label is not None:
+            attributes += "#%s " % label
+        if width is not None:
+            attributes += "width=%s" % width
+        if attributes != "":
+            figstring += "{%s}" % attributes
 
         if caption == "":
             figstring += "\\"
@@ -75,7 +60,7 @@ class PwebPandocFormatter(PwebFormatter):
             return figstring
 
         for fig in fignames:
-            figstring += self.make_figure_string(fignames[0], chunk["width"], chunk["name"])
+            figstring += self.make_figure_string(fig, chunk["width"], chunk["name"])
 
         return figstring
 
@@ -92,6 +77,10 @@ class PwebLeanpubFormatter(PwebFormatter):
                                extension='txt',
                                width='15 cm',
                                doctype='leanpub')
+        self.file_ext = "md"
+        self.mimetypes = ["text/markdown"]
+        self.fig_mimetypes = ["image/png", "image/jpg", "application/svg+xml"]
+
 
     def formatfigure(self, chunk):
         fignames = chunk['figure']
@@ -128,6 +117,9 @@ class PwebSoftCoverFormatter(PwebLeanpubFormatter):
                                extension='md',
                                width='15cm',
                                doctype='softcover')
+        self.file_ext = "md"
+        self.mimetypes = ["text/markdown"]
+        self.fig_mimetypes = ["image/png", "image/jpg", "application/svg+xml"]
 
     def formatfigure(self, chunk):
         fignames = chunk['figure']

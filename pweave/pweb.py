@@ -69,36 +69,11 @@ class Pweb(object):
     def _setwd(self):
         self.wd = os.path.dirname(self.output if self.output is not None else self.source)
 
-    def setformat(self, doctype = None, Formatter=None):
-        """Set output format for the document
-
-        :param doctype: ``string`` output format from supported formats. See: http://mpastell.com/pweave/formats.html
-        :param Formatter: Formatter class, can be used to specify custom formatters. See: http://mpastell.com/pweave/subclassing.html
-
-        """
-        #Formatters are needed  when the code is executed and formatted
-
 
     def setkernel(self, kernel):
         """Set the kernel for jupyter_client"""
         self.kernel = kernel
         self.language = kernelspec.get_kernel_spec(kernel).language
-
-    def _detect_format(self):
-        """Detect output format based on file extension"""
-        if self.file_ext == ".pmd" or self.file_ext == ".py":
-            self.setformat("markdown")
-        elif "md" in self.file_ext:
-            self.setformat("markdown")
-        elif "tex" in self.file_ext:
-            self.setformat("texpygments")
-        elif "rst" in self.file_ext:
-            self.setformat("rst")
-        elif "htm" in self.file_ext:
-            self.setformat("html")
-        else:
-            print("Can't autodetect output format, defaulting to reStructured text")
-            self.setformat("rst")
 
     def getformat(self):
         """Get current format dictionary. See: http://mpastell.com/pweave/customizing.html"""
@@ -211,7 +186,7 @@ class Pweb(object):
     def tangle(self):
         """Tangle the document"""
         if self.output is None:
-            target = self.basename + '.py'
+            target = os.path.join(self.wd, self.basename + '.py')
         code = [x for x in self.parsed if x['type'] == 'code']
         code = [x['content'] for x in code]
         f = open(target, 'w')

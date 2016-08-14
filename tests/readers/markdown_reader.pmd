@@ -5,11 +5,12 @@ x = linspace(0, 2*pi, 1000)
 `````
 
 ```python
-plot(x, sin(x))
+x = list(range(20))
+print(x)
 ```
 
-```{python, caption="Sinc function", echo=False}
-plot(x, sinc(x))
+```{python, echo=False}
+print(x)
 ```
 
 ```{python}
@@ -26,7 +27,7 @@ print("pweave " * 20)
 ```
 
 ```{python, evaluate = False}
-plot(x)
+print(x)
 ```
 
 ```{python, results = "markdown"}

@@ -117,11 +117,13 @@ for i in range(3):
 1
 \end{verbatim}
 \begin{verbatim}
----------------------------------------------------------------------------Exception                                 Traceback (most recent call last)<ipython-input-19-b0fb8d925930> in <module>()
+---------------------------------------------------------------------------Exception
+Traceback (most recent call last)<ipython-input-19-b0fb8d925930> in
+<module>()
       2     print(i)
       3     if i == 1:
 ----> 4         raise Exception("foo")
-      5 
+      5
 Exception: foo
 \end{verbatim}
 
@@ -137,7 +139,7 @@ print(42)
 def f
 \end{verbatim}
 \begin{verbatim}
-  File "<ipython-input-22-b5657d2747d4>", line 1
+File "<ipython-input-22-b5657d2747d4>", line 1
     def f
          ^
 SyntaxError: invalid syntax
@@ -158,7 +160,7 @@ def f():
 print(42)
 \end{verbatim}
 \begin{verbatim}
-  File "<ipython-input-25-9e9734f26d6a>", line 3
+File "<ipython-input-25-9e9734f26d6a>", line 3
     print(8)
             ^
 IndentationError: unindent does not match any outer indentation level

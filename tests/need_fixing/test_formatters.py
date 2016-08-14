@@ -12,7 +12,7 @@ class WeaveFormatsTest(RegressionTest):
     TESTDIR = 'formats'
     INFILE = 'formatters_test.pmd'
 
-    def _testGenerator(name, doctype, ext, reference, python={2, 3}):
+    def _testGenerator(name, doctype, ext, reference):
         def testMethod(self):
             infile = self.absPathTo(self.INFILE)
             self.setNewOutfile(infile[:-3] + ext)
@@ -25,11 +25,6 @@ class WeaveFormatsTest(RegressionTest):
             self.assertSameAsReference()
 
         testMethod.__name__ = name
-        version = sys.version_info[0]
-        if version not in python:
-            return unittest.skip('{test} skipped beacause of inappropriate Python version ({v})'.format(
-              test = name,
-              v = version))(testMethod)
 
         return testMethod
 

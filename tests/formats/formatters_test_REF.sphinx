@@ -4,36 +4,23 @@
 
     from pylab import *
     x = linspace(0, 2*pi, 1000)
-    
 
-
-
-
-.. code-block:: python
-
-    plot(x, sin(x))
-    
-
-.. image:: figures/formatters_test_figure2_1.*
-   :width: 15 cm
-
-
-
-
-.. figure:: figures/formatters_test_figure3_1.*
-   :width: 15 cm
-
-   Sinc function
 
 
 
 
 .. code-block:: python
 
-    plot(x, sinc(x))
-    
+    p = plot(x, sin(x))
 
-.. figure:: figures/formatters_test_sinc_1.*
+
+.. image:: figures/formatters_test_figure2_1.png
+   :width: 15 cm
+
+
+
+
+.. figure:: figures/formatters_test_figure3_1.png
    :width: 15 cm
 
    Sinc function
@@ -43,10 +30,23 @@
 
 .. code-block:: python
 
-    plot(x, sinc(x))
-    
+    p = plot(x, sinc(x))
 
-.. figure:: figures/formatters_test_sinc_1.*
+
+.. figure:: figures/formatters_test_sinc_1.png
+   :width: 15 cm
+
+   Sinc function
+
+
+
+
+.. code-block:: python
+
+    p = plot(x, sinc(x))
+
+
+.. figure:: figures/formatters_test_sinc_1.png
    :width: 50%
 
    Sinc function
@@ -56,10 +56,10 @@
 
 .. code-block:: python
 
-    plot(x, sinc(x))
-    
+    p = plot(x, sinc(x))
 
-.. figure:: figures/formatters_test_figure6_1.*
+
+.. figure:: figures/formatters_test_figure6_1.png
    :width: 50%
 
    Sinc function
@@ -69,25 +69,10 @@
 
 .. code-block:: python
 
-    plot(x, sinc(x))
-    
-
-.. figure:: figures/formatters_test_figure7_1.*
-   :width: 50%
-
-   Sinc function
+    p = plot(x, sinc(x))
 
 
-
-
-.. code-block:: python
-
-    for i in range(5):
-      figure()
-      plot(x, sinc(x*i))
-    
-
-.. figure:: figures/formatters_test_figure8_1.*
+.. figure:: figures/formatters_test_figure7_1.png
    :width: 50%
 
    Sinc function
@@ -99,24 +84,38 @@
 
     for i in range(5):
       figure()
-      plot(x, sinc(x*i))
-    
+      p = plot(x, sinc(x*i))
 
-.. image:: figures/formatters_test_figure9_1.*
+
+.. figure:: figures/formatters_test_figure8_1.png
+   :width: 50%
+
+   Sinc function
+
+
+
+
+.. code-block:: python
+
+    for i in range(5):
+      figure()
+      p = plot(x, sinc(x*i))
+
+
+.. image:: figures/formatters_test_figure9_1.png
    :width: 15 cm
 
-.. image:: figures/formatters_test_figure9_2.*
+.. image:: figures/formatters_test_figure9_2.png
    :width: 15 cm
 
-.. image:: figures/formatters_test_figure9_3.*
+.. image:: figures/formatters_test_figure9_3.png
    :width: 15 cm
 
-.. image:: figures/formatters_test_figure9_4.*
+.. image:: figures/formatters_test_figure9_4.png
    :width: 15 cm
 
-.. image:: figures/formatters_test_figure9_5.*
+.. image:: figures/formatters_test_figure9_5.png
    :width: 15 cm
-
 
 
 
@@ -124,12 +123,11 @@
 .. code-block:: python
 
     print("Verbatim output")
-    
+
 
 ::
 
     Verbatim output
-    
     
 
 
@@ -138,7 +136,7 @@
 .. code-block:: python
 
     print("Hidden results!")
-    
+
 
 
 
@@ -149,7 +147,7 @@
 
     No echo!
     
-    
+
 
 
 
@@ -158,12 +156,14 @@ No echo!
 
 
 
-
 .. code-block:: python
 
-    >>> for i in range(10):
-    ...   print(i)
-    ...
+    for i in range(10):
+      print(i)
+
+
+::
+
     0
     1
     2
@@ -175,6 +175,33 @@ No echo!
     8
     9
     
+
+
+
+
+.. code-block:: python
+
+    print("pweave " * 20)
+    
+
+
+::
+
+    pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
+    pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
+    
+
+
+
+
+.. code-block:: python
+
+    print("pweave " * 20)
+
+
+::
+
+    pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
     
 
 
@@ -185,11 +212,10 @@ No echo!
     print("pweave " * 20)
     
 
+
 ::
 
-    pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
-    pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
-    
+    pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
     
 
 
@@ -198,43 +224,12 @@ No echo!
 .. code-block:: python
 
     print("pweave " * 20)
-    
 
-::
-
-    pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave 
-    
-
-
-
-
-.. code-block:: python
-
-    print("pweave " * 20)
-    
-    
 
 ::
 
     pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
     pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
-    
-    
-
-
-
-
-.. code-block:: python
-
-    print("pweave " * 20)
-    
-
-::
-
-    pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
-    pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
-    
-    
     
 
 

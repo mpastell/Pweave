@@ -49,16 +49,11 @@ class PwebFormatter(object):
                         chunk[key] = self.formatdict[key]
 
             # Wrap text if option is set
-            #if chunk['type'] == "code":
-            #    if chunk['wrap']:
-            #        chunk['content'] = self._wrap(chunk['content'])
-            #        #chunk['result'] = self._wrap(chunk['result'])
-            #    if chunk['wrap'] == 'code':
-            #        chunk['content'] = self._wrap(chunk['content'])
-            #    #if chunk['wrap'] == 'results':
-            #    #    chunk['result'] = self._wrap(chunk['result'])
-            #    if not chunk['wrap']:
-            #        chunk['content'] = chunk['content'] + "\n"
+            if chunk['type'] == "code":
+                if chunk["wrap"] is True or chunk['wrap'] == "code":
+                    chunk['content'] = self._wrap(chunk['content'])
+
+
 
             # Preformat chunk content before default formatters
             chunk = self.preformat_chunk(chunk)
@@ -162,7 +157,7 @@ class PwebFormatter(object):
         #Set lexers for code and output
 
     def format_text_result(self, text, chunk):
-        chunk["result"] = self.fix_linefeeds(text)
+        chunk["result"] = text
         result = ""
         if "%s" in chunk["outputstart"]:
             chunk["outputstart"] = chunk["outputstart"] % self.language
@@ -170,17 +165,17 @@ class PwebFormatter(object):
             chunk["termstart"] = chunk["termstart"] % self.language
 
 
-        #Term sets echo to true
-        #if chunk['term']:
-            #result = self.format_termchunk(chunk)
-         #   pass
         #Other things than term
         if chunk['results'] == 'verbatim':
             if len(chunk['result'].strip()) > 0:
+                if chunk["wrap"] is True or chunk['wrap'] == 'results' or chunk['wrap'] == 'output':
+                    chunk['result'] = self._wrap(chunk["result"])
+                chunk['result'] = "\n%s\n" % chunk["result"].strip()
                 chunk['result'] = self._indent(chunk['result'])
+                #chunk["result"] = self.fix_linefeeds(chunk['result'])
                 result += '%(outputstart)s%(result)s%(outputend)s' % chunk
         elif chunk['results'] != 'verbatim':
-            result += text
+            result += self.fix_linefeeds(text)
 
         return(result)
 
@@ -201,6 +196,7 @@ class PwebFormatter(object):
 
         # Code is not executed
         if not chunk['evaluate']:
+            chunk["content"] = self.fix_linefeeds(chunk["content"])
             if "%s" in chunk["codestart"]:
                 chunk["codestart"] = chunk["codestart"] % self.language
             if chunk['echo']:
