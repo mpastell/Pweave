@@ -19,7 +19,7 @@ class FormatterTest(unittest.TestCase):
     def testFormatters(self):
         formats = sorted(list(pweave.formatters.PwebFormats.formats.keys()))
         for format in formats:
-            if "pandoc2" in format: #No pandoc on travis
+            if "pandoc2latex" in format: #No pandoc on travis
                 continue
             self.doc.format(format)
             self.out_file = self.out_base % format
