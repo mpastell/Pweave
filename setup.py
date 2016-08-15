@@ -32,10 +32,10 @@ setup(name='Pweave',
         'Topic :: Scientific/Engineering',
         'Topic :: Software Development :: Documentation',
         'Topic :: Documentation :: Sphinx',
-
         'License :: OSI Approved :: BSD License',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.4'
+        'Programming Language :: Python :: 3 :: Only',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5'
         ]
 
 )

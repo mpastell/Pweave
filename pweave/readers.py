@@ -5,6 +5,20 @@ import json
 import io
 from subprocess import Popen, PIPE
 import os
+from urllib import request, parse
+
+
+def read_file_or_url(source):
+    if parse.urlparse(source).scheme == "":
+        codefile = io.open(source, 'r', encoding='utf-8')
+        contents = codefile.read()
+        codefile.close()
+    else:
+        r = request.urlopen(source)
+        contents = r.read().decode("utf-8")
+        r.close()
+
+    return contents
 
 class PwebReader(object):
     """Reads and parses Pweb documents"""
@@ -18,9 +32,7 @@ class PwebReader(object):
 
         # Get input from string or
         if file is not None:
-            codefile = io.open(self.source, 'r', encoding='utf-8')
-            self.rawtext = codefile.read()
-            codefile.close()
+            self.rawtext = read_file_or_url(self.source)
         else:
             self.rawtext = string
         self.state = "doc"  # Initial state of document
@@ -145,9 +157,7 @@ class PwebScriptReader(object):
 
         # Get input from string or
         if file is not None:
-            codefile = io.open(self.source, 'r', encoding='utf-8')
-            self.rawtext = codefile.read()
-            codefile.close()
+            self.rawtext = read_file_or_url(self.source)
         else:
             self.rawtext = string
         self.state = "code"  # Initial state of document

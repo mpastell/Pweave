@@ -10,11 +10,7 @@ from . processors import PwebProcessors
 from jupyter_client import kernelspec
 
 from .mimetypes import MimeTypes
-
-
-# Python2 compatibility fix
-if sys.version_info[0] == 3:
-    basestring = str
+from urllib import parse
 
 
 class Pweb(object):
@@ -67,8 +63,12 @@ class Pweb(object):
         self.read(reader = informat)
 
     def _setwd(self):
-        self.wd = os.path.dirname(self.output if self.output is not None else self.source)
-
+        if self.output is not None:
+            self.wd = os.path.dirname(self.output)
+        elif parse.urlparse(self.source).scheme == "":
+            self.wd = os.path.dirname(self.source)
+        else:
+            self.wd = "."
 
     def setkernel(self, kernel):
         """Set the kernel for jupyter_client"""
@@ -89,7 +89,7 @@ class Pweb(object):
         """
         if reader is None:
             Reader = PwebReaders.guess_reader(self.source)
-        elif isinstance(reader, basestring):
+        elif isinstance(reader, str):
             Reader = PwebReaders.get_reader(reader)
         else:
             Reader = reader
@@ -151,10 +151,13 @@ class Pweb(object):
         self.formatted = self.formatter.getformatted()
 
     def setsink(self):
-        if self.output is None:
+        if self.output is not None:
+            self.sink = self.output
+        elif parse.urlparse(self.source).scheme == "":
             self.sink = os.path.splitext(self.source)[0] + '.' + self.formatter.file_ext
         else:
-            self.sink = self.output
+            url_path = parse.urlparse(self.source).path
+            self.sink = os.path.splitext(os.path.basename(url_path))[0] + '.' + self.formatter.file_ext
 
 
     def _getDstExtension(self):
