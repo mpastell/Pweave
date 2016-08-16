@@ -38,9 +38,10 @@ class PwebProcessorBase(object):
                 sys.stderr.write(
                     "DOCUMENTATION MODE ERROR:\nCan't find stored results, running the code and caching results for the next documentation mode run\n")
                 rcParams["storeresults"] = True
-        #exec("import sys\nsys.path.append('.')", PwebProcessorGlobals.globals)
-        #self.executed = list(map(self._runcode, self.parsed))
+
         self.executed = []
+
+        # Term chunk returns a list of dicts, this flattens the results
         for chunk in self.parsed:
             res = self._runcode(chunk)
             if isinstance(res, list):
@@ -66,7 +67,7 @@ class PwebProcessorBase(object):
         return copy.deepcopy(self.executed)
 
     def store(self, data):
-        """A method used to pickle stuff for persistence"""
+        """Cache the results"""
         cachedir = os.path.join(self.cwd, rcParams["cachedir"])
         self.ensureDirectoryExists(cachedir)
 
@@ -76,7 +77,7 @@ class PwebProcessorBase(object):
         f.close()
 
     def restore(self):
-        """A method used to unpickle stuff"""
+        """Restore results from cache"""
         cachedir = os.path.join(self.cwd, rcParams["cachedir"])
         name = cachedir + "/" + self.basename + ".pkl"
 
@@ -84,10 +85,6 @@ class PwebProcessorBase(object):
             f = open(name, 'rb')
             self._oldresults = pickle.load(f)
             f.close()
-            # f = open(name, 'r')
-            # self._oldresults= json.loads(f.read())
-            # print(len(self._oldresults))
-            #f.close()
             return True
         else:
             return False
@@ -209,7 +206,8 @@ class PwebProcessorBase(object):
             if chunk['type'] != "code":
                 executed.append(self._hideinline(chunk.copy()))
             else:
-                executed.append(self._oldresults[i].copy())
+                chunks = [c for c in self._oldresults if c["number"] == i and c["type"] == "code"]
+                executed = executed + chunks
 
         self.executed = executed
         return True

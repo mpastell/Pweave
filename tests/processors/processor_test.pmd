@@ -1,0 +1,16 @@
+
+```{python, term=True}
+for i in range(5):
+    print(i)
+
+x = 12
+x
+print("Hello Test")
+```
+
+Text with some inline code 2 + 2 =<%= 2 + 2 %>
+
+
+```python
+z = 500
+```
