@@ -159,10 +159,6 @@ class Pweb(object):
             url_path = parse.urlparse(self.source).path
             self.sink = os.path.splitext(os.path.basename(url_path))[0] + '.' + self.formatter.file_ext
 
-
-    def _getDstExtension(self):
-        return self.formatter.getformatdict()['extension']
-
     def write(self, action="Pweaved"):
         """Write formatted code to file"""
         self.setsink()
