@@ -25,6 +25,7 @@ tests/weave/tex/term_test.tex
 tests/weave/texminted/wrap_test.tex
 tests/readers/markdown_reader.md
 tests/publish/publish_test.py
+tests/formats/formatters_url.pmd
 
 tmp/
 .ipynb_checkpoints/*

@@ -13,6 +13,11 @@ def test_script():
                       "tests/publish/publish_test_REF.py")
 
 
+def test_url():
+    pweave.weave("http://files.mpastell.com/formatters_test.pmd", output = "tests/formats/formatters_url.pmd")
+    assertSameContent("tests/formats/formatters_url.pmd", "tests/formats/formatters_test_REF.markdown")
+
+
 
 def assertSameContent(REF, outfile):
     out = open(outfile)
@@ -22,3 +27,4 @@ def assertSameContent(REF, outfile):
 if __name__ == '__main__':
     test_markdown()
     test_script()
+    test_url()
