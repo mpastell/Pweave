@@ -190,7 +190,7 @@ class Pweb(object):
         main = '\nif __name__ == "__main__":'
         for x in code:
             if 'main' in x['options'] and x['options']['main']:
-                x['content'] = x['content'].replace("\n", "\n ")
+                x['content'] = x['content'].replace("\n", "\n    ")
                 x['content'] = "".join([main, x['content']])
         code = [x['content'] for x in code]
         f = open(target, 'w')
