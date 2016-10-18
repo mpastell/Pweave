@@ -182,7 +182,7 @@ class Pweb(object):
         self.format()
         self.write()
 
-    def tangle(self):
+    def oldtangle(self):
         """Tangle the document"""
         if self.output is None:
             target = os.path.join(self.wd, self.basename + '.py')
@@ -193,3 +193,23 @@ class Pweb(object):
         f.close()
         print('Tangled code from {src} to {dst}'.format(src=self.source,
                                                               dst=target))
+
+    def tangle(self):
+        """Tangle the document"""
+        #self.parse()
+        #target = self._basename() + '.py'
+        if self.output is None:
+            target = os.path.join(self.wd, self.basename + '.py')
+        code = [x for x in self.parsed if x['type'] == 'code']
+        main = '\nif __name__ == "__main__":'
+        for x in code:
+            if 'main' in x['options'] and x['options']['main']:
+                x['content'] = x['content'].replace("\n", "\n ")
+                x['content'] = "".join([main, x['content']])
+        code = [x['content'] for x in code]
+        f = open(target, 'w')
+        f.write('\n'.join(code))
+        f.close()
+        print('Tangled code from {src} to {dst}'.format(src=self.source,
+                                                              dst=target))
+        #sys.stdout.write('Tangled code from %s to %s\n' % (self.source, target))        
