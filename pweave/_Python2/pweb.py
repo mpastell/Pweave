@@ -45,7 +45,6 @@ class Pweb(object):
         self.output = output
 
         if kernel is not None:
-            print(kernel)
             self.setkernel(kernel)
 
         self._setwd()
