@@ -18,27 +18,26 @@ except:
 class WeaveTest(RegressionTest):
     def _testGenerator(name, doctype, filename, kwargs={}, python={2, 3}):
         def testMethod(self):
-            for _ in range(1000):
-                self.TESTDIR = os.path.join('weave', doctype)
-                infile = self.absPathTo(filename + 'w')
-                self.setNewOutfile(filename)
+            self.TESTDIR = os.path.join('weave', doctype)
+            infile = self.absPathTo(filename + 'w')
+            self.setNewOutfile(filename)
 
-                pweave.weave(infile, doctype=doctype, **kwargs)
+            pweave.weave(infile, doctype=doctype, **kwargs)
 
-                basename, _, ext = filename.rpartition('.')
-                self.REFERENCE = self.absPathTo(basename + '_REF.' + ext)
-                self.assertSameAsReference()
+            basename, _, ext = filename.rpartition('.')
+            self.REFERENCE = self.absPathTo(basename + '_REF.' + ext)
+            self.assertSameAsReference()
 
         testMethod.__name__ = name
         return testMethod
 
     _tests = {
-              # 'Simple': (['pandoc', 'simple.md'], {}),
-              # 'ClassInMultipleChunksUsingContinueOption': (['pandoc', 'ar_yw.md'], {}),
-              # 'InlineCode': (['pandoc', 'inline_chunks.md'], {}),
+              'Simple': (['pandoc', 'simple.md'], {}),
+              'ClassInMultipleChunksUsingContinueOption': (['pandoc', 'ar_yw.md'], {}),
+              'InlineCode': (['pandoc', 'inline_chunks.md'], {}),
               'TerminalEmulation': (['tex', 'term_test.tex'], {}),
-              # 'FIR_FilterExampleTex': (['tex', 'FIR_design_verb.tex'], {}),
-              # 'WrapAndCodeOutput': (['texminted', 'wrap_test.tex'], {})
+              'FIR_FilterExampleTex': (['tex', 'FIR_design_verb.tex'], {}),
+              'WrapAndCodeOutput': (['texminted', 'wrap_test.tex'], {})
               }
 
 
@@ -65,8 +64,8 @@ class ConvertTest(RegressionTest):
         return testMethod
 
     _tests = {
-              # 'Convert': (['convert_test.txt', 'script', 'noweb', 'Pnw'], {}),
-              # 'Nbformat': (['simple.mdw', 'noweb', 'notebook', 'ipynb'], {}),
+              'Convert': (['convert_test.txt', 'script', 'noweb', 'Pnw'], {}),
+              'Nbformat': (['simple.mdw', 'noweb', 'notebook', 'ipynb'], {}),
              }
 
 
