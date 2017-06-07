@@ -2,6 +2,7 @@
 from setuptools import setup
 import os
 import pweave
+import sys
 
 
 def read(fname):
@@ -22,7 +23,13 @@ setup(name='Pweave',
       author='Matti Pastell',
       author_email='matti.pastell@helsinki.fi',
       url='http://mpastell.com/pweave',
-      packages=['pweave', 'pweave.themes', 'pweave.formatters', 'pweave.processors'],
+      packages=['pweave',
+                'pweave._Python{.version_info.major}'.format(sys),
+                'pweave.themes',
+                'pweave.formatters',
+                'pweave.formatters._Python{.version_info.major}'.format(sys),
+                'pweave.processors',
+                ],
       license='LICENSE.txt',
       long_description = read('README.rst'),
       classifiers=[
@@ -33,7 +40,9 @@ setup(name='Pweave',
         'Topic :: Software Development :: Documentation',
         'Topic :: Documentation :: Sphinx',
         'License :: OSI Approved :: BSD License',
-        'Programming Language :: Python :: 3 :: Only',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5'
         ]

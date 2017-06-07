@@ -5,7 +5,13 @@ import json
 import io
 from subprocess import Popen, PIPE
 import os
-from urllib import request, parse
+
+try:
+    from urllib import request, parse
+
+except ImportError:
+    import urllib as request
+    import urlparse as parse
 
 
 def read_file_or_url(source):

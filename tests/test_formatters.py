@@ -9,10 +9,13 @@ class FormatterTest(unittest.TestCase):
 
     def setUp(self):
         self.doc = pweave.Pweb("tests/formats/formatters_test.pmd")
-        #self.doc.run()
         #pickle.dump(doc.executed, open("formats/formatters_test.pkl", "wb"))
-        e = pickle.load(open("tests/formats/formatters_test.pkl", "rb"))
-        self.doc.executed = e
+        try:
+            self.doc.executed = pickle.load(open("tests/formats/formatters_test.pkl", "rb"))
+        except ValueError: #ValueError: unsupported pickle protocol: 3
+            self.doc.run()
+            # pickle.dump(doc.executed, open("formats/formatters_test.pkl", "wb"))
+
         self.out_base = "tests/formats/formatters_test.%s"
         self.ref_base = "tests/formats/formatters_test_REF.%s"
 

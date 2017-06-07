@@ -4,7 +4,7 @@ import sys
 class PwebPandocFormatter(PwebFormatter):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(PwebPandocFormatter, self).__init__(*args, **kwargs)
         self.file_ext = "md"
         self.mimetypes = ["text/markdown"]
         self.fig_mimetypes = ["image/png", "image/jpg", "application/svg+xml"]

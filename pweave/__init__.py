@@ -2,6 +2,7 @@
 # Matti Pastell 2010-2016
 # http://mpastell.com/pweave
 
+import sys
 
 from . import readers
 from .pweb import *
@@ -14,7 +15,7 @@ from .config import *
 __version__ = '0.30-alpha1'
 
 
-def weave(file, doctype=None, informat=None, kernel="python3", plot=True,
+def weave(file, doctype=None, informat=None, kernel="python{.version_info.major}".format(sys), plot=True,
           docmode=False, cache=False,
           figdir='figures', cachedir='cache',
           figformat=None, listformats=False,
@@ -25,7 +26,7 @@ def weave(file, doctype=None, informat=None, kernel="python3", plot=True,
     :param file: ``string`` input file
     :param doctype: ``string`` output document format: call with listformats true to get list of supported formats.
     :param informat: ``string`` input format: "noweb", "markdown", "notebook" or "script"
-    :param kernel: ``string`` Jupyter kernel used to run code: default is python3
+    :param kernel: ``string`` Jupyter kernel used to run code: default is python{.version_info.major}
     :param plot: ``bool`` use matplotlib
     :param docmode: ``bool`` use documentation mode, chunk code and results will be loaded from cache and inline code will be hidden
     :param cache: ``bool`` Cache results to disk for documentation mode
@@ -36,7 +37,7 @@ def weave(file, doctype=None, informat=None, kernel="python3", plot=True,
     :param output: ``string`` output file
     :param mimetype: ``string`` Source document's text mimetype. This is used to set cell
                                 type in Jupyter notebooks".
-    """
+    """.format(sys)
 
     if listformats:
         PwebFormats.listformats()
@@ -89,7 +90,7 @@ def publish(file, doc_format="html", theme="skeleton", latex_engine="pdflatex",
         print("Unknown format, exiting")
         return
 
-    doc = Pweb(file, kernel="python3", doctype=pformat,
+    doc = Pweb(file, kernel="python{.version_info.major}".format(sys), doctype=pformat,
                output=output)
 
     doc.theme = theme

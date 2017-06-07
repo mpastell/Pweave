@@ -15,8 +15,8 @@ def weave():
                            " Use Pweave -l to list descriptions or see http://mpastell.com/pweave/formats.html")
     parser.add_option("-i", "--input-format", dest="informat", default=None,
                       help="Input format: noweb, markdown, notebook or script")
-    parser.add_option("-k", "--kernel", dest="kernel", default='python3',
-                      help="Jupyter kernel used to run code: default is python3")
+    parser.add_option("-k", "--kernel", dest="kernel", default='python{.version_info.major}'.format(sys),
+                      help="Jupyter kernel used to run code: default is python{.version_info.major}".format(sys))
     parser.add_option("-o", "--output", dest="output", default=None,
                       help="Name of the output file")
     parser.add_option("-l", "--list-formats", dest="listformats", action="store_true", default=False,
