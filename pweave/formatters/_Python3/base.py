@@ -246,7 +246,6 @@ class PwebFormatter(object):
             else:
                 yield prev
                 prev = res.copy()
-
         yield prev
 
     def format_docchunk(self, chunk):
