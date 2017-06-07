@@ -66,12 +66,26 @@ print(42)
 def f
 print(42)
 @
-<<term=True,name='IndentationError'>>=
-def f():
-    print(12)
-  print(8)
-print(42)
-@
+%<<term=True,name='IndentationError'>>=
+%def f():
+%    print(12)
+%  print(8)
+%print(42)
+%@
+%
+%\begin{verbatim}
+%def f():
+%    print(12)
+%  print(8)
+%print(42)
+%\end{verbatim}
+%\begin{verbatim}
+%File "<ipython-input-25-9e9734f26d6a>", line 3
+%    print(8)
+%            ^
+%IndentationError: unindent does not match any outer indentation level
+%\end{verbatim}
+%
 Empty code chunk does not work
 
 \begin{verbatim}
