@@ -4,7 +4,7 @@ from nbconvert import filters
 class PwebTexFormatter(PwebFormatter):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(PwebTexFormatter, self).__init__(*args, **kwargs)
         self.mimetypes = ["text/latex"]
         self.fig_mimetypes = ["application/pdf", "image/png", "image/jpg"]
         self.file_ext = "tex"

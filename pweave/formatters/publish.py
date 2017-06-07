@@ -5,7 +5,17 @@ import base64
 import sys
 import os
 import io
-import html
+
+try:
+    import html
+except ImportError:
+    import cgi
+
+    class html(object):
+        @staticmethod
+        def escape(s, quote=True):
+            return cgi.escape(s, quote=quote)
+
 from nbconvert import filters
 
 class PwebHTMLFormatter(PwebFormatter):
