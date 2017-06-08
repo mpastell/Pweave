@@ -15,10 +15,13 @@ try:
 except:
     from _frameworkForTests import RegressionTest
 
-class WeaveTest(RegressionTest):
+class ReproducibleTest(RegressionTest):
+    REPEAT = 1000
     def _testGenerator(name, doctype, filename, kwargs={}, python={2, 3}):
         def testMethod(self):
-            for _ in range(1000):
+            for i in range(self.REPEAT):
+                print('START: run {}/{}'.format(i, self.REPEAT))
+
                 self.TESTDIR = os.path.join('weave', doctype)
                 infile = self.absPathTo(filename + 'w')
                 self.setNewOutfile(filename)
@@ -28,6 +31,7 @@ class WeaveTest(RegressionTest):
                 basename, _, ext = filename.rpartition('.')
                 self.REFERENCE = self.absPathTo(basename + '_REF.' + ext)
                 self.assertSameAsReference()
+                print('END: run {}/{}'.format(i, self.REPEAT))
 
         testMethod.__name__ = name
         return testMethod

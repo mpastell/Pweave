@@ -1,42 +1,16 @@
+START
 
 \begin{verbatim}
 for i in range(3):
     print(i)
-    print(i**2)
 \end{verbatim}
 \begin{verbatim}
 0
-0
-1
 1
 2
-4
 \end{verbatim}
 
-This code does not work as expected
-\begin{verbatim}
-for i in range(3):
-    print(i)
-
-    print(i**2)
-\end{verbatim}
-
-
-\begin{verbatim}
->>> for i in range(3):
-...     print(i)
-...
-...     print(i**2)
-...
-0
-0
-1
-1
-2
-4
-
-\end{verbatim}
-
+MIDDLE
 
 \begin{verbatim}
 for i in range(3):
@@ -55,45 +29,4 @@ print(1 + 2)
 3
 \end{verbatim}
 
-
-\begin{verbatim}
-for i in range(2):
-    print(i)
-    if i > 0:
-        print("one")
-\end{verbatim}
-\begin{verbatim}
-0
-1
-one
-\end{verbatim}
-
-
-\begin{verbatim}
-for i in range(3):
-    print(i)
-    if i == 1:
-        raise Exception("foo")
-\end{verbatim}
-\begin{verbatim}
-0
-1
-\end{verbatim}
-\begin{verbatim}
----------------------------------------------------------------------------Exception
-Traceback (most recent call last)<ipython-input-10-b0fb8d925930> in
-<module>()
-      2     print(i)
-      3     if i == 1:
-----> 4         raise Exception("foo")
-      5
-Exception: foo
-\end{verbatim}
-
-\begin{verbatim}
-print(42)
-\end{verbatim}
-\begin{verbatim}
-42
-\end{verbatim}
-
+END

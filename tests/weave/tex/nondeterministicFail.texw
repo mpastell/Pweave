@@ -1,49 +1,13 @@
+START
 <<term=True>>=
 for i in range(3):
     print(i)
-    print(i**2)
 @
-This code does not work as expected
-\begin{verbatim}
-for i in range(3):
-    print(i)
-
-    print(i**2)
-\end{verbatim}
-
-
-\begin{verbatim}
->>> for i in range(3):
-...     print(i)
-...
-...     print(i**2)
-...
-0
-0
-1
-1
-2
-4
-
-\end{verbatim}
-
+MIDDLE
 <<term=True>>=
 for i in range(3):
     print(i)
 
 print(1 + 2)
 @
-<<term=True>>=
-for i in range(2):
-    print(i)
-    if i > 0:
-        print("one")
-@
-<<term=True>>=
-for i in range(3):
-    print(i)
-    if i == 1:
-        raise Exception("foo")
-
-print(42)
-@
+END
