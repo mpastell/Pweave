@@ -1,1 +1,3 @@
 include LICENSE.txt
+include pweave/_Python?/*.py
+include pweave/formatters/_Python?/*.py
