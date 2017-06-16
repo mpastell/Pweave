@@ -14,8 +14,6 @@ from .config import *
 __version__ = '0.30-alpha1'
 
 
-DEBUG = []
-
 def weave(file, doctype=None, informat=None, kernel="python3", plot=True,
           docmode=False, cache=False,
           figdir='figures', cachedir='cache',
@@ -59,11 +57,7 @@ def weave(file, doctype=None, informat=None, kernel="python3", plot=True,
     rcParams["cachedir"] = cachedir
     rcParams["storeresults"] = cache
 
-    DEBUG[:] = []
     doc.weave()
-    DEBUG.append(doc.parsed)
-    DEBUG.append(doc.executed)
-    DEBUG.append(doc.formatted)
 
 
 def tangle(file, informat = None):
