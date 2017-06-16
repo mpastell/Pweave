@@ -236,7 +236,7 @@ class PwebFormatter(object):
             return
 
         for res in results[1:]:
-            for k in ('outputType', 'name'):
+            for k in ('output_type', 'name'):
                 if res[k] != prev[k]:
                     yield prev
                     prev = res.copy()
