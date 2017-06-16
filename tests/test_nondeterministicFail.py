@@ -30,7 +30,12 @@ class ReproducibleTest(RegressionTest):
 
                 basename, _, ext = filename.rpartition('.')
                 self.REFERENCE = self.absPathTo(basename + '_REF.' + ext)
-                self.assertSameAsReference()
+                try:
+                    self.assertSameAsReference()
+                except AssertionError:
+                    for row in pweave.DEBUG:
+                        print(repr(row))
+                    raise
                 print('END: run {}/{}'.format(i, self.REPEAT))
 
         testMethod.__name__ = name

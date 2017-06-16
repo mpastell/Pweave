@@ -115,7 +115,12 @@ class JupyterProcessor(PwebProcessorBase):
             except ValueError:
                 self.log.error("unhandled iopub msg: " + msg_type)
             else:
-                outs.append(out)
+                if len(outs) == 0 \
+                  or outs[-1]['output_type'] != out['output_type'] \
+                  or outs[-1]['name'] != out['name']:
+                    outs.append(out)
+                else:
+                    outs[-1]['text'] += out['text']
 
         return outs
 
