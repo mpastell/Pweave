@@ -218,8 +218,21 @@ class PwebFormatter(object):
 
 
         if chunk['results'] != 'hidden':
-            for out in chunk["result"]:
-                result += self.render_jupyter_output(out, chunk)
+            try:
+                prevResult = chunk["result"][0].copy()
+            except IndexError:
+                pass
+            else:
+                for out in chunk["result"][1:]:
+                    if out['outputType'] == prevResult['outputType'] \
+                      and out['name'] == prevResult['name']:
+                        prevResult['text'] += out['text']
+                        continue
+
+                    result += self.render_jupyter_output(prevResult, chunk)
+                    prevResult = out
+
+                result += self.render_jupyter_output(prevResult, chunk)
 
         #Handle figures
         chunk['figure'] = self.figures_from_chunk(chunk) #Save embedded figures to file
