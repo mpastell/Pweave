@@ -16,7 +16,7 @@ except:
     from _frameworkForTests import RegressionTest
 
 class ReproducibleTest(RegressionTest):
-    REPEAT = 1000
+    REPEAT = 100
     def _testGenerator(name, doctype, filename, kwargs={}, python={2, 3}):
         def testMethod(self):
             for i in range(self.REPEAT):
