@@ -236,13 +236,14 @@ class PwebFormatter(object):
             return
 
         for res in results[1:]:
-            for k in ('output_type', 'name'):
-                if res[k] != prev[k]:
-                    yield prev
-                    prev = res.copy()
-                    break
-            else:
+            if res['output_type'] == 'stream' \
+              and prev['output_type'] == 'stream' \
+              and res['name'] == prev['name']:
                 prev['text'] += res['text']
+
+            else:
+                yield prev
+                prev = res.copy()
 
         yield prev
 
