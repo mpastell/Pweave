@@ -59,6 +59,7 @@ def weave(file, doctype=None, informat=None, kernel="python3", plot=True,
 
     doc.weave()
 
+
 def tangle(file, informat = None):
     """Tangles a noweb file i.e. extracts code from code chunks to a .py file
 

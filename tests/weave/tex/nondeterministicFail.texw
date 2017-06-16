@@ -1,0 +1,12 @@
+<<term=True>>=
+for i in range(3):
+    print(i)
+
+print(1 + 2)
+@
+<<term=True>>=
+for i in range(2):
+    print(i)
+    if i > 0:
+        print("one")
+@
