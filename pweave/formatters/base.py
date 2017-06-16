@@ -216,23 +216,9 @@ class PwebFormatter(object):
             chunk["content"] = self.fix_linefeeds(chunk["content"])
             result += '%(codestart)s%(content)s%(codeend)s' % chunk
 
-
         if chunk['results'] != 'hidden':
-            try:
-                prevResult = chunk["result"][0].copy()
-            except IndexError:
-                pass
-            else:
-                for out in chunk["result"][1:]:
-                    if out['outputType'] == prevResult['outputType'] \
-                      and out['name'] == prevResult['name']:
-                        prevResult['text'] += out['text']
-                        continue
-
-                    result += self.render_jupyter_output(prevResult, chunk)
-                    prevResult = out
-
-                result += self.render_jupyter_output(prevResult, chunk)
+            for out in self._compressed_chunk_results(chunk["result"]):
+                result += self.render_jupyter_output(out, chunk)
 
         #Handle figures
         chunk['figure'] = self.figures_from_chunk(chunk) #Save embedded figures to file
@@ -241,6 +227,24 @@ class PwebFormatter(object):
             if chunk['include']:
                 result += self.formatfigure(chunk)
         return result
+
+    def _compressed_chunk_results(self, results):
+        try:
+            prev = results[0].copy()
+
+        except IndexError:
+            return
+
+        for res in results[1:]:
+            for k in ('outputType', 'name'):
+                if res[k] != prev[k]:
+                    yield prev
+                    prev = res.copy()
+                    break
+            else:
+                prev['text'] += res['text']
+
+        yield prev
 
     def format_docchunk(self, chunk):
         return chunk['content']
