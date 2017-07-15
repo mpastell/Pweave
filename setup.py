@@ -37,6 +37,8 @@ setup(name='Pweave',
       author_email='matti.pastell@helsinki.fi',
       url='http://mpastell.com/pweave',
       packages=['pweave', 'pweave.themes', 'pweave.formatters', 'pweave.processors'],
+      install_requires = ['markdown', 'pygments', 'ipython', 'nbformat',
+                          'nbconvert', 'jupyter_client'],
       license='LICENSE.txt',
       long_description = read('README.rst'),
       classifiers=[
