@@ -1,7 +1,21 @@
 #!/usr/bin/env python
 from setuptools import setup
 import os
-import pweave
+import ast
+
+HERE = os.path.abspath(os.path.dirname(__file__))
+
+def get_version():
+    """Get version."""
+    with open(os.path.join(HERE, 'pweave', '__init__.py'), 'r') as f:
+        data = f.read()
+    lines = data.split('\n')
+    for line in lines:
+        if line.startswith('__version__'):
+            version_tuple = ast.literal_eval(line.split('=')[-1].strip())
+            version = '.'.join(map(str, version_tuple))
+            break
+    return version
 
 
 def read(fname):
@@ -17,7 +31,7 @@ setup(name='Pweave',
                'pypublish = pweave.scripts:publish',
                'pweave-convert = pweave.scripts:convert'
                ]},
-      version = pweave.__version__,
+      version = get_version(),
       description='Scientific reports with embedded python computations with reST, LaTeX or markdown',
       author='Matti Pastell',
       author_email='matti.pastell@helsinki.fi',
