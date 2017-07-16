@@ -76,7 +76,7 @@ Pweave documentation can be found from the website http://mpastell.com/pweave
 Release Notes
 -------------
 
-See `GHANGELOG.txt <https://github.com/mpastell/Pweave/blob/master/CHANGELOG.txt>`_ for changes in each release.
+See `CHANGELOG.txt <https://github.com/mpastell/Pweave/blob/master/CHANGELOG.txt>`_ for changes in each release.
 
 License information
 -------------------
