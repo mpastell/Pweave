@@ -51,7 +51,7 @@ Features:
   generation when you are only working with documentation. Inline code
   will be hidden in documentation mode.
 * Supports reST, LaTeX, HTML or markdown for document chunks
-* Publish reports from Python scipts. Similar to R markdown.
+* Publish reports from Python scripts. Similar to R markdown.
 * Run from command line or interpreter.
 
 Install
