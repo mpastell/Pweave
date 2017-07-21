@@ -63,7 +63,7 @@ From PyPi::
 
 with conda::
 
-  conda install -c mpastell pweave
+  conda install -c conda-forge pweave
 
 or download the source and run::
 
