@@ -593,8 +593,10 @@ code {
 .mh { color: #666666 } /* Literal.Number.Hex */
 .mi { color: #666666 } /* Literal.Number.Integer */
 .mo { color: #666666 } /* Literal.Number.Oct */
+.sa { color: #BA2121 } /* Literal.String.Affix */
 .sb { color: #BA2121 } /* Literal.String.Backtick */
 .sc { color: #BA2121 } /* Literal.String.Char */
+.dl { color: #BA2121 } /* Literal.String.Delimiter */
 .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
 .s2 { color: #BA2121 } /* Literal.String.Double */
 .se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
@@ -605,9 +607,11 @@ code {
 .s1 { color: #BA2121 } /* Literal.String.Single */
 .ss { color: #19177C } /* Literal.String.Symbol */
 .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.fm { color: #0000FF } /* Name.Function.Magic */
 .vc { color: #19177C } /* Name.Variable.Class */
 .vg { color: #19177C } /* Name.Variable.Global */
 .vi { color: #19177C } /* Name.Variable.Instance */
+.vm { color: #19177C } /* Name.Variable.Magic */
 .il { color: #666666 } /* Literal.Number.Integer.Long */
 </style>
 
@@ -676,14 +680,14 @@ properties.</p>
     <span class="n">plot</span><span class="p">(</span><span class="n">w</span><span class="o">/</span><span class="nb">max</span><span class="p">(</span><span class="n">w</span><span class="p">),</span><span class="n">h_dB</span><span class="p">)</span>
     <span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">150</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
     <span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Magnitude (db)&#39;</span><span class="p">)</span>
-    <span class="n">xlabel</span><span class="p">(</span><span class="s1">r&#39;Normalized Frequency (x$\pi$rad/sample)&#39;</span><span class="p">)</span>
-    <span class="n">title</span><span class="p">(</span><span class="s1">r&#39;Frequency response&#39;</span><span class="p">)</span>
+    <span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Normalized Frequency (x$\pi$rad/sample)&#39;</span><span class="p">)</span>
+    <span class="n">title</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Frequency response&#39;</span><span class="p">)</span>
     <span class="n">subplot</span><span class="p">(</span><span class="mi">212</span><span class="p">)</span>
     <span class="n">h_Phase</span> <span class="o">=</span> <span class="n">unwrap</span><span class="p">(</span><span class="n">arctan2</span><span class="p">(</span><span class="n">imag</span><span class="p">(</span><span class="n">h</span><span class="p">),</span><span class="n">real</span><span class="p">(</span><span class="n">h</span><span class="p">)))</span>
     <span class="n">plot</span><span class="p">(</span><span class="n">w</span><span class="o">/</span><span class="nb">max</span><span class="p">(</span><span class="n">w</span><span class="p">),</span><span class="n">h_Phase</span><span class="p">)</span>
     <span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Phase (radians)&#39;</span><span class="p">)</span>
-    <span class="n">xlabel</span><span class="p">(</span><span class="s1">r&#39;Normalized Frequency (x$\pi$rad/sample)&#39;</span><span class="p">)</span>
-    <span class="n">title</span><span class="p">(</span><span class="s1">r&#39;Phase response&#39;</span><span class="p">)</span>
+    <span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Normalized Frequency (x$\pi$rad/sample)&#39;</span><span class="p">)</span>
+    <span class="n">title</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Phase response&#39;</span><span class="p">)</span>
     <span class="n">subplots_adjust</span><span class="p">(</span><span class="n">hspace</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 
 <span class="c1">#Plot step and impulse response</span>
@@ -695,14 +699,14 @@ properties.</p>
     <span class="n">subplot</span><span class="p">(</span><span class="mi">211</span><span class="p">)</span>
     <span class="n">stem</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
     <span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Amplitude&#39;</span><span class="p">)</span>
-    <span class="n">xlabel</span><span class="p">(</span><span class="s1">r&#39;n (samples)&#39;</span><span class="p">)</span>
-    <span class="n">title</span><span class="p">(</span><span class="s1">r&#39;Impulse response&#39;</span><span class="p">)</span>
+    <span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;n (samples)&#39;</span><span class="p">)</span>
+    <span class="n">title</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Impulse response&#39;</span><span class="p">)</span>
     <span class="n">subplot</span><span class="p">(</span><span class="mi">212</span><span class="p">)</span>
     <span class="n">step</span> <span class="o">=</span> <span class="n">cumsum</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
     <span class="n">stem</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
     <span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Amplitude&#39;</span><span class="p">)</span>
-    <span class="n">xlabel</span><span class="p">(</span><span class="s1">r&#39;n (samples)&#39;</span><span class="p">)</span>
-    <span class="n">title</span><span class="p">(</span><span class="s1">r&#39;Step response&#39;</span><span class="p">)</span>
+    <span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;n (samples)&#39;</span><span class="p">)</span>
+    <span class="n">title</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Step response&#39;</span><span class="p">)</span>
     <span class="n">subplots_adjust</span><span class="p">(</span><span class="n">hspace</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 </pre></div>
 
@@ -742,7 +746,7 @@ need to do ' spectral inversion "manually" anymore!</p>
     <div class="footer">
       <p>Published from <a href="tests/publish/publish_test.txt">tests/publish/publish_test.txt</a>
     using <a href="http://mpastell.com/pweave">Pweave</a> 0.30-alpha1
-    on 14-08-2016.<p></div>
+    on 18-08-2017.<p></div>
 
             </div>
         </div>

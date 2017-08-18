@@ -593,8 +593,10 @@ code {
 .mh { color: #666666 } /* Literal.Number.Hex */
 .mi { color: #666666 } /* Literal.Number.Integer */
 .mo { color: #666666 } /* Literal.Number.Oct */
+.sa { color: #BA2121 } /* Literal.String.Affix */
 .sb { color: #BA2121 } /* Literal.String.Backtick */
 .sc { color: #BA2121 } /* Literal.String.Char */
+.dl { color: #BA2121 } /* Literal.String.Delimiter */
 .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
 .s2 { color: #BA2121 } /* Literal.String.Double */
 .se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
@@ -605,9 +607,11 @@ code {
 .s1 { color: #BA2121 } /* Literal.String.Single */
 .ss { color: #19177C } /* Literal.String.Symbol */
 .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.fm { color: #0000FF } /* Name.Function.Magic */
 .vc { color: #19177C } /* Name.Variable.Class */
 .vg { color: #19177C } /* Name.Variable.Global */
 .vi { color: #19177C } /* Name.Variable.Instance */
+.vm { color: #19177C } /* Name.Variable.Magic */
 .il { color: #666666 } /* Literal.Number.Integer.Long */
 </style>
 
@@ -841,7 +845,7 @@ pweave pweave pweave pweave pweave pweave pweave pweave pweave pweave
     <div class="footer">
       <p>Published from <a href="tests/formats/formatters_test.pmd">tests/formats/formatters_test.pmd</a>
     using <a href="http://mpastell.com/pweave">Pweave</a> 0.30-alpha1
-    on 12-08-2016.<p></div>
+    on 18-08-2017.<p></div>
 
             </div>
         </div>
