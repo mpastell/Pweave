@@ -22,7 +22,9 @@ class WeaveTest(RegressionTest):
             infile = self.absPathTo(filename + 'w')
             self.setNewOutfile(filename)
 
-            pweave.weave(infile, doctype=doctype, **kwargs)
+            pweave.weave(infile, doctype=doctype,
+                output=self.absPathTo(filename),
+                **kwargs)
 
             basename, _, ext = filename.rpartition('.')
             self.REFERENCE = self.absPathTo(basename + '_REF.' + ext)
