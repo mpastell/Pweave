@@ -305,7 +305,7 @@ class PwebFormatter(object):
         self.ensureDirectoryExists(self.getFigDirectory())
 
         save_name = os.path.join(save_dir, prefix + ext)
-        include_name = os.path.join(include_dir, prefix + ext)
+        include_name = os.path.join(include_dir, prefix + ext).replace("\\", "/")
 
         return save_name, include_name
 
