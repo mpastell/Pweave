@@ -9,11 +9,14 @@ from urllib import request, parse
 
 
 def read_file_or_url(source):
-    if parse.urlparse(source).scheme == "":
+    """
+    Try to open path as a file, and if its fails open it as url.
+    """
+    try:
         codefile = io.open(source, 'r', encoding='utf-8')
         contents = codefile.read()
         codefile.close()
-    else:
+    except IOError:
         r = request.urlopen(source)
         contents = r.read().decode("utf-8")
         r.close()
