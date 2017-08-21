@@ -42,7 +42,7 @@ code It can also be used to make websites together with e.g. Sphinx or rest2web.
 Features:
 ---------
 
-* Python 3.4 and 3.5 compatibility
+* Python 3.4, 3.5 and 3.6 compatibility
 * **Execute python code** in the chunks and **capture** input and output to a report.
 * **Use hidden code chunks,** i.e. code is executed, but not printed in the output file.
 * Capture matplotlib graphics.
