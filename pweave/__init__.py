@@ -73,8 +73,8 @@ def publish(file, doc_format="html", theme="skeleton", latex_engine="pdflatex",
     """Publish python script and results to html or pdf, expects that doc
     chunks are  written in markdown.
 
-    ":param file: ``string`` input file"
-    ":param format: ``string`` output format "html" of "pdf", pdf output
+    :param file: ``string`` input file"
+    :param format: ``string`` output format "html" of "pdf", pdf output
     requires pandoc and pdflatex in your path.
     :param: ``string`` latex_engine the command for running latex. Defaults to "pdflatex".
     :param output: ``string`` output file. Use .tex extension for pdf output.

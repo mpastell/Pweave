@@ -84,4 +84,3 @@ class PwebFormats(object):
     def listformats(cls):
         print("\nPweave supported output formats:\n")
         print(cls.getformats())
-        print("More info: http://mpastell.com/pweave/formats.html \n")
