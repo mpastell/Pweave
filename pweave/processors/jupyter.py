@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from jupyter_client.manager import start_new_kernel
+from jupyter_client import KernelManager
 from nbformat.v4 import output_from_msg
 import os
 
@@ -8,6 +9,7 @@ from .. import config
 from .base import PwebProcessorBase
 from . import subsnippets
 from IPython.core import inputsplitter
+from queue import Empty
 
 class JupyterProcessor(PwebProcessorBase):
     """Generic Jupyter processor, should work with any kernel"""
@@ -21,17 +23,32 @@ class JupyterProcessor(PwebProcessorBase):
         self.timeout = -1
         path = os.path.abspath(outdir)
 
-        self.km, self.kc = start_new_kernel(
-            kernel_name= kernel,
-            extra_arguments=self.extra_arguments,
-            stderr=open(os.devnull, 'w'),
-            cwd = path)
-        self.kc.allow_stdin = False
+        #self.km, self.kc = start_new_kernel(timeout=None,
+        #    kernel_name= kernel,
+        #    extra_arguments=self.extra_arguments,
+        #    stderr=open(os.devnull, 'w'),
+        #    cwd = path)
+        #self.kc.allow_stdin = False
+
+        km = KernelManager(kernel_name=kernel)
+        km.start_kernel(cwd=path, stderr=open(os.devnull, 'w'))
+        kc = km.client()
+        kc.start_channels()
+        try:
+            kc.wait_for_ready(timeout=None)
+        except RuntimeError:
+            print("Timeout from starting kernel\nTry restarting python session and running weave again")
+            kc.stop_channels()
+            km.shutdown_kernel()
+            raise
+
+        self.km = km
+        self.kc = kc
 
 
     def close(self):
         self.kc.stop_channels()
-        self.km.shutdown_kernel(now = True)
+        self.km.shutdown_kernel()
 
     def run_cell(self, src):
         cell = {}
@@ -46,12 +63,9 @@ class JupyterProcessor(PwebProcessorBase):
                 timeout = self.timeout
                 if timeout < 0:
                     timeout = None
-                msg = self.kc.shell_channel.get_msg(timeout=timeout)
+                msg = self.kc.get_shell_msg(timeout=timeout)
             except Empty:
-                #self.log.error(
-                #    "Timeout waiting for execute reply (%is)." % self.timeout)
                 if self.interrupt_on_timeout:
-                    #self.log.error("Interrupting kernel")
                     self.km.interrupt_kernel()
                     break
                 else:
@@ -77,13 +91,13 @@ class JupyterProcessor(PwebProcessorBase):
                 # in certain CI systems, waiting < 1 second might miss messages.
                 # So long as the kernel sends a status:idle message when it
                 # finishes, we won't actually have to wait this long, anyway.
-                msg = self.kc.iopub_channel.get_msg(timeout=4)
+                #msg = self.kc.iopub_channel.get_msg(timeout=10)
+                msg = self.kc.get_iopub_msg(timeout=10)
             except Empty:
-                self.log.warn("Timeout waiting for IOPub output")
-                if self.raise_on_iopub_timeout:
-                    raise RuntimeError("Timeout waiting for IOPub output")
-                else:
-                    break
+                print("Timeout waiting for IOPub output\nTry restarting python session and running weave again")
+                raise RuntimeError("Timeout waiting for IOPub output")
+                #else:
+                #    break
             if msg['parent_header'].get('msg_id') != msg_id:
                 # not an output from our execution
                 continue

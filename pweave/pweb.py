@@ -56,7 +56,6 @@ class Pweb(object):
         self.formatted = None
         self.reader = None
         self.formatter = None
-        self.processor = None
         self.theme = "skeleton"
 
 
@@ -118,9 +117,7 @@ class Pweb(object):
                          self.wd
                         )
         proc.run()
-        self.processor = proc
         self.executed = proc.getresults()
-
 
     def format(self, doctype = None, Formatter = None):
         """Format the code for writing. You can pass either
