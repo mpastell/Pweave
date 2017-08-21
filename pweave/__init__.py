@@ -35,7 +35,7 @@ def weave(file, doctype=None, informat=None, kernel="python3", plot=True,
     :param listformats: ``bool`` List available formats and exit
     :param output: ``string`` output file
     :param mimetype: ``string`` Source document's text mimetype. This is used to set cell
-                                type in Jupyter notebooks".
+                                type in Jupyter notebooks.
     """
 
     if listformats:

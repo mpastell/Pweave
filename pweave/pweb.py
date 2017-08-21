@@ -14,9 +14,17 @@ from urllib import parse
 
 
 class Pweb(object):
-    """Processes a complete document
-    :param file: ``string`` name of the input document.
-    :param format: ``string`` output format from supported formats. pweavSee: http://mpastell.com/pweave/formats.html
+    """
+    Process a Pweave document
+
+    :param source: ``string`` name of the input document.
+    :param doctype: ``string`` output format.
+    :param informat: ``string`` input format
+    :param kernel: ``string`` name of jupyter kernel used to run code
+    :param output: ``string`` output path
+    :param figdir: ``string`` figure directory
+    :param mimetype: Source document's text mimetype. This is used to set cell
+                     type in Jupyter notebooks
     """
 
     def __init__(self, source, doctype = None, *, informat = None, kernel = "python3",
@@ -83,8 +91,10 @@ class Pweb(object):
         self.formatter.formatdict.update(dict)
 
     def read(self, string=None, basename="string_input", reader = None):
-        """Parse document
-        :param None (set automatically), reader name or class object
+        """
+        Parse document
+
+        :param: None (set automatically), reader name or class object
         """
         if reader is None:
             Reader = PwebReaders.guess_reader(self.source)
@@ -98,7 +108,7 @@ class Pweb(object):
             self.reader = Reader(file=self.source)
         else:
             self.reader = self.Reader(string=string)
-            self.source = basename # XXX non-trivial implications possible
+            self.source = basename # non-trivial implications possible
         self.reader.parse()
         self.parsed = self.reader.getparsed()
 
@@ -121,9 +131,11 @@ class Pweb(object):
 
     def format(self, doctype = None, Formatter = None):
         """Format the code for writing. You can pass either
-        :doctype The name of Pweave output format
-        :Formatter Formatter class
+
+        :param doctype: The name of Pweave output format
+        :param Formatter: Formatter class
         """
+
         if doctype is not None:
             Formatter = PwebFormats.getFormatter(doctype)
         elif Formatter is not None:
@@ -143,7 +155,6 @@ class Pweb(object):
                                    wd = self.wd
                                    )
 
-
         self.formatter.format()
         self.formatted = self.formatter.getformatted()
 
@@ -156,14 +167,13 @@ class Pweb(object):
             url_path = parse.urlparse(self.source).path
             self.sink = os.path.splitext(os.path.basename(url_path))[0] + '.' + self.formatter.file_ext
 
-    def write(self, action="Pweaved"):
+    def write(self):
         """Write formatted code to file"""
         self.setsink()
 
         self._writeToSink(self.formatted.replace("\r", ""))
-        self._print('{action} {src} to {dst}\n'.format(action=action,
-                                                       src=self.source,
-                                                       dst=self.sink))
+        self._print('Weaved {src} to {dst}\n'.format(src=self.source,
+                                                        dst=self.sink))
 
     def _print(self, msg):
         sys.stdout.write(msg)
