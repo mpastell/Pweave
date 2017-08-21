@@ -97,7 +97,7 @@ def publish(file, doc_format="html", theme="skeleton", latex_engine="pdflatex",
     doc.run()
     doc.format()
 
-    doc.write(action="Published")
+    doc.write()
     if doc_format == "pdf":
         try:
             latex = Popen([latex_engine, doc.sink], stdin=PIPE, stdout=PIPE)

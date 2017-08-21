@@ -21,7 +21,8 @@ class FormatterTest(unittest.TestCase):
         for format in formats:
             if "pandoc2latex" in format: #No pandoc on travis
                 continue
-            self.doc.format(format)
+            self.doc.setformat(format)
+            self.doc.format()
             self.out_file = self.out_base % format
             self.ref_file = self.ref_base % format
             self.doc.output = self.out_file

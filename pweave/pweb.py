@@ -66,7 +66,7 @@ class Pweb(object):
         self.formatter = None
         self.theme = "skeleton"
 
-
+        self.setformat(doctype)
         self.read(reader = informat)
 
     def _setwd(self):
@@ -129,8 +129,9 @@ class Pweb(object):
         proc.run()
         self.executed = proc.getresults()
 
-    def format(self, doctype = None, Formatter = None):
-        """Format the code for writing. You can pass either
+    def setformat(self, doctype = None, Formatter = None):
+        """
+        Set formatter by name or class. You can pass either
 
         :param doctype: The name of Pweave output format
         :param Formatter: Formatter class
@@ -145,16 +146,19 @@ class Pweb(object):
         else:
             Formatter = PwebFormats.getFormatter(self.doctype)
 
-        self.formatter = Formatter(copy.deepcopy(self.executed),
+        self.formatter = Formatter([],
                                    kernel = self.kernel,
                                    language = self.language,
                                    mimetype = self.mimetype.type,
                                    source = self.source,
                                    theme = self.theme,
                                    figdir = self.figdir,
-                                   wd = self.wd
-                                   )
+                                   wd = self.wd)
 
+
+    def format(self):
+        """Format executed code for writing. """
+        self.formatter.executed = copy.deepcopy(self.executed)
         self.formatter.format()
         self.formatted = self.formatter.getformatted()
 
