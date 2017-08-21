@@ -13,7 +13,7 @@ def get_version():
     for line in lines:
         if line.startswith('__version__'):
             version_tuple = ast.literal_eval(line.split('=')[-1].strip())
-            version = '.'.join(map(str, version_tuple))
+            version = ''.join(map(str, version_tuple))
             break
     return version
 
@@ -36,7 +36,7 @@ setup(name='Pweave',
       url='http://mpastell.com/pweave',
       packages=['pweave', 'pweave.themes', 'pweave.formatters', 'pweave.processors'],
       install_requires = ['markdown', 'pygments', 'ipython', 'nbformat',
-                          'nbconvert', 'jupyter_client'],
+                          'nbconvert', 'jupyter_client', 'ipykernel'],
       license='LICENSE.txt',
       long_description = read('README.rst'),
       classifiers=[
