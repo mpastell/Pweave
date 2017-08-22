@@ -14,13 +14,6 @@ analysis and works well with NumPy, SciPy and matplotlib. It is able to run
 python code from source document and include the results and capture
 `matplotlib <http://matplotlib.sourceforge.net/>`_ plots in the output.
 
-It can produce reST, Sphinx, Latex, HTML and markdown (pandoc and leanpub)
-output from several input formats.
-
-- Noweb  uses `noweb <http://www.cs.tufts.edu/~nr/noweb/>`_ syntax for separating code from documentation.
-- Markdown. Run code from markdown code blocks.
-- Script. Python script with special markup in comments.
-
 Pweave is good for creating reports, tutorials, presentations etc. with embedded python
 code It can also be used to make websites together with e.g. Sphinx or rest2web.
 
@@ -31,6 +24,12 @@ Features:
 * Code is run using jupyter_client giving the possibility to run code using any
   installed kernel (including python2) via `--kernel` argument. Some chunk options only work for Python.
 * Support for IPython magics and rich output.
+* Produce reST, Sphinx, Latex, HTML and markdown (pandoc and leanpub) output from several input formats.
+
+    - Noweb  uses `noweb <http://www.cs.tufts.edu/~nr/noweb/>`_ syntax for separating code from documentation.
+    - Markdown. Run code from markdown code blocks.
+    - Script. Python script with special markup in comments.
+
 * **Execute python code** in the chunks and **capture** input and output to a report.
 * **Use hidden code chunks,** i.e. code is executed, but not printed in the output file.
 * Capture matplotlib graphics.
@@ -41,6 +40,7 @@ Features:
 * Supports reST, LaTeX, HTML or markdown for document chunks
 * Publish reports from Python scripts. Similar to R markdown.
 * Run from command line or interpreter.
+
 
 Install
 -----------------------

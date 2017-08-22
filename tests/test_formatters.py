@@ -20,7 +20,7 @@ class FormatterTest(unittest.TestCase):
     def testFormatters(self):
         formats = sorted(list(pweave.formatters.PwebFormats.formats.keys()))
         for format in formats:
-            if "pandoc2latex" in format: #No pandoc on travis
+            if "pandoc2latex" in format or "2html" in format: #No pandoc on travis
                 continue
             self.doc.setformat(format)
             self.doc.format()
@@ -29,7 +29,7 @@ class FormatterTest(unittest.TestCase):
             self.doc.output = self.out_file
             self.doc.write()
             if "2html" in format:
-                continue
+                pass
                 #Need to ignore same amount from beginning
                 #End is variable lenght, anyway tested with test_publish
                 #self.assertSameAsReference(1000) #Ignore changing footer
