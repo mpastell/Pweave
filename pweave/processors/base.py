@@ -158,6 +158,14 @@ class PwebProcessorBase(object):
                         content = ""
                         new_chunk["result"] = results[i]
                         chunks.append(new_chunk)
+
+                #Deal with not output, #73 
+                if len(content) > 0:
+                    new_chunk = chunk.copy()
+                    new_chunk["content"] = content
+                    new_chunk["result"] = ""
+                    chunks.append(new_chunk)
+
                 return(chunks)
             else:
                 chunk['result'] = self.loadstring(chunk['content'], chunk=chunk)
