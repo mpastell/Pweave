@@ -123,7 +123,7 @@ class JupyterProcessor(PwebProcessorBase):
             try:
                 out = output_from_msg(msg)
             except ValueError:
-                self.log.error("unhandled iopub msg: " + msg_type)
+                print("unhandled iopub msg: " + msg_type)
             else:
                 outs.append(out)
 

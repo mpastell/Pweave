@@ -162,7 +162,6 @@ class PwebProcessorBase(object):
             else:
                 chunk['result'] = self.loadstring(chunk['content'], chunk=chunk)
 
-
         #After executing the code save the figure
         if chunk['fig']:
             chunk['figure'] = self.savefigs(chunk)
@@ -257,8 +256,6 @@ class PwebProcessorBase(object):
         splitted = re.split('<%[\w\s\W]*?%>', chunk['content'])
         chunk['content'] = ''.join(splitted)
         return chunk
-
-
 
 class ProtectStdStreams(object):
     def __init__(self, obj=None):
