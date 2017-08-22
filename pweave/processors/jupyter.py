@@ -9,13 +9,16 @@ from .. import config
 from .base import PwebProcessorBase
 from . import subsnippets
 from IPython.core import inputsplitter
+from ipykernel.inprocess import InProcessKernelManager
+
 from queue import Empty
+
 
 class JupyterProcessor(PwebProcessorBase):
     """Generic Jupyter processor, should work with any kernel"""
 
     def __init__(self, parsed, kernel, source, mode,
-                       figdir, outdir):
+                       figdir, outdir, embed_kernel=False):
         super(JupyterProcessor, self).__init__(parsed, kernel, source, mode,
                        figdir, outdir)
 
@@ -23,19 +26,16 @@ class JupyterProcessor(PwebProcessorBase):
         self.timeout = -1
         path = os.path.abspath(outdir)
 
-        #self.km, self.kc = start_new_kernel(timeout=None,
-        #    kernel_name= kernel,
-        #    extra_arguments=self.extra_arguments,
-        #    stderr=open(os.devnull, 'w'),
-        #    cwd = path)
-        #self.kc.allow_stdin = False
+        if embed_kernel:
+            km = InProcessKernelManager(kernel_name=kernel)
+        else:
+            km = KernelManager(kernel_name=kernel)
 
-        km = KernelManager(kernel_name=kernel)
         km.start_kernel(cwd=path, stderr=open(os.devnull, 'w'))
         kc = km.client()
         kc.start_channels()
         try:
-            kc.wait_for_ready(timeout=None)
+            kc.wait_for_ready()
         except RuntimeError:
             print("Timeout from starting kernel\nTry restarting python session and running weave again")
             kc.stop_channels()
@@ -44,6 +44,7 @@ class JupyterProcessor(PwebProcessorBase):
 
         self.km = km
         self.kc = kc
+        self.kc.allow_stdin = False
 
 
     def close(self):
@@ -54,8 +55,6 @@ class JupyterProcessor(PwebProcessorBase):
         cell = {}
         cell["source"] = src.lstrip()
         msg_id = self.kc.execute(src.lstrip())
-
-        #self.log.debug("Executing cell:\n%s", cell.source)
 
         # wait for finish, with timeout
         while True:
@@ -84,6 +83,7 @@ class JupyterProcessor(PwebProcessorBase):
 
         outs = []
 
+
         while True:
             try:
                 # We've already waited for execute_reply, so all output
@@ -91,22 +91,18 @@ class JupyterProcessor(PwebProcessorBase):
                 # in certain CI systems, waiting < 1 second might miss messages.
                 # So long as the kernel sends a status:idle message when it
                 # finishes, we won't actually have to wait this long, anyway.
-                #msg = self.kc.iopub_channel.get_msg(timeout=10)
-                msg = self.kc.get_iopub_msg(timeout=10)
+                msg = self.kc.iopub_channel.get_msg(block=True, timeout=4)
             except Empty:
                 print("Timeout waiting for IOPub output\nTry restarting python session and running weave again")
                 raise RuntimeError("Timeout waiting for IOPub output")
-                #else:
-                #    break
-            if msg['parent_header'].get('msg_id') != msg_id:
-                # not an output from our execution
+
+            #stdout from InProcessKernelManager has no parent_header
+            if msg['parent_header'].get('msg_id') != msg_id and msg['msg_type'] != "stream":
                 continue
 
             msg_type = msg['msg_type']
-            #self.log.debug("output: %s", msg_type)
             content = msg['content']
 
-            #print(msg)
             # set the prompt number for the input and the output
             if 'execution_count' in content:
                 cell['execution_count'] = content['execution_count']
@@ -127,7 +123,7 @@ class JupyterProcessor(PwebProcessorBase):
             try:
                 out = output_from_msg(msg)
             except ValueError:
-                self.log.error("unhandled iopub msg: " + msg_type)
+                print("unhandled iopub msg: " + msg_type)
             else:
                 outs.append(out)
 
@@ -162,7 +158,14 @@ class IPythonProcessor(JupyterProcessor):
     """Contains IPython specific functions"""
 
     def __init__(self, *args):
-        super(IPythonProcessor, self).__init__(*args)
+        kernel = args[1]
+
+        if kernel == "python3":
+            embed = True
+        else:
+            embed = False
+
+        super(IPythonProcessor, self).__init__(*args, embed_kernel=embed)
         if config.rcParams["usematplotlib"]:
             self.init_matplotlib()
 
