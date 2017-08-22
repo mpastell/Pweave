@@ -5,21 +5,6 @@
 .. image:: https://coveralls.io/repos/github/mpastell/Pweave/badge.svg?branch=master
    :target: https://coveralls.io/github/mpastell/Pweave?branch=master
 
-Note about Pweave 0.3
----------------------
-The master branch contains the code for the upcoming 0.3 version, which breaks
-compatibility with latest release and runs only using Python 3. The code has
-quite good test coverage and should be usable for anyone who wants to try it out.
-
-**Notable new features:**
-
-- Code is run using jupyter_client giving the possibility to run code using any
-  installed kernel (including python2) via `--kernel` argument. Some chunk options only work for Python.
-- Support for IPython magics and rich output.
-- Many small fixes to output and syntax highlighting including rendering tracebacks correctly.
-- Output directly to Jupyter notebooks with chunk options preserved as metadata ->
-  ability to use custom nbconvert templates in addition to builtin formatters.
-
 About Pweave
 -------------
 
@@ -43,6 +28,9 @@ Features:
 ---------
 
 * Python 3.4, 3.5 and 3.6 compatibility
+* Code is run using jupyter_client giving the possibility to run code using any
+  installed kernel (including python2) via `--kernel` argument. Some chunk options only work for Python.
+* Support for IPython magics and rich output.
 * **Execute python code** in the chunks and **capture** input and output to a report.
 * **Use hidden code chunks,** i.e. code is executed, but not printed in the output file.
 * Capture matplotlib graphics.
