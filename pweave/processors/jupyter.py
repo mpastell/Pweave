@@ -31,7 +31,7 @@ class JupyterProcessor(PwebProcessorBase):
         else:
             km = KernelManager(kernel_name=kernel)
 
-        km.start_kernel(cwd=path, stderr=open(os.devnull, 'w'))
+        km.start_kernel(cwd=path, stderr=open(os.devnull, 'w'), history=False)
         kc = km.client()
         kc.start_channels()
         try:
@@ -50,6 +50,7 @@ class JupyterProcessor(PwebProcessorBase):
     def close(self):
         self.kc.stop_channels()
         self.km.shutdown_kernel()
+
 
     def run_cell(self, src):
         cell = {}
