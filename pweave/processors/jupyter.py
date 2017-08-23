@@ -175,7 +175,7 @@ class IPythonProcessor(JupyterProcessor):
 
     def pre_run_hook(self, chunk):
         f_size = """matplotlib.rcParams.update({"figure.figsize" : (%i, %i)})""" % chunk["f_size"]
-        f_dpi = """matplotlib.rcParams.update({"savefig.dpi" : %i})""" % chunk["dpi"]
+        f_dpi = """matplotlib.rcParams.update({"figure.dpi" : %i})""" % chunk["dpi"]
         self.loadstring("\n".join([f_size, f_dpi]))
 
     def loadterm(self, code_str, **kwargs):
