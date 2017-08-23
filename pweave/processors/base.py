@@ -115,7 +115,7 @@ class PwebProcessorBase(object):
                 chunk_text = chunk["content"]  # Get the text from chunk
                 module_text = self.loadstring(
                     "import inspect\nprint(inspect.getsource(%s))" % source)  # Get the module source using inspect
-                chunk["content"] = module_text.rstrip()
+                chunk["content"] = module_text[0]["text"].rstrip()
                 if chunk_text.strip() != "":
                     chunk["content"] += "\n" + chunk_text
 
@@ -159,7 +159,7 @@ class PwebProcessorBase(object):
                         new_chunk["result"] = results[i]
                         chunks.append(new_chunk)
 
-                #Deal with not output, #73 
+                #Deal with not output, #73
                 if len(content) > 0:
                     new_chunk = chunk.copy()
                     new_chunk["content"] = content
