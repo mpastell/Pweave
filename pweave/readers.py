@@ -123,12 +123,14 @@ class PwebReader(object):
         if not optstring.strip():
             return {"option_string": ""}
         # First option can be a name/label
+        print(optstring)
         if optstring.split(',')[0].find('=') == -1:
             splitted = optstring.split(',')
             splitted[0] = 'name = "%s"' % splitted[0]
             optstring = ','.join(splitted)
 
         opt_scope = {}
+        print(optstring)
         exec("chunkoptions =  dict(" + optstring + ")", opt_scope)
         chunkoptions = opt_scope["chunkoptions"]
         chunkoptions["option_string"] = optstring
@@ -142,7 +144,7 @@ class PwebMarkdownReader(PwebReader):
 
     def __init__(self, file=None, string=None):
         PwebReader.__init__(self, file, string)
-        self.code_begin = r"(?:^(?:`|~){3,}\s*(?:\{|\{\.|)python(?:,|\s|"")(.*)\}\s*$)|(?:^(?:`|~){3,}\s*python\s*$)"
+        self.code_begin = r"^[`~]{3,}(?:\{|\{\.|)python(?:;|,|)\s*(.*?)(?:\}|\s*)$"
         self.doc_begin = r"^(`|~){3,}\s*$"
 
 
