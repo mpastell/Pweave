@@ -31,7 +31,7 @@ class JupyterProcessor(PwebProcessorBase):
         else:
             km = KernelManager(kernel_name=kernel)
 
-        km.start_kernel(cwd=path, stderr=open(os.devnull, 'w'), history=False)
+        km.start_kernel(cwd=path, stderr=open(os.devnull, 'w'))
         kc = km.client()
         kc.start_channels()
         try:
@@ -55,7 +55,7 @@ class JupyterProcessor(PwebProcessorBase):
     def run_cell(self, src):
         cell = {}
         cell["source"] = src.lstrip()
-        msg_id = self.kc.execute(src.lstrip())
+        msg_id = self.kc.execute(src.lstrip(), store_history=False)
 
         # wait for finish, with timeout
         while True:
