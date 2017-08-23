@@ -289,6 +289,9 @@ class PwebFormatter(object):
         return text
         # return(text.replace('\n', '\n' + self.formatdict['termindent']))
 
+    def sanitize_filename(self, fname):
+        return "".join(i for i in fname if i not in "\/:*?<>|")
+
     def get_figname(self, chunk, i, mimetype):
         save_dir = self.getFigDirectory()
         include_dir = self.figdir
@@ -299,8 +302,7 @@ class PwebFormatter(object):
         if chunk['name'] is None:
             prefix = base + '_figure' + str(chunk['number']) + "_" + str(i)
         else:
-            prefix = base + '_' + chunk['name'] + "_" + str(i)
-
+            prefix = base + '_' + self.sanitize_filename(chunk['name']) + "_" + str(i)
 
         self.ensureDirectoryExists(self.getFigDirectory())
 
