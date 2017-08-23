@@ -123,14 +123,12 @@ class PwebReader(object):
         if not optstring.strip():
             return {"option_string": ""}
         # First option can be a name/label
-        print(optstring)
         if optstring.split(',')[0].find('=') == -1:
             splitted = optstring.split(',')
             splitted[0] = 'name = "%s"' % splitted[0]
             optstring = ','.join(splitted)
 
         opt_scope = {}
-        print(optstring)
         exec("chunkoptions =  dict(" + optstring + ")", opt_scope)
         chunkoptions = opt_scope["chunkoptions"]
         chunkoptions["option_string"] = optstring
