@@ -37,6 +37,8 @@ setup(name='Pweave',
       packages=['pweave', 'pweave.themes', 'pweave.formatters', 'pweave.processors', 'pweave.bokeh'],
       install_requires = ['markdown', 'pygments', 'ipython', 'nbformat',
                           'nbconvert', 'jupyter_client', 'ipykernel'],
+      extras_require = {'test': ['scipy', 'matplotlib', 'coverage',
+                                   'ipython', 'nose', 'notebook']},
       license='LICENSE.txt',
       long_description = read('README.rst'),
       classifiers=[
