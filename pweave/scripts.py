@@ -5,11 +5,11 @@ import pweave
 
 def weave():
     if len(sys.argv) == 1:
-        print("This is Pweave %s, enter Pweave -h for help" % pweave.__version__)
+        print("This is pweave %s, enter Pweave -h for help" % pweave.__version__)
         sys.exit()
 
     # Command line options
-    parser = OptionParser(usage="Pweave [options] sourcefile", version="Pweave " + pweave.__version__)
+    parser = OptionParser(usage="pweave [options] sourcefile", version="Pweave " + pweave.__version__)
     parser.add_option("-f", "--format", dest="doctype", default=None,
                       help="The output format. Available formats: " + pweave.PwebFormats.shortformats() +
                            " Use Pweave -l to list descriptions or see http://mpastell.com/pweave/formats.html")
@@ -80,10 +80,10 @@ def publish():
 
 def tangle():
     if len(sys.argv) == 1:
-        print("This is Ptangle %s, enter Ptangle -h for help" % pweave.__version__)
+        print("This is ptangle %s, enter ptangle -h for help" % pweave.__version__)
         sys.exit()
 
-    parser = OptionParser(usage="Ptangle sourcefile", version="Pweave " + pweave.__version__)
+    parser = OptionParser(usage="ptangle sourcefile", version="Pweave " + pweave.__version__)
     parser.add_option("-i", "--input-format", dest="informat", default=None,
                       help="Input format: noweb, markdown, notebook or script")
 
@@ -99,10 +99,10 @@ def tangle():
 
 def convert():
     if len(sys.argv) == 1:
-        print("This is Pweave document converter %s. Enter Pweave-convert -h for help " % pweave.__version__)
+        print("This is Pweave document converter %s. Enter pweave-convert -h for help " % pweave.__version__)
         sys.exit()
 
-    parser = OptionParser(usage="Pweave-convert [options] sourcefile", version="Part of Pweave " + pweave.__version__)
+    parser = OptionParser(usage="pweave-convert [options] sourcefile", version="Part of Pweave " + pweave.__version__)
     parser.add_option("-i", "--input-format", dest="informat", default='noweb',
                       help="Input format: noweb, notebook or script")
     parser.add_option("-f", "--output-format", dest="outformat", default='html',
