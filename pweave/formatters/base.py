@@ -53,8 +53,6 @@ class PwebFormatter(object):
                 if chunk["wrap"] is True or chunk['wrap'] == "code":
                     chunk['content'] = self._wrap(chunk['content'])
 
-
-
             # Preformat chunk content before default formatters
             chunk = self.preformat_chunk(chunk)
 
@@ -115,7 +113,6 @@ class PwebFormatter(object):
         pass
 
     def render_jupyter_output(self, out, chunk):
-        #print(out)
         if out["output_type"] == "error":
             return self.render_traceback("".join(out["traceback"]), chunk)
 
@@ -216,10 +213,17 @@ class PwebFormatter(object):
             chunk["content"] = self.fix_linefeeds(chunk["content"])
             result += '%(codestart)s%(content)s%(codeend)s' % chunk
 
-
         if chunk['results'] != 'hidden':
+            stream_result = {"output_type" : "stream", "text" : ""}
+            other_result = ""
             for out in chunk["result"]:
-                result += self.render_jupyter_output(out, chunk)
+                if out["output_type"] == "stream":
+                    stream_result["text"] += out["text"]
+                else:
+                    other_result += self.render_jupyter_output(out, chunk)
+
+            result += self.render_jupyter_output(stream_result, chunk)
+            result += other_result
 
         #Handle figures
         chunk['figure'] = self.figures_from_chunk(chunk) #Save embedded figures to file
