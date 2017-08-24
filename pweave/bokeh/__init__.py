@@ -1,6 +1,9 @@
 from IPython.display import display_html, display_markdown
-from bokeh.resources import CDN
-from bokeh.embed import components
+try:
+    from bokeh.resources import CDN
+    from bokeh.embed import components
+except ImportError:
+    pass
 
 def dedent(text):
     return "\n".join([line.lstrip() for line in text.splitlines()])
