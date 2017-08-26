@@ -1,0 +1,21 @@
+Changing defaults
+_________________
+
+Default chunk options are stored in `pweave.rcParams["chunk"]["defaultoptions"]`
+dictionary. You can manipulate the dictionary to change the options.
+
+**Have a look at current defaults:**
+
+<<>>=
+import pweave
+import pprint
+pprint.pprint(pweave.rcParams["chunk"])
+@
+
+**Change wrapping off and default figure position to "h!"**
+
+<<>>=
+pweave.rcParams["chunk"]["defaultoptions"].update({'wrap' : False, 'f_pos' : "h!"})
+#Updated options
+pprint.pprint(pweave.rcParams["chunk"])
+@

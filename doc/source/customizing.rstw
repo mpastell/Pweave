@@ -1,0 +1,53 @@
+
+Customizing output
+==================
+
+.. index:: customizing
+
+.. currentmodule:: pweave
+
+Pweave has several output formats and you can customize the output
+with chunk options. However you may want to customize the output for
+different purposes.
+
+The simplest form of customization is to update the *format dictionary*
+of an existing format. It sets chunk delimiters, output extension and
+figure format and width.
+
+You can do this easily with :py:class:`Pweb` class. Below
+is a small demonstration using ReST Pweave document `ma.mdw <_static/ma.mdw>`_.
+
+Let's start by creating an instance of :py:class:`Pweb` class with markdown document:
+
+<<term=True>>=
+from pweave import *
+from pprint import pprint
+doc = Pweb('ma.mdw', doctype = "pandoc")
+@
+
+Have a look at what the format dictionary contains:
+
+<<term=True>>=
+pprint(doc.getformat())
+@
+
+The names of the dictionary elements are hopefully self
+explanatory. You'll notice that you can specify start and end tag for
+code, results and term as well as block indent.
+
+You can change the formats using :py:meth:`Pweb.updateformat` method. Let's set the
+default figure width to 10cm and figure format to pdf and
+:py:attr:`figfmt` specifies what format is used in the output.
+
+<<term=True>>=
+doc.updateformat({'width' : '10cm', 'figfmt' : '.pdf'})
+@
+
+And after setting options weave and tangle the document:
+
+<<term=True>>=
+doc.weave()
+doc.tangle()
+@
+
+View this page as `Pweave document <_static/customizing.rstw>`_ .

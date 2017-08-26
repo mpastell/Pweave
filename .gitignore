@@ -83,17 +83,19 @@ nosetests.xml
 *.pyproj
 
 #Example builds
-examples/figures/
+docs/examples/figures/
 *.aux
 *.log
 *.out
-examples/*.html
-examples/*.pdf
-examples/*.tex
-examples/*.rst
-examples/*.md
-examples/*.*#
-examples/cache
+doc/examples/*.html
+doc/examples/*.pdf
+doc/examples/*.tex
+doc/examples/*.rst
+doc/examples/*.md
+doc/examples/*.*#
+doc/examples/cache
+doc/build
+
 
 
 #Testing

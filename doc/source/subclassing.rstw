@@ -1,0 +1,80 @@
+
+
+Subclassing formatters
+======================
+
+.. currentmodule:: pweave
+
+In the previous section we customized the output format by altering
+the format dictionary. Sometimes more advanced customizations are
+needed. This can be done by subclassing `Existing formatters <https://bitbucket.org/mpastell/pweave/src/eabf2f02b6af106241edb9bc4d7f6c9fc11f1eb2/pweave/formatters.py?at=release>`_
+.
+
+The base class PwebFormatter has a method :py:meth:`preformat_chunk` that
+processes all chunks before they are processed by default formatters.
+
+Suppose I have this `document <_static/ma.mdw>`_ (view the source in
+browser) using markdown markup and I want convert the doc chunks to
+HTML and output code chunks using Pweave default HTML formatter.
+
+I can do this by subclassing :py:class:`PwebHTMLFormatter`. MDtoHTML class below
+converts the content of all documentation chunks to HTML using python
+`Markdown <https://pypi.python.org/pypi/Markdown>`_
+package. (:py:attr:`chunk['type']` for code chunks is "code"). *The class also
+stores the chunks for us to see what they contain, but that's not
+needed for formatting.*
+
+
+<<>>=
+from pweave import *
+import markdown
+
+class MDtoHTML(PwebHTMLFormatter):
+
+    chunks = [] #Let's keep a copy of chunks
+
+    def preformat_chunk(self, chunk):
+        MDtoHTML.chunks.append(chunk.copy()) #Store the chunks
+        if chunk['type'] == "doc":
+            chunk['content'] = markdown.markdown(chunk['content'])
+        return(chunk)
+@
+
+The specified subclass can then be used as formatter with
+:py:class:`Pweb` class.
+
+<<>>=
+doc = Pweb('ma.mdw')
+doc.setformat(Formatter = MDtoHTML)
+doc.weave()
+@
+
+And `here <_static/ma.html>`_ is the weaved document.
+
+A closer look at the chunks
+---------------------------
+
+Remember that we kept a copy of the chunks in the previous example? As
+you can see below the chunk is a dictionary that contains code, results
+and all of the chunk options. You can manipulate all of these options
+as we did to content in previous example to control how the chunk is
+formatted in output.
+
+.. note::
+
+  You can your own options (key = value) to chunks and
+  they will also appear in the chunk dictionary.
+
+
+Let's see what the first code chunk contains:
+
+<<>>=
+import pprint
+pprint.pprint(MDtoHTML.chunks[1])
+@
+
+.. note::
+
+  Pweb class also uses separate classes to parse and execute
+  the document, but subclassing these is not currently documented and
+  is hopefully not needed.

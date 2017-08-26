@@ -1,0 +1,13 @@
+
+Output Formats
+================
+.. index:: Output formats
+
+Pweave supports output in several formats. See the `example gallery <examples/index.html`>__ for examples.
+
+You can list the supported formats using:
+
+<<results="rst">>=
+import pweave
+pweave.listformats()
+@

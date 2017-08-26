@@ -1,0 +1,47 @@
+\documentclass[a4paper,11pt,final]{article}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{fancyvrb, color, pygments}
+
+\begin{document}
+
+
+
+\title{Pweave Example - matplotlib pgf backend}
+\author{Matti Pastell \\
+\url{http://mpastell.com}}
+
+\maketitle
+
+
+<<echo=False>>=
+import matplotlib
+from matplotlib.backends.backend_pgf import FigureCanvasPgf
+matplotlib.backend_bases.register_backend('pdf', FigureCanvasPgf)
+
+from matplotlib.externals import six
+import matplotlib as mpl
+
+pgf_with_custom_preamble = {
+    "font.family": "serif", # use serif/main font for text elements
+    "text.usetex": True,    # use inline math for ticks
+    "pgf.rcfonts": False,   # don't setup fonts from rc parameters
+    "pgf.preamble": [
+         "\\usepackage{units}",         # load additional packages
+         "\\usepackage{metalogo}",
+         "\\usepackage{unicode-math}",  # unicode math setup
+         r"\setmathfont{xits-math.otf}",
+         r"\setmainfont{DejaVu Serif}", # serif font via preamble
+         ]
+}
+mpl.rcParams.update(pgf_with_custom_preamble)
+@
+
+<<>>=
+import matplotlib.pyplot as plt
+plt.plot(range(5))
+plt.xlabel("$\mu$")
+@
+
+
+\end{document}
