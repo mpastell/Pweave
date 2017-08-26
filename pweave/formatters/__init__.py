@@ -52,7 +52,7 @@ class PwebFormats(object):
 
     @staticmethod
     def guessFromExtension(ext):
-        if ext in ('.pmd', '.py'): return 'markdown'
+        if ext in ('.pmd', '.py'): return 'md2html'
         if 'md' in ext: return 'markdown'
         if 'tex' in ext: return 'texpygments'
         if 'rst' in ext: return 'rst'
