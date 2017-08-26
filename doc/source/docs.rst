@@ -14,15 +14,16 @@ Contents:
    index.rst
    usage.rst
    script.rst
-   pweave.rst
    chunks.rst
-   defaults.rst
    formats.rst
+   pweave.rst
+   bokeh.rst
+   defaults.rst
    pypublish.rst
    customizing.rst
    subclassing.rst
-   examples/index.rst
    editors.rst
+   examples/index.rst
    links.rst
    release.rst
 

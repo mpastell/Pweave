@@ -15,12 +15,6 @@ pweave module contains two functions :py:func:`weave` and
 :py:func:`tangle` that offer the same functionality as the command
 line scripts.
 
-.. note::
-
-  This document was also created with Pweave, have a look at the
-  `source <_static/pweave.rstw>`_.
-
-
 Simple weaving and tangling:
 ============================
 

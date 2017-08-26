@@ -157,9 +157,9 @@ doctest: weave examples
 	@echo "Testing of doctests in the sources finished, look at the " \
 	      "results in $(BUILDDIR)/doctest/output.txt."
 
-examples: source/examples/index.rst
+examples: examples/index.rst
 
-source/examples/index.rst: examples/index.rstw
+examples/index.rst: examples/index.rstw
 	make -C examples/ all
 	mkdir -p html_files
 	cp -r examples/figures html_files/_downloads
