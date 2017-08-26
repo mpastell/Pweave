@@ -87,6 +87,7 @@ docs/examples/figures/
 *.aux
 *.log
 *.out
+doc/examples/index.rst
 doc/examples/*.html
 doc/examples/*.pdf
 doc/examples/*.tex
@@ -95,9 +96,12 @@ doc/examples/*.md
 doc/examples/*.*#
 doc/examples/cache
 doc/build
+doc/examples/_minted-FIR_design_minted/
+doc/html_files/**
+doc/source/examples/**
 
-
-
-#Testing
-test.py
-Plans.txt
+doc/source/pweave.rst
+doc/source/formats.rst
+doc/source/customizing.rst
+doc/source/defaults.rst
+doc/source/subclassing.rst

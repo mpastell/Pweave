@@ -44,6 +44,7 @@ clean:
 	rm -rf source/examples
 	rm -rf html_files
 	rm -rf source/pweave.rst source/formats.rst source/customizing.rst source/defaults.rst source/subclassing.rst
+	rm -rf examples/_minted-FIR_design_minted
 
 html: weave examples
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html

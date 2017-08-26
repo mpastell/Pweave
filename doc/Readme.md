@@ -14,12 +14,12 @@ Build the docs using:
 ```bash
 make html
 ```
-and commit the relevant changed files to git.
 
 Building the docs requires Pweave, Sphinx, LaTex and Pandoc.
 
 You can install the required packages on Ubuntu using:
 
 ```bash
+pip install sphinx sphinx_rtd_theme
 sudo apt-get install texlive texlive-latex-extra texlive-generic-extra pandoc
 ```
