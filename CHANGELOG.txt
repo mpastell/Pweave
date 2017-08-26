@@ -1,4 +1,4 @@
-In 0.30rc1
+In 0.30
 * Use IPython kernel to run Python code:
   - support for rich output
   - support IPython magics
@@ -10,7 +10,7 @@ In 0.30rc1
   as metadata -> ability to use custom nbconvert templates in addition to builtin formatters.
 * Drop uppercase versions on `pweave` and `ptangle` scripts
 * Weave documents from URLs
-
+* md2html is the new default format for `.pmd` and `.py` input
 
 
 In 0.25

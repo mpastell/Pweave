@@ -3,6 +3,8 @@ Release notes
 
 **In 0.30**
 
+Released 27th, August 2017
+
 * Use IPython kernel to run Python code:
 
   - support for rich output
@@ -16,6 +18,7 @@ Release notes
   as metadata -> ability to use custom nbconvert templates in addition to builtin formatters.
 * Drop uppercase versions on `pweave` and `ptangle` scripts
 * Weave documents from URLs
+* md2html is the new default format for `.pmd` and `.py` input
 
 **In 0.25**
 
