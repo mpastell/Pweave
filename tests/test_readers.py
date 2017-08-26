@@ -7,15 +7,15 @@ def test_markdown():
 
 def test_script():
     """Test markdown reader"""
-    doc = pweave.Pweb("tests/publish/publish_test.txt", informat="script")
+    doc = pweave.Pweb("tests/publish/publish_test.txt", doctype = "pandoc", informat="script")
     doc.tangle()
     assertSameContent("tests/publish/publish_test.py",
                       "tests/publish/publish_test_REF.py")
 
 
 def test_url():
-    pweave.weave("http://files.mpastell.com/formatters_test.pmd", output = "tests/formats/formatters_url.pmd")
-    assertSameContent("tests/formats/formatters_url.pmd", "tests/formats/formatters_test_REF.markdown")
+    pweave.weave("http://files.mpastell.com/formatters_test.pmd", doctype = "pandoc", output = "tests/formats/formatters_url.md")
+    assertSameContent("tests/formats/formatters_url.md", "tests/formats/formatters_test_REF.markdown")
 
 
 
