@@ -60,7 +60,7 @@ class PwebProcessorBase(object):
 
     def ensureDirectoryExists(self, figdir):
         if not os.path.isdir(figdir):
-            os.mkdir(figdir)
+            os.makedirs(figdir)
 
     def getresults(self):
         #flattened = list(itertools.chain.from_iterable(self.executed))
