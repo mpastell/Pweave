@@ -167,7 +167,7 @@ class PwebFormatter(object):
             if len(chunk['result'].strip()) > 0:
                 if chunk["wrap"] is True or chunk['wrap'] == 'results' or chunk['wrap'] == 'output':
                     chunk['result'] = self._wrap(chunk["result"])
-                chunk['result'] = "\n%s\n" % chunk["result"].strip()
+                chunk['result'] = "\n%s\n" % chunk["result"].rstrip()
                 chunk['result'] = self._indent(chunk['result'])
                 #chunk["result"] = self.fix_linefeeds(chunk['result'])
                 result += '%(outputstart)s%(result)s%(outputend)s' % chunk
