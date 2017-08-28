@@ -36,6 +36,8 @@ class Pweb(object):
         self.figdir = figdir
         self.doctype = doctype
         self.sink = None
+        self.kernel = None
+        self.language = None
 
         if mimetype is None:
             self.mimetype = MimeTypes.guess_mimetype(self.source)
@@ -50,10 +52,7 @@ class Pweb(object):
             self.file_ext = None
 
         self.output = output
-
-        if kernel is not None:
-            self.setkernel(kernel)
-
+        self.setkernel(kernel)
         self._setwd()
 
         #Init variables not set using the constructor
@@ -80,7 +79,8 @@ class Pweb(object):
     def setkernel(self, kernel):
         """Set the kernel for jupyter_client"""
         self.kernel = kernel
-        self.language = kernelspec.get_kernel_spec(kernel).language
+        if kernel is not None:
+            self.language = kernelspec.get_kernel_spec(kernel).language
 
     def getformat(self):
         """Get current format dictionary. See: http://mpastell.com/pweave/customizing.html"""
@@ -205,7 +205,7 @@ class Pweb(object):
                 x['content'] = "".join([main, x['content']])
         code = [x['content'] for x in code]
         f = open(target, 'w')
-        f.write('\n'.join(code))
+        f.write('\n'.join(code) + "\n")
         f.close()
         print('Tangled code from {src} to {dst}'.format(src=self.source,
                                                               dst=target))
