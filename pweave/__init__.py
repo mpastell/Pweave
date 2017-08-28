@@ -11,7 +11,7 @@ from .processors import *
 from .config import *
 
 
-__version__ = '0.30.1-dev'
+__version__ = '0.30.1'
 
 def weave(file, doctype=None, informat=None, kernel="python3", plot=True,
           docmode=False, cache=False,
