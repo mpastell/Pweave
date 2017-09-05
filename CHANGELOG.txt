@@ -11,7 +11,8 @@ In 0.30
 * Drop uppercase versions on `pweave` and `ptangle` scripts
 * Weave documents from URLs
 * md2html is the new default format for `.pmd` and `.py` input
-
+* Drop support for specification of figure format. Use default figure format as specified by
+  output format.
 
 In 0.25
 * New pweave option: `output` allows to set the output file
