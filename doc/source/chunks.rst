@@ -32,16 +32,12 @@ chunks.
    output (I tend to use 'tex' for Latex and 'rst' for rest. Raw output
    is useful if you wan't to e.g. create tables from code chunks.
 
-
 .. versionadded:: 0.12
 
 .. envvar:: term = False or (True)
 
-   If True the output emulates a terminal session i.e. the code chunk
-   and the output will be printed as a `doctest block
-   <http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#doctest-blocks>`_. Can
-   also be used in latex documents, where the output will formatted as
-   verbatim.
+   If True the output emulates a terminal session. The code will be executed
+   one statement at a time and the output for each statement will be displayed.
 
 .. envvar:: include = True or (False)
 
