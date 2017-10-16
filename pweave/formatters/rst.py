@@ -14,6 +14,7 @@ class PwebRstFormatter(PwebFormatter):
                                figfmt='.png',
                                extension='rst',
                                width='15 cm',
+                               label='label',
                                doctype='rst')
         self.fig_mimetypes = ["image/png", "image/jpg"]
         self.mimetypes = ["text/restructuredtext"]
@@ -22,22 +23,23 @@ class PwebRstFormatter(PwebFormatter):
     def formatfigure(self, chunk):
         fignames = chunk['figure']
         caption = chunk['caption']
+        label = chunk['label']
         width = chunk['width']
         result = ""
         figstring = ""
 
         for fig in fignames:
-            figstring += ('.. image:: %s\n   :width: %s\n\n' % (fig, width))
+            figstring += ('.. image:: %s\n :name: %s\n :width: %s\n\n' % (fig, label, width))
 
         if chunk['caption']:
+            # Maybe an additional option for 'label' in code chunk could be added as well?
             result += (".. figure:: %s\n"
+                       "   :name: %s\n"
                        "   :width: %s\n\n"
-                       "   %s\n\n" % (fignames[0], width, caption))
+                       "   %s\n\n" % (fignames[0], label, width, caption))
         else:
             result += figstring
         return result
-
-
 
     def _indent(self, text):
         """Indent blocks for formats where indent is significant"""
@@ -64,6 +66,7 @@ class PwebSphinxFormatter(PwebRstFormatter):
                                figfmt='.*',
                                savedformats=['.png', '.pdf'],
                                extension='rst',
+                               label='label',
                                width='15 cm',
                                doctype='rst')
         self.fig_mimetypes = ["image/png", "image/jpg"]
@@ -73,17 +76,21 @@ class PwebSphinxFormatter(PwebRstFormatter):
     def formatfigure(self, chunk):
         fignames = chunk['figure']
         caption = chunk['caption']
+        label = chunk['label']
         width = chunk['width']
         result = ""
         figstring = ""
 
+
         for fig in fignames:
-            figstring += ('.. image:: %s\n   :width: %s\n\n' % (fig, width))
+            figstring += ('.. image:: %s\n :name: %s\n :width: %s\n\n' % (fig, label, width))
 
         if chunk['caption']:
-            result += (".. figure:: %s\n" \
-                       "   :width: %s\n\n" \
-                       "   %s\n\n" % (fignames[0], width, caption))
+            # Maybe an additional option for 'label' in code chunk could be added as well?
+            result += (".. figure:: %s\n"
+                       "   :name: %s\n"
+                       "   :width: %s\n\n"
+                       "   %s\n\n" % (fignames[0], label, width, caption))
         else:
             result += figstring
         return result
