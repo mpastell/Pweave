@@ -80,7 +80,6 @@ class PwebSphinxFormatter(PwebRstFormatter):
         result = ""
         figstring = ""
 
-
         for fig in fignames:
             figstring += ('.. image:: %s\n :name: %s\n :width: %s\n\n' % (fig, label, width))
 
