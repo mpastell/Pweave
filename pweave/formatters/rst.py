@@ -32,7 +32,6 @@ class PwebRstFormatter(PwebFormatter):
             figstring += ('.. image:: %s\n :name: %s\n :width: %s\n\n' % (fig, label, width))
 
         if chunk['caption']:
-            # Maybe an additional option for 'label' in code chunk could be added as well?
             result += (".. figure:: %s\n"
                        "   :name: %s\n"
                        "   :width: %s\n\n"
@@ -86,7 +85,6 @@ class PwebSphinxFormatter(PwebRstFormatter):
             figstring += ('.. image:: %s\n :name: %s\n :width: %s\n\n' % (fig, label, width))
 
         if chunk['caption']:
-            # Maybe an additional option for 'label' in code chunk could be added as well?
             result += (".. figure:: %s\n"
                        "   :name: %s\n"
                        "   :width: %s\n\n"
