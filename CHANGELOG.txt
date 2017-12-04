@@ -1,3 +1,11 @@
+In 0.30.2
+* Fix bug in initial whitespace in chunk output
+* Remove build artefacts from release tarball
+
+In 0.30.1
+* Fix ptangle script
+* Create also intermediate directories for figure directory
+
 In 0.30
 * Use IPython kernel to run Python code:
   - support for rich output
