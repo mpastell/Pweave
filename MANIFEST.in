@@ -1,4 +1,4 @@
-include LICENSE.txt
+include LICENSE.txt CHANGELOG.txt
 recursive-include tests *
 recursive-include doc *
 global-exclude *.py[co]
