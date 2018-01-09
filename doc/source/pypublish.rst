@@ -1,7 +1,7 @@
 .. _publish:
 
-Publishing scipts
-=================
+Publishing scripts
+==================
 
 .. note:: You'll need Pweave >= 0.24 for this.
 
