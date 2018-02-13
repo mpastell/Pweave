@@ -14,7 +14,7 @@ from .config import *
 __version__ = '0.30.2'
 
 def weave(file, doctype=None, informat=None, kernel="python3", plot=True,
-          docmode=False, cache=False,
+          docmode=False, cache=False, exceptionexit=False,
           figdir='figures', cachedir='cache',
           figformat=None, listformats=False,
           output=None, mimetype=None,):
@@ -28,6 +28,7 @@ def weave(file, doctype=None, informat=None, kernel="python3", plot=True,
     :param plot: ``bool`` use matplotlib
     :param docmode: ``bool`` use documentation mode, chunk code and results will be loaded from cache and inline code will be hidden
     :param cache: ``bool`` Cache results to disk for documentation mode
+    :param exitonexception: ``bool`` Exit when an exception is raised in a code chunk
     :param figdir: ``string`` directory path for figures
     :param cachedir: ``string`` directory path for cached results used in documentation mode
     :param figformat: ``string`` format for saved figures (e.g. '.png'), if None then the default for each format is used
@@ -55,6 +56,7 @@ def weave(file, doctype=None, informat=None, kernel="python3", plot=True,
     rcParams["usematplotlib"] = plot
     rcParams["cachedir"] = cachedir
     rcParams["storeresults"] = cache
+    rcParams["exceptionexit"] = exceptionexit
 
     doc.weave()
 

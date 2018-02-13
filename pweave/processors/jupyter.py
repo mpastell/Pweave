@@ -4,6 +4,7 @@ from jupyter_client.manager import start_new_kernel
 from jupyter_client import KernelManager
 from nbformat.v4 import output_from_msg
 import os
+import sys
 
 from .. import config
 from .base import PwebProcessorBase
@@ -54,6 +55,14 @@ class JupyterProcessor(PwebProcessorBase):
 
     def run_cell(self, src):
         cell = {}
+
+        # Clear the last unhandled exception, if it is set
+        try:
+            if sys.last_value:
+                sys.last_value == None 
+        except AttributeError:
+            pass
+          
         cell["source"] = src.lstrip()
         msg_id = self.kc.execute(src.lstrip(), store_history=False)
 
@@ -128,6 +137,12 @@ class JupyterProcessor(PwebProcessorBase):
             else:
                 outs.append(out)
 
+        if config.rcParams["exceptionexit"]:
+            try:
+                raise sys.last_value
+            except AttributeError:
+                pass
+            
         return outs
 
     def loadstring(self, code_str, **kwargs):
