@@ -80,19 +80,18 @@ class PwebFormatter(object):
         figs = []
         i = 1
         for out in chunk["result"]:
-            if out["output_type"] != "display_data":
-                continue
-        #Loop trough mimetypes in order of preference
-            for mimetype in self.fig_mimetypes:
-                if mimetype in out["data"]:
-                    fig_name, include_name = self.get_figname(chunk, i, mimetype)
-                    figs.append(include_name)
-                    bfig = base64.b64decode(out["data"][mimetype])
-                    f = open(fig_name, "wb")
-                    f.write(bfig)
-                    f.close()
-                    i += 1
-                    break
+            if out["output_type"] == "display_data" or out["output_type"] == "execute_result":
+                #Loop trough mimetypes in order of preference
+                for mimetype in self.fig_mimetypes:
+                    if mimetype in out["data"]:
+                        fig_name, include_name = self.get_figname(chunk, i, mimetype)
+                        figs.append(include_name)
+                        bfig = base64.b64decode(out["data"][mimetype])
+                        f = open(fig_name, "wb")
+                        f.write(bfig)
+                        f.close()
+                        i += 1
+                        break
 
         #print(figs)
         return figs
