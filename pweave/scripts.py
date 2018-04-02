@@ -1,6 +1,15 @@
 import sys
 from optparse import OptionParser
 import pweave
+import logging
+
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+logging.getLogger("ipykernel").propagate = False
+
+logger_handler = logging.StreamHandler()
+logger.addHandler(logger_handler)
 
 
 def weave():
@@ -38,6 +47,9 @@ def weave():
     parser.add_option("-t", "--mimetype", dest="mimetype", default=None,
                       help="Source document's text mimetype. This is used to set cell " +
                            "type in Jupyter notebooks")
+    parser.add_option("-v", "--verbose", dest="verbosity",
+                      action="store_true", default=False,
+                      help="Increase verbosity of logging")
 
     (options, args) = parser.parse_args()
 
@@ -49,6 +61,12 @@ def weave():
     opts_dict = vars(options)
     if options.figformat is not None:
         opts_dict["figformat"] = ('.%s' % options.figformat)
+
+    if opts_dict.pop('verbosity'):
+        logging.getLogger("ipykernel").propagate = True
+        ipykernel_handler = logging.StreamHandler()
+        logging.getLogger("ipykernel").addHandler(ipykernel_handler)
+        ipykernel_handler.setFormatter(logging.Formatter("%(levelname)s:%(name)s:%(message)s"))
 
     pweave.weave(infile, **opts_dict)
 
