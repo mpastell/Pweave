@@ -105,7 +105,7 @@ class PwebProcessorBase(object):
             chunk["options"] = defaults
             #del chunk['options']
 
-            # Read the content from file or object
+        # Read the content from file or object
         if 'source' in chunk:
             if os.path.isfile(os.path.join(self.cwd, chunk['source'])):
                 source = os.path.join(self.cwd, chunk['source'])
