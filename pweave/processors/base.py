@@ -107,11 +107,12 @@ class PwebProcessorBase(object):
 
             # Read the content from file or object
         if 'source' in chunk:
-            source = chunk["source"]
-            if os.path.isfile(source):
+            if os.path.isfile(os.path.join(self.cwd, chunk['source'])):
+                source = os.path.join(self.cwd, chunk['source'])
                 chunk["content"] = "\n" + io.open(source, "r", encoding='utf-8').read().rstrip() + "\n" + chunk[
                     'content']
             else:
+                source = chunk["source"]
                 chunk_text = chunk["content"]  # Get the text from chunk
                 module_text = self.loadstring(
                     "import inspect\nprint(inspect.getsource(%s))" % source)  # Get the module source using inspect
