@@ -29,6 +29,7 @@ class Pweb(object):
 
     def __init__(self, source, doctype = None, *, informat = None, kernel = "python3",
                  output = None, figdir = 'figures', mimetype = None):
+
         self.source = source
         name, ext = os.path.splitext(os.path.basename(source))
         self.basename = name

@@ -138,7 +138,7 @@ class PwebProcessorBase(object):
                 self.pending_code = ""
 
             if not chunk['evaluate']:
-                chunk['result'] = ''
+                chunk['result'] = ""
                 return chunk
 
             self.pre_run_hook(chunk)

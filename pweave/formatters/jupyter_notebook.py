@@ -47,10 +47,14 @@ class PwebNotebookFormatter(object):
                     }
                 )
             if chunk["type"] == "code":
+                if chunk["evaluate"]:
+                    ec = self.execution_count
+                else:
+                    ec = None
                 self.notebook["cells"].append(
                     {
                         "cell_type": "code",
-                        "execution_count" : self.execution_count,
+                        "execution_count" : ec,
                         "metadata": {
                             "collapsed": False,
                             "autoscroll": "auto",
@@ -60,7 +64,8 @@ class PwebNotebookFormatter(object):
                         "outputs" : chunk["result"]
                     }
                 )
-                self.execution_count +=1
+                if chunk['evaluate']:
+                    self.execution_count +=1
         self.notebook = nbformat.from_dict(self.notebook)
 
     def getformatted(self):
