@@ -198,6 +198,8 @@ class Pweb(object):
         """Tangle the document"""
         if self.output is None:
             target = os.path.join(self.wd, self.basename + '.py')
+        else:
+            target = self.output
         code = [x for x in self.parsed if x['type'] == 'code']
         main = '\nif __name__ == "__main__":'
         for x in code:
