@@ -196,17 +196,26 @@ class Pweb(object):
 
     def tangle(self):
         """Tangle the document"""
+
+        # Execute what code should be executed before writing
+        if self.kernel is not None:
+            self.run()
+            chunks = self.executed
+        else:
+            chunks = self.parsed
+        
         if self.output is None:
             target = os.path.join(self.wd, self.basename + '.py')
         else:
             target = self.output
-        code = [x for x in self.parsed if x['type'] == 'code']
+        code = [x for x in chunks if x['type'] == 'code']
         main = '\nif __name__ == "__main__":'
         for x in code:
             if 'main' in x['options'] and x['options']['main']:
                 x['content'] = x['content'].replace("\n", "\n    ")
                 x['content'] = "".join([main, x['content']])
-        code = [x['content'] for x in code]
+
+        code = [x['content'] for x in code if x['options']['echo'] == True]
         f = open(target, 'w')
         f.write('\n'.join(code) + "\n")
         f.close()
