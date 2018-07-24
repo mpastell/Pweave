@@ -212,7 +212,7 @@ class PwebFormatter(object):
         if chunk['echo']:
             chunk["content"] = self.fix_linefeeds(chunk["content"])
             result += '%(codestart)s%(content)s%(codeend)s' % chunk
-
+            
         if chunk['results'] != 'hidden':
             stream_result = {"output_type" : "stream", "text" : ""}
             other_result = ""

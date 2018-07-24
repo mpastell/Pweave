@@ -96,6 +96,25 @@ class PwebProcessorBase(object):
 
         # Add defaultoptions to parsed options
         if chunk['type'] == 'code':
+
+            
+            for key in chunk["options"].keys():
+                opt = chunk["options"][key]
+                if isinstance(opt,str):
+                    procString = self.loadinline(opt)
+
+                    # There is probably a more elegant solution
+                    # This will only work with boolean values
+                    if procString == 'True':
+                        procVal = True
+                    elif procString == 'False':
+                        procVal = False
+                    else:
+                        procVal = procString
+
+                    chunk["options"][key] = procVal
+
+
             defaults = rcParams["chunk"]["defaultoptions"].copy()
             defaults.update(chunk["options"])
             chunk.update(defaults)
@@ -246,7 +265,7 @@ class PwebProcessorBase(object):
             if not elem.startswith('<%'):
                 continue
             if elem.startswith('<%='):
-                code_str = elem.replace('<%=', '').replace('%>', '').lstrip()
+                code_str = self.get_code_str(elem) 
                 result = self.load_inline_string(code_str).strip()
                 splitted[i] = result
                 continue
@@ -256,6 +275,10 @@ class PwebProcessorBase(object):
                 splitted[i] = result
         return ''.join(splitted)
 
+    def get_code_str(self,elem):
+        code_str = elem.replace('<%=', '').replace('%>', '').lstrip()
+        return code_str
+    
     def add_echo(self, code_str):
         return 'print(%s),' % code_str
 

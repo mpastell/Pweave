@@ -46,11 +46,13 @@ class PwebNotebookFormatter(object):
                         "source": chunk["content"],
                     }
                 )
-            if chunk["type"] == "code":
+            if chunk["type"] == "code" and chunk["echo"]:
                 if chunk["evaluate"]:
                     ec = self.execution_count
                 else:
                     ec = None
+
+                                    
                 self.notebook["cells"].append(
                     {
                         "cell_type": "code",
