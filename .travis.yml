@@ -11,39 +11,13 @@ notifications:
 
 # Setup anaconda
 before_install:
-  #- sudo add-apt-repository ppa:octave/stable -y
-  #- sudo apt-get update -q
-  #- sudo apt-get install gdebi -y
-  #- wget https://github.com/jgm/pandoc/releases/download/1.17.0.2/pandoc-1.17.0.2-1-amd64.deb
-  #- sudo gdebi pandoc-1.17.0.2-1-amd64.deb -n
-  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-  - chmod +x miniconda.sh
-  - ./miniconda.sh -b
-  - export PATH=/home/travis/miniconda3/bin:$PATH
-  - conda update --yes conda
-  # The next couple lines fix a crash with multiprocessing on Travis and are not specific to using Miniconda
-  - sudo rm -rf /dev/shm
-  - sudo ln -s /run/shm /dev/shm
-# Install packages
+  - pip install --upgrade pip
+  - pip install python-coveralls
 install:
-  - conda install --yes nomkl
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION scipy matplotlib markdown pygments coverage ipython nose nbformat jupyter_client nbconvert notebook
-  - conda install --yes -c conda-forge pandoc
-  #- pip install -r requirements.txt
-  # Coverage packages are on my binstar channel
-  #- conda install --yes -c dan_blanchard python-coveralls nose-cov
-  - python -c "import matplotlib"
-  - pip install python-coveralls #nose-cov
-  - python setup.py install
+  - pip install -e .[test]
 
-
-# Recipe from http://dan-blanchard.roughdraft.io/7045057-quicker-travis-builds-that-rely-on-numpy-and-scipy-using-miniconda
-# Run test
 script:
   - nosetests --with-coverage --cover-package=pweave
-#  - nosetests --with-cov --cov Pweave --cov-config .coveragerc --logging-level=INFO
 
-# Calculate coverage
 after_success:
    - coveralls
-#  - coveralls --config_file .coveragerc
