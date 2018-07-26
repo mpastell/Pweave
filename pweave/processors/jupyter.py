@@ -186,7 +186,7 @@ class IPythonProcessor(JupyterProcessor):
 
         for line in code_lines:
             if splitter.push_accepts_more():
-                splitter.push_line(line)
+                splitter.push(line)
             else:
                 code_str = splitter.source
                 sources.append(code_str)
@@ -194,7 +194,7 @@ class IPythonProcessor(JupyterProcessor):
                 #print(out)
                 outputs.append(out)
                 splitter.reset()
-                splitter.push_line(line)
+                splitter.push(line)
 
 
         if splitter.source != "":
