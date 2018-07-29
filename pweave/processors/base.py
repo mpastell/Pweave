@@ -144,6 +144,7 @@ class PwebProcessorBase(object):
 
 
         if chunk['type'] == 'code':
+            chunk['content'] = self.loadinline(chunk['content'])
             sys.stdout.write("Processing chunk %(number)s named %(name)s from line %(start_line)s\n" % chunk)
 
             old_content = None
