@@ -39,7 +39,8 @@ class Pweb(object):
         self.sink = None
         self.kernel = None
         self.language = None
-
+        self.kernel_spec = {}
+        
         if mimetype is None:
             self.mimetype = MimeTypes.guess_mimetype(self.source)
         else:
@@ -81,7 +82,10 @@ class Pweb(object):
         """Set the kernel for jupyter_client"""
         self.kernel = kernel
         if kernel is not None:
-            self.language = kernelspec.get_kernel_spec(kernel).language
+            ks = kernelspec.get_kernel_spec(kernel) 
+            self.language = ks.language
+            self.kernel_spec = ks.to_dict()
+            self.kernel_spec['name'] = kernel
 
     def getformat(self):
         """Get current format dictionary. See: http://mpastell.com/pweave/customizing.html"""
@@ -150,6 +154,7 @@ class Pweb(object):
         self.formatter = Formatter([],
                                    kernel = self.kernel,
                                    language = self.language,
+                                   kernel_spec = self.kernel_spec,
                                    mimetype = self.mimetype.type,
                                    source = self.source,
                                    theme = self.theme,

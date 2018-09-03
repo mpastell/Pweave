@@ -4,21 +4,20 @@ import nbformat
 class PwebNotebookFormatter(object):
 
     def __init__(self, executed, *, kernel = "python3", language = "python",
+                 kernel_spec = {},
                  mimetype = "text/markdown", source = None, theme = None,
                  figdir = None, wd = None):
 
-        self.notebook = {"metadata" : {
-                "kernel_info" : {
-                    "name" : kernel
-                },
-            "language_info": {
-                # if language_info is defined, its name field is required.
-                "name": language
-            }
-        },
-        "nbformat": 4,
-        "nbformat_minor": 0,
-        "cells": [ ]
+        self.notebook = {"metadata" : {"kernel_info" : {"name" : kernel},   
+                                       "language_info": {
+                                           # if language_info is defined,
+                                           # its name field is required.
+                                           "name": language
+                                       },
+                                       "kernelspec" : kernel_spec },
+                         "nbformat": 4,
+                         "nbformat_minor": 0,
+                         "cells": [ ]
         }
 
         self.execution_count = 1
