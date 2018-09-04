@@ -9,6 +9,7 @@ class PwebFormatter(object):
     """Base class for all not-notebook formatters"""
 
     def __init__(self, executed, *, kernel = "python3", language = "python",
+                 kernel_spec = {},
                  mimetype = None, source = None, theme = None,
                  figdir = "figures", wd = "."):
 
