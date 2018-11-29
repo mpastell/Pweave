@@ -120,6 +120,8 @@ class JupyterProcessor(PwebProcessorBase):
                 continue
             elif msg_type.startswith('comm'):
                 continue
+            elif msg_type == 'execute_reply':
+                continue
 
             try:
                 out = output_from_msg(msg)
