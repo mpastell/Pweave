@@ -1,36 +1,36 @@
 language: python
 
-matrix:
-  include:
-    - python: "3.5"
-    - python: "3.6"
+python:
+  - "3.5"
+  - "3.6"
+  - "3.7"
+env:
+  - PYTHON_FLAVOR=standard
+  - PYTHON_FLAVOR=conda
+
+before_install:
+  - if [[ $PYTHON_FLAVOR == "conda" ]];
+    then
+      source .conda_ci_before_install.sh;
+     else
+       pip install --upgrade pip && pip install python-coveralls;
+     fi
+
+install:
+  - if [[ $PYTHON_FLAVOR == "conda" ]];
+    then
+        source .conda_ci_install.sh;
+    else
+        pip install .[test];
+    fi
 
 notifications:
   email: false
 
-# Setup anaconda
-before_install:
-  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-  - chmod +x miniconda.sh
-  - ./miniconda.sh -b
-  - export PATH=/home/travis/miniconda3/bin:$PATH
-  - conda update --yes conda
-install:
-  - conda install --yes nomkl
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION scipy matplotlib markdown pygments coverage ipython nose nbformat jupyter_client nbconvert notebook
-  - conda install --yes -c conda-forge pandoc
-  - python -c "import matplotlib"
-  - pip install python-coveralls #nose-cov
-  - python setup.py install
-
-
-# Recipe from http://dan-blanchard.roughdraft.io/7045057-quicker-travis-builds-that-rely-on-numpy-and-scipy-using-miniconda
 # Run test
 script:
   - nosetests --with-coverage --cover-package=pweave
-#  - nosetests --with-cov --cov Pweave --cov-config .coveragerc --logging-level=INFO
 
 # Calculate coverage
 after_success:
    - coveralls
-#  - coveralls --config_file .coveragerc
