@@ -21,7 +21,7 @@ install:
     then
         source .conda_ci_install.sh;
     else
-        pip install .[test];
+        pip install .[test] && pip install "scipy==1.2rc2";
     fi
 
 notifications:
