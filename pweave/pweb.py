@@ -140,7 +140,7 @@ class Pweb(object):
         if doctype is not None:
             Formatter = PwebFormats.getFormatter(doctype)
         elif Formatter is not None:
-            Formatter = Formatter
+            pass
         elif self.doctype is None:
             Formatter = PwebFormats.getFormatter(PwebFormats.guessFromFilename(self.source))
         else:
