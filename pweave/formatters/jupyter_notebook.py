@@ -4,21 +4,20 @@ import nbformat
 class PwebNotebookFormatter(object):
 
     def __init__(self, executed, *, kernel = "python3", language = "python",
+                 kernel_spec = {},
                  mimetype = "text/markdown", source = None, theme = None,
                  figdir = None, wd = None):
 
-        self.notebook = {"metadata" : {
-                "kernel_info" : {
-                    "name" : kernel
-                },
-            "language_info": {
-                # if language_info is defined, its name field is required.
-                "name": language
-            }
-        },
-        "nbformat": 4,
-        "nbformat_minor": 0,
-        "cells": [ ]
+        self.notebook = {"metadata" : {"kernel_info" : {"name" : kernel},   
+                                       "language_info": {
+                                           # if language_info is defined,
+                                           # its name field is required.
+                                           "name": language
+                                       },
+                                       "kernelspec" : kernel_spec },
+                         "nbformat": 4,
+                         "nbformat_minor": 0,
+                         "cells": [ ]
         }
 
         self.execution_count = 1
@@ -46,11 +45,17 @@ class PwebNotebookFormatter(object):
                         "source": chunk["content"],
                     }
                 )
-            if chunk["type"] == "code":
+            if chunk["type"] == "code" and chunk["echo"]:
+                if chunk["evaluate"]:
+                    ec = self.execution_count
+                else:
+                    ec = None
+
+                                    
                 self.notebook["cells"].append(
                     {
                         "cell_type": "code",
-                        "execution_count" : self.execution_count,
+                        "execution_count" : ec,
                         "metadata": {
                             "collapsed": False,
                             "autoscroll": "auto",
@@ -60,7 +65,8 @@ class PwebNotebookFormatter(object):
                         "outputs" : chunk["result"]
                     }
                 )
-                self.execution_count +=1
+                if chunk['evaluate']:
+                    self.execution_count +=1
         self.notebook = nbformat.from_dict(self.notebook)
 
     def getformatted(self):

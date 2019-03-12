@@ -128,6 +128,7 @@ class PwebReader(object):
             splitted[0] = 'name = "%s"' % splitted[0]
             optstring = ','.join(splitted)
 
+        optstring = optstring.replace("<%","'<%").replace("%>","%>'")
         opt_scope = {}
         exec("chunkoptions =  dict(" + optstring + ")", opt_scope)
         chunkoptions = opt_scope["chunkoptions"]
@@ -252,6 +253,8 @@ class PwebScriptReader(object):
             splitted = optstring.split(',')
             splitted[0] = 'name = "%s"' % splitted[0]
             optstring = ','.join(splitted)
+
+            
 
         opt_scope = {}
         exec("chunkoptions =  dict(" + optstring + ")", opt_scope)

@@ -29,6 +29,7 @@ class Pweb(object):
 
     def __init__(self, source, doctype = None, *, informat = None, kernel = "python3",
                  output = None, figdir = 'figures', mimetype = None):
+
         self.source = source
         name, ext = os.path.splitext(os.path.basename(source))
         self.basename = name
@@ -38,7 +39,8 @@ class Pweb(object):
         self.sink = None
         self.kernel = None
         self.language = None
-
+        self.kernel_spec = {}
+        
         if mimetype is None:
             self.mimetype = MimeTypes.guess_mimetype(self.source)
         else:
@@ -80,7 +82,10 @@ class Pweb(object):
         """Set the kernel for jupyter_client"""
         self.kernel = kernel
         if kernel is not None:
-            self.language = kernelspec.get_kernel_spec(kernel).language
+            ks = kernelspec.get_kernel_spec(kernel) 
+            self.language = ks.language
+            self.kernel_spec = ks.to_dict()
+            self.kernel_spec['name'] = kernel
 
     def getformat(self):
         """Get current format dictionary. See: http://mpastell.com/pweave/customizing.html"""
@@ -149,6 +154,7 @@ class Pweb(object):
         self.formatter = Formatter([],
                                    kernel = self.kernel,
                                    language = self.language,
+                                   kernel_spec = self.kernel_spec,
                                    mimetype = self.mimetype.type,
                                    source = self.source,
                                    theme = self.theme,
@@ -195,15 +201,26 @@ class Pweb(object):
 
     def tangle(self):
         """Tangle the document"""
+
+        # Execute what code should be executed before writing
+        if self.kernel is not None:
+            self.run()
+            chunks = self.executed
+        else:
+            chunks = self.parsed
+        
         if self.output is None:
             target = os.path.join(self.wd, self.basename + '.py')
-        code = [x for x in self.parsed if x['type'] == 'code']
+        else:
+            target = self.output
+        code = [x for x in chunks if x['type'] == 'code']
         main = '\nif __name__ == "__main__":'
         for x in code:
             if 'main' in x['options'] and x['options']['main']:
                 x['content'] = x['content'].replace("\n", "\n    ")
                 x['content'] = "".join([main, x['content']])
-        code = [x['content'] for x in code]
+
+        code = [x['content'] for x in code if x['options']['echo'] == True]
         f = open(target, 'w')
         f.write('\n'.join(code) + "\n")
         f.close()
