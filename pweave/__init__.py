@@ -88,9 +88,7 @@ def publish(file, doc_format="html", theme="skeleton", latex_engine="pdflatex",
         return
 
     doc = Pweb(file, kernel="python3", doctype=pformat,
-               output=output)
-
-    doc.theme = theme
+               output=output, theme=theme)
 
     doc.read()
     doc.run()

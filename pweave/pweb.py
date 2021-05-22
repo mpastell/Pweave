@@ -25,10 +25,11 @@ class Pweb(object):
     :param figdir: ``string`` figure directory
     :param mimetype: Source document's text mimetype. This is used to set cell
                      type in Jupyter notebooks
+    :param theme: ``string`` html theme
     """
 
     def __init__(self, source, doctype = None, *, informat = None, kernel = "python3",
-                 output = None, figdir = 'figures', mimetype = None):
+                 output = None, figdir = 'figures', mimetype = None, theme = "skeleton"):
         self.source = source
         name, ext = os.path.splitext(os.path.basename(source))
         self.basename = name
@@ -63,7 +64,7 @@ class Pweb(object):
         self.formatted = None
         self.reader = None
         self.formatter = None
-        self.theme = "skeleton"
+        self.theme = theme
 
         self.setformat(doctype)
         self.read(reader = informat)
