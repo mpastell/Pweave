@@ -6,6 +6,7 @@ rcParams = {"figdir": "figures",
             "chunk": {"defaultoptions": {
                 "echo": True,
                 "results": 'verbatim',
+                "chunk_type": "code",
                 "fig": True,
                 "include": True,
                 "evaluate": True,
