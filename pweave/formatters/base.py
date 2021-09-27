@@ -76,6 +76,10 @@ class PwebFormatter(object):
         return chunk
 
     def figures_from_chunk(self, chunk):
+        # For backwards compatibility, only process final figure
+        if not chunk["multi_fig"] and not chunk["complete"]:
+            return []
+
         """Extract base64 encoded figures from chunk"""
         figs = []
         i = 1
@@ -167,9 +171,8 @@ class PwebFormatter(object):
             if len(chunk['result'].strip()) > 0:
                 if chunk["wrap"] is True or chunk['wrap'] == 'results' or chunk['wrap'] == 'output':
                     chunk['result'] = self._wrap(chunk["result"])
-                chunk['result'] = "\n%s\n" % chunk["result"].rstrip()
+                chunk['result'] = "%s\n" % chunk["result"].rstrip()
                 chunk['result'] = self._indent(chunk['result'])
-                #chunk["result"] = self.fix_linefeeds(chunk['result'])
                 result += '%(outputstart)s%(result)s%(outputend)s' % chunk
         elif chunk['results'] != 'verbatim':
             result += self.fix_linefeeds(text)
@@ -189,10 +192,9 @@ class PwebFormatter(object):
         return(text)
 
     def format_codechunks(self, chunk):
-        chunk['content'] = self._indent(chunk['content'])
-
         # Code is not executed
         if not chunk['evaluate']:
+            chunk['content'] = self._indent(chunk['content'])
             chunk["content"] = self.fix_linefeeds(chunk["content"])
             if chunk['echo']:
                 if chunk['chunk_type'] == 'output':
@@ -215,6 +217,9 @@ class PwebFormatter(object):
         result = ""
 
         if chunk['echo']:
+            if chunk['term_prompts']:
+                chunk['content'] = self.add_prompts(chunk['content'])
+            chunk['content'] = self._indent(chunk['content'])
             chunk["content"] = self.fix_linefeeds(chunk["content"])
             result += '%(codestart)s%(content)s%(codeend)s' % chunk
 
@@ -224,22 +229,28 @@ class PwebFormatter(object):
             for out in chunk["result"]:
                 if out["output_type"] == "stream":
                     stream_result["text"] += out["text"]
-                else:
+                elif out["output_type"] == "execute_result":
                     other_result += self.render_jupyter_output(out, chunk)
 
             result += self.render_jupyter_output(stream_result, chunk)
             result += other_result
 
         #Handle figures
-        chunk['figure'] = self.figures_from_chunk(chunk) #Save embedded figures to file
+        chunk['figure'] = self.figures_from_chunk(chunk) # Save embedded figures to file
 
-        if chunk['fig'] and 'figure' in chunk:
+        if chunk['fig'] and chunk['figure']:
             if chunk['include']:
                 result += self.formatfigure(chunk)
         return result
 
     def format_docchunk(self, chunk):
         return chunk['content']
+
+    def formatfigure(chunk):
+        return ''
+
+    def add_prompts(content):
+        return content
 
     def add_header(self):
         """Can be used to add header to self.formatted list"""
