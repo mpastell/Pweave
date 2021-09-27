@@ -145,7 +145,11 @@ class PwebProcessorBase(object):
             self.pre_run_hook(chunk)
 
             if chunk['term']:
-                # Running in term mode can return a list of chunks
+                # Running in term mode can return a list of chunks.
+                # For backwards compatibility, we mark all chunks but the last one
+                # as incomplete so we can later decide whether to show intermediate
+                # figures. Also, we make sure that the last chunk always contains the
+                # result of the full original chunk.
                 chunks = []
                 sources, results = self.loadterm(chunk['content'], chunk=chunk)
                 n = len(sources)
@@ -158,14 +162,21 @@ class PwebProcessorBase(object):
                         new_chunk["content"] = content + sources[i].rstrip()
                         content = ""
                         new_chunk["result"] = results[i]
+                        new_chunk["complete"] = False
                         chunks.append(new_chunk)
 
-                #Deal with not output, #73
+                # Deal with not output, #73
+                # Always mark the last chunk as complete and with the final result
                 if len(content) > 0:
                     new_chunk = chunk.copy()
                     new_chunk["content"] = content
-                    new_chunk["result"] = ""
+                    new_chunk["result"] = self.loadstring(chunk['content'], chunk=chunk)
+                    new_chunk["complete"] = True
                     chunks.append(new_chunk)
+                else:
+                    chunks[-1]["complete"] = True
+                    chunks[-1]["result"] = self.loadstring(chunk['content'], chunk=chunk)
+
 
                 return(chunks)
             else:

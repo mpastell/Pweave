@@ -109,3 +109,18 @@ chunks.
     Read chunk contents from file or python module or file. e.g. source = "mychunk.py".
 
 .. versionadded:: 0.22
+
+.. envvar:: multi_fig = True
+
+    Whether or not to allow multiple or in-line figures per chunk to be generated.
+    When set to False, only the final figure from a chunk is rendered.
+
+.. versionadded:: 0.22
+
+.. envvar:: term_prompts = False
+
+    For the 'rst' and 'sphinx' formatters, allow the prompt '>>> ' for lines
+    with code and '... ' for continuation lines of code to be generated.
+    Output is always without any prompts.
+
+.. versionadded:: 0.22
