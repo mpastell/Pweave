@@ -1,6 +1,6 @@
 import sys, os
 
-extensions = ['sphinx.ext.todo', 'sphinx.ext.pngmath', 'sphinx.ext.autodoc', 'sphinx.ext.viewcode']
+extensions = ['sphinx.ext.todo', 'sphinx.ext.imgmath', 'sphinx.ext.autodoc', 'sphinx.ext.viewcode']
 
 templates_path = ['_templates']
 
