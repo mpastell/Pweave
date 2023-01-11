@@ -1,6 +1,7 @@
 import base64
 import copy
 import os
+import re
 import textwrap
 
 from nbconvert import filters
@@ -30,6 +31,7 @@ class PwebFormatter(object):
         self.source = source
         self.theme = theme
         self.language = language
+        self.exceptions = []
 
         # To be set in child classess
         self.file_ext = None
@@ -133,6 +135,15 @@ class PwebFormatter(object):
 
     def render_jupyter_output(self, out, chunk):
         if out["output_type"] == "error":
+            if not chunk["allow_exceptions"]:
+                ansi_escape = re.compile(r"(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]")
+                lines = []
+
+                for line in out["traceback"]:
+                    lines.append(ansi_escape.sub("", line))
+
+                self.exceptions.append("\n".join(lines))
+
             return self.render_traceback("".join(out["traceback"]), chunk)
 
         if out["output_type"] == "stream":
@@ -255,6 +266,8 @@ class PwebFormatter(object):
                 if out["output_type"] == "stream":
                     stream_result["text"] += out["text"]
                 elif out["output_type"] == "execute_result":
+                    other_result += self.render_jupyter_output(out, chunk)
+                elif out["output_type"] == "error":
                     other_result += self.render_jupyter_output(out, chunk)
 
             result += self.render_jupyter_output(stream_result, chunk)

@@ -5,6 +5,7 @@ rcParams = {
     "usematplotlib": True,
     "chunk": {
         "defaultoptions": {
+            "allow_exceptions": False,
             "caption": False,
             "chunk_type": "code",
             "complete": True,
@@ -35,3 +36,10 @@ class PwebProcessorGlobals(object):
     """A class to hold the globals used in processors"""
 
     globals = {}
+
+
+class PwebError(Exception):
+    def __init__(self, exceptions=None):
+        self.exceptions = exceptions or []
+        self.exceptions.insert(0, "Found exceptions while evaluating code blocks:")
+        super().__init__("\n".join(self.exceptions))

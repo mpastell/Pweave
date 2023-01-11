@@ -6,6 +6,7 @@ from urllib import parse
 
 from jupyter_client import kernelspec
 
+from .config import PwebError
 from .formatters import PwebFormats
 from .mimetypes import MimeTypes
 from .processors import PwebProcessors
@@ -171,6 +172,9 @@ class Pweb(object):
         self.formatter.executed = copy.deepcopy(self.executed)
         self.formatter.format()
         self.formatted = self.formatter.getformatted()
+
+        if self.formatter.exceptions:
+            raise PwebError(exceptions=self.formatter.exceptions)
 
     def setsink(self):
         if self.output is not None:
