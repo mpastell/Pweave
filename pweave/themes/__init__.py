@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from . import bootstrap
-from . import cerulean
-from . import skeleton
-from . import journal
+from . import bootstrap, cerulean, journal, skeleton
 
 bootstrap = bootstrap.css
 cerulean = cerulean.css

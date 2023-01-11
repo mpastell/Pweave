@@ -1,12 +1,15 @@
-from IPython.display import display_html, display_markdown
+from IPython.display import display_html
+
 try:
-    from bokeh.resources import CDN
     from bokeh.embed import components
+    from bokeh.resources import CDN
 except ImportError:
     pass
 
+
 def dedent(text):
     return "\n".join([line.lstrip() for line in text.splitlines()])
+
 
 def output_pweave():
     """
@@ -15,8 +18,9 @@ def output_pweave():
     """
     out = CDN.render_css()
     out += CDN.render_js()
-    #display_markdown(out, raw=True)
+    # display_markdown(out, raw=True)
     display_html(out, raw=True)
+
 
 def show(plot):
     """
@@ -28,8 +32,8 @@ def show(plot):
 
     script, div = components(plot)
     out = script
-    out+= div
-    #Pandoc only works if indent is removed
-    #Need to display as same output, not separate, otherwise md2hml show 2 figs
-    #display_markdown(dedent(out), raw=True)
+    out += div
+    # Pandoc only works if indent is removed
+    # Need to display as same output, not separate, otherwise md2hml show 2 figs
+    # display_markdown(dedent(out), raw=True)
     display_html(out, raw=True)

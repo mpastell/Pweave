@@ -1,4 +1,3 @@
-
 css = u"""
 /*!
  * bootswatch v3.3.6

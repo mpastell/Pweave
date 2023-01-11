@@ -1,6 +1,7 @@
 import os
 import sys
 
+
 class MimeType(object):
     """Default mimetypes for input extensions"""
 
@@ -9,16 +10,15 @@ class MimeType(object):
         self.file_ext = file_ext
 
 
-
 class MimeTypes(object):
     """Methods for handling mimetypes and file extensions"""
 
     # Supported input types
     known_types = [
-            ("text/markdown", "md"),
-            ("text/latex", "tex"),
-            ("text/html", "html"),
-            ("text/restructuredtext", "rst"),
+        ("text/markdown", "md"),
+        ("text/latex", "tex"),
+        ("text/html", "html"),
+        ("text/restructuredtext", "rst"),
     ]
 
     @classmethod
@@ -31,7 +31,7 @@ class MimeTypes(object):
             if type[1] in ext:
                 return MimeType(*type)
 
-        #Default to markdown
+        # Default to markdown
         return MimeType("text/markdown", "md")
 
     @classmethod

@@ -1,44 +1,45 @@
-from .base import PwebFormatter
-from .tex import PwebTexPygmentsFormatter
-from subprocess import Popen, PIPE
 import base64
-import sys
-import os
-import io
 import html
+import os
+import sys
+from subprocess import PIPE, Popen
+
 from nbconvert import filters
 
+from .base import PwebFormatter
+from .tex import PwebTexPygmentsFormatter
+
+
 class PwebHTMLFormatter(PwebFormatter):
-
-
     def preformat_chunk(self, chunk):
         if chunk["type"] == "doc":
             return chunk
 
-        from pygments import highlight
         from IPython.lib.lexers import IPyLexer
-        #from pygments.lexers import PythonLexer, PythonConsoleLexer, TextLexer
+        from pygments import highlight
+
+        # from pygments.lexers import PythonLexer, PythonConsoleLexer, TextLexer
         from pygments.formatters import HtmlFormatter
 
-        chunk['content'] = highlight(chunk['content'], IPyLexer(), HtmlFormatter())
+        chunk["content"] = highlight(chunk["content"], IPyLexer(), HtmlFormatter())
         return chunk
 
     def initformat(self):
-        self.formatdict = dict(codestart='',
-                               codeend='',
-                               outputstart='\n<div class="highlight"><pre>',
-                               outputend='</pre></div>\n',
-                               figfmt='.png',
-                               width='600',
-                               doctype='html')
+        self.formatdict = dict(
+            codestart="",
+            codeend="",
+            outputstart='\n<div class="highlight"><pre>',
+            outputend="</pre></div>\n",
+            figfmt=".png",
+            width="600",
+            doctype="html",
+        )
 
         self.fig_mimetypes = ["application/svg+xml", "image/png", "image/jpg"]
         self.mimetypes = ["text/html", "application/javascript"]
         self.file_ext = "html"
 
-
     def escape(self, text):
-
         return html.escape(text)
 
     def highlight_ansi_and_escape(self, text):
@@ -47,73 +48,94 @@ class PwebHTMLFormatter(PwebFormatter):
     def formatfigure(self, chunk):
         result = ""
         figstring = ""
-        for fig in chunk['figure']:
-            figstring += ('<img src="%s" width="%s"/>\n' % (fig, chunk['width']))
+
+        for fig in chunk["figure"]:
+            figstring += '<img src="%s" width="%s"/>\n' % (fig, chunk["width"])
 
         # Figure environment
-        if chunk['caption']:
+        if chunk["caption"]:
             # Write labels as data-attribute for javascript etc.
-            if chunk['name']:
+            if chunk["name"]:
                 labelstring = 'data-label = "fig:%s"' % chunk["name"]
             else:
                 labelstring = ""
 
-            result += ("<figure>\n" \
-                       "%s"
-                       "<figcaption %s>%s</figcaption>\n</figure>" % (figstring, labelstring, chunk['caption']))
-
+            result += (
+                "<figure>\n"
+                "%s"
+                "<figcaption %s>%s</figcaption>\n</figure>"
+                % (figstring, labelstring, chunk["caption"])
+            )
         else:
             result += figstring
+
         return result
 
 
-
-
-
 class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        from .templates import htmltemplate
-        from .. import themes
-        from pygments.formatters import HtmlFormatter
-        from .. import __version__
         import time
+
+        from pygments.formatters import HtmlFormatter
+
+        from .. import __version__, themes
+        from .templates import htmltemplate
 
         self.mimetypes = ["text/html", "text/markdown", "application/javascript"]
 
         theme_css = ""
         try:
             theme_css += getattr(themes, self.theme)
-        except:
+        except Exception:
             print("Can't find requested theme. Using Skeleton")
             theme_css += getattr(themes, "skeleton")
 
-        self.header = (htmltemplate["header"] %
-                {"pygments_css"  : HtmlFormatter().get_style_defs(),
-                "theme_css" : theme_css})
+        self.header = htmltemplate["header"] % {
+            "pygments_css": HtmlFormatter().get_style_defs(),
+            "theme_css": theme_css,
+        }
 
-
-        self.footer = (htmltemplate["footer"] %
-                       {"source": self.source, "version": __version__,
-                        "time": time.strftime("%d-%m-%Y", time.localtime())})
+        self.footer = htmltemplate["footer"] % {
+            "source": self.source,
+            "version": __version__,
+            "time": time.strftime("%d-%m-%Y", time.localtime()),
+        }
 
     def parsetitle(self, chunk):
         """Parse titleblock from first doc chunk, like Pandoc"""
-        lines = chunk['content'].splitlines()
+        lines = chunk["content"].splitlines()
         if len(lines) > 3:
             if lines[0].startswith("%"):
-                lines[0] = '<H1 class = "title">%s</H1>' % (lines[0].replace("%", "", ))
+                lines[0] = '<H1 class = "title">%s</H1>' % (
+                    lines[0].replace(
+                        "%",
+                        "",
+                    )
+                )
+
                 if lines[1].startswith("%"):
-                    lines[1] = '<strong>Author:</strong> %s <BR/>' % (lines[1].replace("%", "", ))
+                    lines[1] = "<strong>Author:</strong> %s <BR/>" % (
+                        lines[1].replace(
+                            "%",
+                            "",
+                        )
+                    )
+
                 if lines[2].startswith("%"):
-                    lines[2] = '<strong>Date:</strong> %s <BR/>' % (lines[2].replace("%", "", ))
-        chunk['content'] = "\n".join(lines)
+                    lines[2] = "<strong>Date:</strong> %s <BR/>" % (
+                        lines[2].replace(
+                            "%",
+                            "",
+                        )
+                    )
+
+        chunk["content"] = "\n".join(lines)
         return chunk
 
     def format_docchunk(self, chunk):
-        if 'number' in chunk and chunk['number'] == 1:
+        if "number" in chunk and chunk["number"] == 1:
             chunk = self.parsetitle(chunk)
 
         try:
@@ -121,34 +143,43 @@ class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
         except ImportError:
             message = "You'll need to install python markdown in order to use markdown to html formatter\nrun 'pip install markdown' to install"
             print(message)
-            return message # was returning None, which was passed to join method
+            return message  # was returning None, which was passed to join method
+
         from .markdownmath import MathExtension
 
-        chunk["content"] = markdown.markdown(chunk["content"], extensions=[MathExtension()])
-        return chunk['content']
+        chunk["content"] = markdown.markdown(
+            chunk["content"], extensions=[MathExtension()]
+        )
+        return chunk["content"]
 
     def formatfigure(self, chunk):
         result = ""
         figstring = ""
 
-        for fig in chunk['figure']:
+        for fig in chunk["figure"]:
             fh = open(os.path.join(self.wd, fig), "rb")
             bfig = fh.read()
             fh.close()
             fig_base64 = base64.b64encode(bfig).decode("utf-8")
-            figstring += ('<img src="data:image/png;base64,%s" width="%s"/>\n' % (fig_base64, chunk['width']))
+            figstring += '<img src="data:image/png;base64,%s" width="%s"/>\n' % (
+                fig_base64,
+                chunk["width"],
+            )
 
         # Figure environment
-        if chunk['caption']:
+        if chunk["caption"]:
             # Write labels as data-attribute for javascript etc.
-            if chunk['name']:
+            if chunk["name"]:
                 labelstring = 'data-label = "fig:%s"' % chunk["name"]
             else:
                 labelstring = ""
 
-            result += ("<figure>\n" \
-                       "%s"
-                       "<figcaption %s>%s</figcaption>\n</figure>" % (figstring, labelstring, chunk['caption']))
+            result += (
+                "<figure>\n"
+                "%s"
+                "<figcaption %s>%s</figcaption>\n</figure>"
+                % (figstring, labelstring, chunk["caption"])
+            )
 
         else:
             result += figstring
@@ -156,28 +187,32 @@ class PwebMDtoHTMLFormatter(PwebHTMLFormatter):
 
 
 class PwebPandocMDtoHTMLFormatter(PwebMDtoHTMLFormatter):
-
     def format_docchunk(self, chunk):
-        if 'number' in chunk and chunk['number'] == 1:
+        if "number" in chunk and chunk["number"] == 1:
             chunk = self.parsetitle(chunk)
         try:
-            pandoc = Popen(["pandoc", "--mathjax", "-t", "html", "-f", "markdown"], stdin=PIPE, stdout=PIPE)
-        except:
+            pandoc = Popen(
+                ["pandoc", "--mathjax", "-t", "html", "-f", "markdown"],
+                stdin=PIPE,
+                stdout=PIPE,
+            )
+        except Exception:
             sys.stderr.write("ERROR: Can't find pandoc")
             raise
-        pandoc.stdin.write(chunk['content'].encode('utf-8'))
-        chunk['content'] = pandoc.communicate()[0].decode('utf-8')
-        return chunk['content']
+
+        pandoc.stdin.write(chunk["content"].encode("utf-8"))
+        chunk["content"] = pandoc.communicate()[0].decode("utf-8")
+        return chunk["content"]
 
 
 class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
-
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         from pygments.formatters import LatexFormatter
 
-        self.header = ("""\\documentclass[a4paper,11pt,final]{article}
+        self.header = (
+            (
+                """\\documentclass[a4paper,11pt,final]{article}
         \\usepackage{fancyvrb, color, graphicx, hyperref, amsmath, url, textcomp}
         \\usepackage{palatino}
         \\usepackage[a4paper,text={16.5cm,25.2cm},centering]{geometry}
@@ -221,7 +256,10 @@ class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
         \\providecommand{\\tightlist}{%%
             \\setlength{\\itemsep}{0pt}\\setlength{\\parskip}{0pt}}
         %s
-        """) % (self.source, LatexFormatter().get_style_defs())
+        """
+            )
+            % (self.source, LatexFormatter().get_style_defs())
+        )
         self.footer = r"\end{document}"
         self.subheader = "\n\\begin{document}\n"
         self.fig_mimetypes = ["application/pdf", "image/png", "image/jpg"]
@@ -232,30 +270,55 @@ class PwebPandoctoTexFormatter(PwebTexPygmentsFormatter):
 
     def parsetitle(self, chunk):
         """Parse titleblock from first doc chunk, like Pandoc"""
-        lines = chunk['content'].splitlines()
+        lines = chunk["content"].splitlines()
+
         if len(lines) > 3:
             if lines[0].startswith("%"):
-                self.header += '\n\\title{%s}\n' % (lines[0].replace("%", "", ))
+                self.header += "\n\\title{%s}\n" % (
+                    lines[0].replace(
+                        "%",
+                        "",
+                    )
+                )
                 lines[0] = ""
+
                 if lines[1].startswith("%"):
-                    self.header += '\\author{%s}\n' % (lines[1].replace("%", "", ))
+                    self.header += "\\author{%s}\n" % (
+                        lines[1].replace(
+                            "%",
+                            "",
+                        )
+                    )
                     lines[1] = ""
+
                 if lines[2].startswith("%"):
-                    self.header += '\\date{%s}\n' % (lines[2].replace("%", "", ))
+                    self.header += "\\date{%s}\n" % (
+                        lines[2].replace(
+                            "%",
+                            "",
+                        )
+                    )
                     lines[2] = ""
+
                 self.subheader += "\maketitle\n"
 
-        chunk['content'] = "\n".join(lines)
+        chunk["content"] = "\n".join(lines)
         return chunk
 
     def format_docchunk(self, chunk):
-        if 'number' in chunk and chunk['number'] == 1:
+        if "number" in chunk and chunk["number"] == 1:
             chunk = self.parsetitle(chunk)
+
         try:
-            pandoc = Popen(["pandoc", "-R", "-t", "latex", "-f", "markdown"], stdin=PIPE, stdout=PIPE)
-        except:
+            pandoc = Popen(
+                ["pandoc", "-R", "-t", "latex", "-f", "markdown"],
+                stdin=PIPE,
+                stdout=PIPE,
+            )
+        except Exception:
             sys.stderr.write("ERROR: Can't find pandoc")
             raise
-        pandoc.stdin.write(chunk['content'].encode('utf-8'))
-        chunk['content'] = pandoc.communicate()[0].decode('utf-8')
-        return chunk['content']
+
+        pandoc.stdin.write(chunk["content"].encode("utf-8"))
+        chunk["content"] = pandoc.communicate()[0].decode("utf-8")
+        return chunk["content"]

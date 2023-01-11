@@ -1,8 +1,8 @@
-
 htmltemplate = {}
 
-htmltemplate["header"] = \
-"""
+htmltemplate[
+    "header"
+] = """
 <!DOCTYPE html>
 <HTML>
 <HEAD>
@@ -82,7 +82,9 @@ img {max-width : 100%%}
             <div class = "col-md-12 twelve columns">
 """
 
-htmltemplate["footer"]="""
+htmltemplate[
+    "footer"
+] = """
     <HR/>
     <div class="footer">
       <p>Published from <a href="%(source)s">%(source)s</a>

@@ -1,4 +1,4 @@
-#Code snippets that are executed by subprocess writer
+# Code snippets that are executed by subprocess writer
 
 init_matplotlib = """
 %matplotlib inline

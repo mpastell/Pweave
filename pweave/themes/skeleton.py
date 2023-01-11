@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-#Modified from skeleton from getskeleton.com
-#Smaller headers
+# Modified from skeleton from getskeleton.com
+# Smaller headers
 css = u"""
 @font-face {
   font-family: 'Raleway';
